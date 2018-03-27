@@ -1,25 +1,17 @@
 #!/usr/bin/env python
 """
-   Root file reading routines for getting 
+   Root file reading routines for getting
    various plotting objects from specified
    root file.
-
-.. codeauthor: Zig Hampel
 """
 
-__version__ = "$Id"
+import numpy as np
 
-try:
-    import numpy as np
-    
-    import ROOT 
-    from ROOT import gDirectory, TChain, TCanvas, TFile, TProfile, TNtuple
-    from ROOT import TH1, TH1D, TH2F, TF1, TH1F, TGraph, TGraphErrors, TLine
-    from ROOT import gROOT, gStyle, gBenchmark, gRandom, gSystem, gDirectory
-    from ROOT import gPad, TText, TLatex, TMarker, TColor, TNamed
-except ImportError as e:
-    print e
-    raise ImportError
+import ROOT
+from ROOT import gDirectory, TChain, TCanvas, TFile, TProfile, TNtuple
+from ROOT import TH1, TH1D, TH2F, TF1, TH1F, TGraph, TGraphErrors, TLine
+from ROOT import gROOT, gStyle, gBenchmark, gRandom, gSystem, gDirectory
+from ROOT import gPad, TText, TLatex, TMarker, TColor, TNamed
 
 ROOT.gROOT.SetBatch(True)
 TH1.AddDirectory(False)
@@ -38,7 +30,7 @@ def objExists(infile, objname, subdir='', verbose=False):
 
     if (verbose):
         print "\n============= Opening %s\n" %infile
-        
+
     direxists = False
     if ( subdir == ''):
         direxists = True
@@ -59,23 +51,23 @@ def objExists(infile, objname, subdir='', verbose=False):
             print "\n***Object %s isn't in ROOT file %s***\n" %(objname,infile)
 
     return objexists
-        
+
 
 def getter(infile, objname, subdir='', verbose=False):
     """
     ROOT object getter
     getter(input file, object name, sub-directory='', verbose=False)
     """
-    
+
     # Try to Open File
     fin = ROOT.TFile(infile, "READ")
     file_open = fin.IsOpen()
     err_mess = "\n***Can not open ROOT file %s***\n" %(infile)
     assert (file_open),err_mess
-    
+
     if (verbose):
         print "\n============= Opening %s\n" %infile
-        
+
     direxists = False
     if ( subdir == ''):
         direxists = True
@@ -86,16 +78,16 @@ def getter(infile, objname, subdir='', verbose=False):
         direxists = True
     err_mess = "\n***Directory %s not in ROOT file %s. Exiting...***\n" %(subdir,infile)
     assert (direxists),err_mess
-        
+
 
     # Check if Object is in File
     objexists = gDirectory.GetListOfKeys().Contains(objname)
     err_mess = "\n***Object %s isn't in ROOT file %s***\n" %(objname,infile)
     assert (objexists),err_mess
-    
+
     if (verbose):
-        print "\n============= Got %s\n" %objname 
-    
+        print "\n============= Got %s\n" %objname
+
     # Get the Object
     obj = gDirectory.Get(objname)
     objname = str(obj.IsA())
@@ -109,7 +101,7 @@ def getter(infile, objname, subdir='', verbose=False):
 
 def mkDir(infile, subdir, verbose=False):
     """
-    ROOT directory make-r or cd-er 
+    ROOT directory make-r or cd-er
     mkDir(infile, subdir, verbose=False)
     """
 
@@ -128,7 +120,7 @@ def mkDir(infile, subdir, verbose=False):
 
 def getDir(infile, subdir, verbose=False):
     """
-    ROOT directory cd-er 
+    ROOT directory cd-er
     getDir(infile, subdir, verbose=False)
     """
 
@@ -211,10 +203,10 @@ def get1d(infile, histname, subdir='',verbose=False):
     1d root Hist getter
     get1d(infile, histname, subdir='',verbose=False)
     """
-    
+
     ### 1d Histogram
     Hist = getter(infile,histname,subdir,verbose)
-    
+
     nbinsHist = Hist.GetSize()-2
     axesX = np.zeros(nbinsHist)
     edgesX = np.zeros(nbinsHist+1)
@@ -233,7 +225,7 @@ def get2d(infile, histname, subdir='',verbose=False):
     """
     2d Hist getter
     get2d(infile, histname, subdir='',verbose=False)
-    """ 
+    """
 
     ## 2d Histogram
     Hist = getter(infile,histname,subdir,verbose)
@@ -257,19 +249,19 @@ def get2d(infile, histname, subdir='',verbose=False):
 
     axes = [axesX, axesY]
     edges = [edgesX, edgesY]
-    
+
     for j in xrange(0,nbinsX):
         for k in xrange(0,nbinsY):
             Arr[k,j] = Hist.GetBinContent(j+1,k+1)
             dArr[k,j] = Hist.GetBinError(j+1,k+1)
-    
+
     return axes, edges, Arr, dArr
 
 def get3d(infile, histname, subdir='',verbose=False):
     """
     3d Hist getter
     get3d(infile, histname, subdir='',verbose=False)
-    """ 
+    """
 
     ## 2d Histogram
     Hist = getter(infile,histname,subdir,verbose)
@@ -300,13 +292,13 @@ def get3d(infile, histname, subdir='',verbose=False):
 
     axes = [axesX, axesY, axesZ]
     edges = [edgesX, edgesY, edgesZ]
-    
+
     for j in xrange(0,nbinsX):
         for k in xrange(0,nbinsY):
             for l in xrange(0,nbinsZ):
                 Arr[l,k,j] = Hist.GetBinContent(j+1,k+1,l+1)
                 dArr[l,k,j] = Hist.GetBinError(j+1,k+1,l+1)
-    
+
     return axes, edges, Arr, dArr
 
 
@@ -315,10 +307,10 @@ def getTG(infile, tgname, subdir='', verbose=False):
     1d root TGraphErrors getter
     getTG(infile, tgname, subdir='', verbose=False)
     """
-    
+
     ## TGraphErrors
     TG = getter(infile,tgname,subdir,verbose)
-    
+
     nbins = TG.GetN()
     axesX = np.zeros(nbins)
     Arr = np.zeros(nbins)
@@ -340,7 +332,7 @@ def get_labels(infile, histname, subdir='',verbose=False):
     ROOT Hist label getter
     get_labels(infile, histname, subdir='',verbose=False)
     """
-    
+
     ## 1d Histogram
     Hist = getter(infile,histname,subdir,verbose)
 
@@ -360,4 +352,3 @@ def get_tnamed(infile, tnamed, subdir='',verbose=False):
     ## TNamed Object
     tnamed = getter(infile,tnamed,subdir,verbose)
     return tnamed.GetTitle()
-

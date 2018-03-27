@@ -1,22 +1,17 @@
 #!/usr/bin/env python
 """Compendium of matplolib plotting routines
-
-.. codeauthor: Zig Hampel
 """
 
-__version__ = "$Id"
+import numpy as np
+import bisect as bs
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
+from matplotlib.colors import LogNorm
+from matplotlib import rcParams
 
-try:
-    import numpy as np
-    import bisect as bs
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    from matplotlib.ticker import ScalarFormatter
-    from matplotlib.colors import LogNorm
-    from matplotlib import rcParams
-except ImportError as e:
-    print e
-    raise ImportError
+from .Utils import none_to_empty_list
+
 
 # rcParam adjustments
 mpl.rc("font", family="serif", size=18)
@@ -100,7 +95,7 @@ def cplot(origdata,bins,x,y,title,xlabel,ylabel,zlabel,lim,log):
     ax.set_xlim(x[0],x[-1])
     ax.set_ylim(y[0],y[-1])
     fig.subplots_adjust(left=0.125, right=0.85)
-    
+
     ax = fig.add_subplot(122)
     if ('z' in log):
         pl = ax.pcolormesh(xx,yy,bins,norm=LogNorm(vmin=lim[0], vmax=lim[1]))
@@ -241,11 +236,13 @@ def step(ydata, xarray, xlab, ylab, title, xlim, ylim, log):
     plt.show()
     return fig
 
-def fbwt(x,y,ybtw,title='X vs Y',xlab='X',ylab='Y',labels=[],xlim=[],ylim=[],log=''):
+def fbwt(x, y, ybtw, title='X vs Y', xlab='X', ylab='Y', labels=None,
+         xlim=None, ylim=None, log=''):
     """
     Fill between plotter function
     fbwt(x,y,err,title,xlab,ylab,labels,log)
     """
+    labels, xlim, ylim = none_to_empty_list(labels, xlim, ylim)
     # Limits
     xlo = INF; xhi = -INF; ylo = INF; yhi = -INF
     xlo = np.min([x[0][0],xlo])

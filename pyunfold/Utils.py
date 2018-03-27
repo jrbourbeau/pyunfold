@@ -3,33 +3,42 @@
    Utility functions provided for
    config file parsing, test statistic methods,
    and regularization.
-
-.. codeauthor: Zig Hampel
 """
 
-__version__ = "$Id"
+import numpy as np
 
-try:
-    import numpy as np
+import ROOT
+from ROOT import TF1, TH1F
+from ROOT import gROOT, gSystem
 
-    import ROOT
-    from ROOT import TF1, TH1F
-    from ROOT import gROOT, gSystem
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    from matplotlib.ticker import ScalarFormatter
+from functools import wraps
+import ConfigParser
+import re
 
-    import itertools
-    import ConfigParser
-    import re
-except e:
-    print e
-    raise ImportError
 
 gROOT.Reset()
 # Turn Off TCanvas Warning at DATA.Fit
 ROOT.gErrorIgnoreLevel=ROOT.kWarning
+
+
+def none_to_empty_list(*args):
+    """Replaces None inputs with an empty list
+
+    Examples
+    --------
+    >>> a, b, c = None, 'woo', 34
+    >>> none_to_empty_list(a, b, c)
+    [[], 'woo', 34]
+    """
+    outputs = []
+    for arg in args:
+        outputs.append(arg if arg is not None else [])
+    return outputs
+
 
 # Inverse of Numpy Array; Set Elements to 0 if 0
 def safe_inverse(x):
@@ -51,9 +60,9 @@ class ConfigFM:
       if opt.lower() in self.parser.options(sec):
         try: response = self.parser.getboolean(sec,opt) if is_bool else self.parser.get(sec,opt)
         except Exception,e: print "Exception: %s" % e
-      elif(not is_quiet and default is None): 
+      elif(not is_quiet and default is None):
           raise ValueError("Requested option %s not present in section %s" % (opt,sec))
-    elif(not is_quiet): 
+    elif(not is_quiet):
         raise ValueError("Requested section %s not found" % sec)
     if(response is not None and cast is not None):
       try: newresp = cast(response)
@@ -90,12 +99,14 @@ def UserPrior(FuncList, xarray, norm):
             prior = iprior
         else:
             prior = np.append(prior,iprior)
-    
+
     return prior
 
 # Class to define generic distribution w/assoc labels & axes
 class DataDist:
-    def __init__(self,name="",data=[],error=[],axis=[],edges=[],xlabel="",ylabel="",units="",**kwargs):
+    def __init__(self, name="", data=None, error=None, axis=None, edges=None,
+                 xlabel="", ylabel="", units="", **kwargs):
+        data, error, axis, edges = none_to_empty_list(data, error, axis, edges)
         self.name  = name
         self.data  = data
         self.nbins = len(data)
@@ -142,7 +153,7 @@ class PowerLaw:
         if (self.idx == 1):
             numer = np.log(xhi)-np.log(xlo)
             denom = np.log(self.xhi)-np.log(self.xlo)
-        else:    
+        else:
             g = 1-self.idx
             numer = xhi**g-xlo**g
             denom = self.xhi**g-self.xlo**g
@@ -186,7 +197,9 @@ class PowerLaw:
 # Generic Test Statistic Class
 class TestStat:
     'Common base class for test statistic methods'
-    def __init__(self,name="TestStat",tol=None,Xaxis=[],TestRange=[],verbose=False,**kwargs):
+    def __init__(self, name="TestStat", tol=None, Xaxis=None, TestRange=None,
+                 verbose=False, **kwargs):
+        Xaxis, TestRange = none_to_empty_list(Xaxis, TestRange)
         # TS Name
         self.name = name
         # User Defined TS Tolerance
@@ -218,7 +231,7 @@ class TestStat:
             xlo = self.TSRange[0]
             xhi = self.TSRange[1]
             err_mess = "***\n Test stat limits reversed. xlo must be < xhi. Exiting...***\n"
-            assert (xlo<xhi), err_mess 
+            assert (xlo<xhi), err_mess
 
             # Find the bins corresponding to the test range requested
             lobin = np.searchsorted(self.Xaxis,xlo)
@@ -268,7 +281,7 @@ class TestStat:
         if (self.verbose and self.printProbMessage):
             print("***No probability function defined for this method, %s. It's ok...***"%self.name)
             self.printProbMessage = False
-    
+
     def PrintName(self):
         print "\nTest Statistic Method: ", self.__doc__
         print "Test statistic only valid in range: %e %e\n"%(self.TSRange[0],self.TSRange[1])
@@ -311,7 +324,7 @@ class Chi2(TestStat):
         h_quot = h_dif*h_dif/h_sum
 
         stat = np.sum(h_quot)/(n1*n2)/self.dof
-        
+
         self.SetStat(stat)
 
     def Prob(self):
@@ -319,7 +332,7 @@ class Chi2(TestStat):
             from scipy.special import gammainc as gammaq
         except:
             print("Cannot find scipy.special.gammainc... :(")
-        
+
         # Chi2 Probability Function
         self.prob = gammaq(0.5*self.dof,0.5*self.stat)
 
@@ -341,7 +354,7 @@ class PF(TestStat):
             raise ImportError
 
         nFactor = lgamma(n1+n2+2) - lgamma(n1+1) - lgamma(n2+1)
-        
+
         lnB += nFactor
         for i in xrange(0,len(N1)):
             lnB += lgamma(N1[i]+1) + lgamma(N2[i]+1) - lgamma(N1[i]+N2[i]+2)
@@ -364,10 +377,10 @@ class RMD(TestStat):
         stat = np.max(h_quot)
 
         self.SetStat(stat)
-        
+
 
 # Kuiper's Statistic - comparing two binned distributions
-# Taken from https://github.com/scipy/scipy/blob/v0.14.0/scipy/stats/stats.py#L3809 
+# Taken from https://github.com/scipy/scipy/blob/v0.14.0/scipy/stats/stats.py#L3809
 # and
 # http://docs.scipy.org/doc/scipy-0.13.0/reference/generated/scipy.stats.kstwobign.html
 class KS(TestStat):
@@ -394,7 +407,7 @@ class KS(TestStat):
             prob = kstwobign.sf((en+.12+.11/en)*d)
         except:
             prob = 1.0
-        
+
         # KS Probability Function
         self.prob = prob
 
@@ -425,7 +438,7 @@ def GetTS(func=None):
 class Regularizer:
     'Regularizer Class'
     def __init__(self, name, FitFunc, Range, InitialParams, ParamLo, ParamHi, ParamNames, xarray, xedges, verbose=False, plot=False, **kwargs):
-       
+
         # Prepare string fnc definition for ROOT TF1 declaration
         funcstring = str(FitFunc)
         funcstring = funcstring.strip('[]')
@@ -461,7 +474,7 @@ class Regularizer:
         self.SetParLimits()
 
         self.PrintInitMessage()
-    
+
     # Initialization Message Print Out
     def PrintInitMessage(self):
         stringFunc = self.FitFunc
@@ -471,10 +484,14 @@ class Regularizer:
         stringFunc = stringFunc.replace(']',"")
         print "\nRegularizing %i-parameter function initialized to form: %s"%(self.nParams,stringFunc)
         print "Can only support fit functions with up to 10 parameters.\n"
-    
+
     def SetFitRange(self,Range):
 
-        if (not Range==[]):
+        if len(Range) == 0:
+            Range = np.zeros(2)
+            Range[0] = self.xarray[0]
+            Range[1] = self.xarray[-1]
+        else:
             lR = len(Range)
             err_mess = "\n*** Fit range can only have two elements. This has %i. Exiting...***\n"%(lR)
             assert (lR==2), err_mess
@@ -482,16 +499,12 @@ class Regularizer:
             xhi = Range[1]
             err_mess = "\n*** Fit range limits reversed. xlo must be < xhi. Exiting...***\n"
             assert (xlo<xhi), err_mess
-        else:
-            Range = np.zeros(2)
-            Range[0] = self.xarray[0]
-            Range[1] = self.xarray[-1]
-            
+
         return Range
-        
-    def SetParLimits(self):    
+
+    def SetParLimits(self):
         # Set Par Limits if provided
-        if (not self.ParamLimitsLo==[] and not self.ParamLimitsHi==[]):
+        if not len(self.ParamLimitsLo) == 0 and not len(self.ParamLimitsHi) == 0:
             PLo = self.ParamLimitsLo.copy()
             PHi = self.ParamLimitsHi.copy()
             self.TestLengths(PLo,PHi,"Parameter Limit")
@@ -526,7 +539,7 @@ class Regularizer:
         assert (not self.dof==0), err_mess
 
         return self.chi2/self.dof
-    
+
     # Evaulate fit at points given by xarray
     def FitEval(self, xarray):
         f_eval = np.zeros(len(xarray))
@@ -535,11 +548,14 @@ class Regularizer:
         return f_eval
 
     # Regularization procedure
-    def Regularize(self, ydata, yerr=[]):
+    def Regularize(self, ydata, yerr=None):
+
+        if yerr is None
+            yerr = []
 
         # Local variable for cleanliness
         nPar = self.nParams
-        
+
         self.TestLengths(self.xarray,ydata,"Cause X-axis & Unfolded Data")
         # ROOT object to fit
         DATA = TH1F("data","data",self.nbins,self.xedges)
@@ -549,8 +565,8 @@ class Regularizer:
                 DATA.SetBinError(i+1,yerr[i])
             else:
                 DATA.SetBinError(i+1,np.sqrt(ydata[i]))
-        
-        # Prepare fit parameters based on user InitialParams 
+
+        # Prepare fit parameters based on user InitialParams
         # or previous fit if used iteratively
         Pars = np.array(self.Params,dtype=float)
         self.FIT.SetParameters(Pars)
@@ -569,11 +585,11 @@ class Regularizer:
 
         # Eval fit at xarray
         f_eval = self.FitEval(self.xarray)
-       
+
         # Store fit parameters
         for i in xrange(0,nPar):
             self.Params[i] = self.FIT.GetParameter(i)
-        
+
         # Store chi2 and dof of fit
         self.chi2 = self.FIT.GetChisquare()
         self.dof = self.FIT.GetNDF()
@@ -612,4 +628,3 @@ class Regularizer:
             leg = ax.legend(handles, labels, fontsize=10, loc="best")
             leg.get_frame().set_linewidth(0)
             plt.show()
-

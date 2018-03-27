@@ -4,30 +4,22 @@
    Requires config script via command line
    option -c if standalone, or first argument
    if calling Unfold in a script.
-
-.. codeauthor: Zig Hampel
 """
 
-__version__ = "$Id"
+import numpy as np
+import argparse
+import sys
+import os
 
-try:
-    import numpy as np
-    import argparse
-    import sys
-    import os
-    
-    import Mix
-    import Utils
-    import LoadStats
-    import IterUnfold
-    
-    import Plotter as pltr
-    from Plotter import plt, mpl
-    import RootReader as rr
-    
-except ImportError as e:
-    print e
-    raise ImportError
+import Mix
+import Utils
+import LoadStats
+import IterUnfold
+
+import Plotter as pltr
+from .Plotter import plt, mpl
+import RootReader as rr
+
 
 # Global program options
 global args
@@ -36,7 +28,7 @@ args = None
 
 # Allow for function functionality
 def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kwargs):
-    
+
     if (not config_name): raise Exception, "Need a config file!"
 
     #### Get the Configuration Parameters from the Config File ####
@@ -85,7 +77,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
     UnfMaxIter = config.get(unfoldHeader,"max_iter",default=100,cast=int)
     UnfSmoothIter = config.get_boolean(unfoldHeader,"smooth_with_reg",default=False)
     UnfVerbFlag = config.get_boolean(unfoldHeader,"verbose",default=False)
-    
+
     # Get Prior Definition
     priorHeader = "prior"
     priorString = config.get(priorHeader,"func",default="Jeffreys",cast=str)
@@ -139,7 +131,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
     StatsFile = config.get(mcHeader,"stats_file",default="",cast=str)
     Eff_hist_name = config.get(mcHeader,"eff_hist",default="",cast=str)
     MM_hist_name = config.get(mcHeader,"mm_hist",default="",cast=str)
-    
+
     #### Setup the Observed and MC Data Arrays ####
     # Load MC Stats (NCmc), Cause Efficiency (Eff) and Migration Matrix ( P(E|C) )
     MCStats = LoadStats.MCTables(StatsFile,BinName=binList,RespMatrixName=MM_hist_name,EffName=Eff_hist_name,Stack=stackFlag)
@@ -156,7 +148,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
     Eaxis, Eedges = MCStats.GetEffectAxis()
     # Effect and Cause X and Y Labels from Respective Histograms
     Cxlab, Cylab, Ctitle = rr.get_labels(StatsFile,Eff_hist_name,binList[0],verbose=False)
-    
+
     # Load the Observed Data (n_eff), define total observed events (n_obs)
     #  Get from ROOT input file if requested
     if (EffDist is None):
@@ -183,7 +175,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
         figure = pltr.ebar(Eaxis, [n_eff], np.diff(Eedges)/2, [n_eff_err], r'Reconstructed Energy E$_{reco}$ (GeV)', Eylab, \
                   "Observed Counts", [""], xlim, ylim, 'x,y')
         figure.savefig("%s/ObservedCounts_%s.png"%(PlotDir,unfbinname))
-    
+
     #### Setup the Tools Used in Unfolding ####
     # Prepare Regularizer
     Rglzr = [Utils.Regularizer("REG",FitFunc=[RegFunc],Range=RegRange,InitialParams=InitParams,ParamLo=PLimLo,ParamHi=PLimHi,\
@@ -194,7 +186,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
 
     # Prepare Mixer
     Mixer = Mix.Mixer(MixName,ErrorType=CovError,MCTables=MCStats,EffectsDist=EffDist)
-    
+
     # Unfolder!!!
     if stackFlag:
         UnfolderName += "_"+"".join(binList)
@@ -212,7 +204,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
         Unfolder.SetAxesLabels(Exlab,Eylab,Cxlab,Cylab)
         Unfolder.WriteResults(OutFileName=OutFile,NCName=NC_meas,NEName=NE_meas_name,Eaxis=Eedges,BinList=binList,subdirName=subDirName)
 
-        # If MC, Write Thrown Cause Distribution 
+        # If MC, Write Thrown Cause Distribution
         if (isMC):
             NC_Thrown = config.get("data","nc_thrown",subDirName,cast=str)
             Thrown_hist = rr.getter(InputFile,NC_Thrown)
@@ -231,7 +223,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
         nIter = Unfolder.counter
         Caxis = Rglzr[iS].xarray
         Cedges = Rglzr[iS].xedges
-        
+
         print "\n"
         print "\tModel Name: \t\t%s"%modelList[iS]
         print "\tBin in Resp File: \t%s"%binList[iS]
@@ -255,7 +247,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
                     pln_l.append(n_c_labels[i])
             figure = pltr.oplot(pln_c, Caxis, r'%s'%Cxlab, 'Frequency', r'%s'%title, pln_l, xlim=xlim, ylim=ylim, log='x,y')
             figure.savefig("%s/Iterations_%s.png"%(PlotDir,modelList[iS].replace(" ", "")))
-        
+
     if (plot_local and stackFlag):
         colors = ["red", "blue", "green"]
         styles = ["-", "--", "-."]
@@ -301,7 +293,7 @@ if __name__ == '__main__':
     except:
         p.print_help()
         sys.exit(0)
-    
+
     if (not args.config_name): raise Exception, "Need a config file!"
 
     Unfold(config_name=args.config_name,return_dists=False,EffDist=None,plot_local=args.plot)

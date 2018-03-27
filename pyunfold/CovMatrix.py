@@ -4,19 +4,11 @@
    unfolding method, with modifications to
    error propagation based on method request
    from user input.
-
-.. codeauthor: Zig Hampel
 """
 
-__version__ = "$Id"
+import numpy as np
+from .Utils import safe_inverse
 
-
-try:
-    import numpy as np
-    from Utils import safe_inverse
-except ImportError as e:
-    print e
-    raise ImportError
 
 class CovarianceMatrix:
     'Covariance Base Class'
@@ -63,7 +55,7 @@ class CovarianceMatrix:
         or based on derivations from Unfolding HAWC reference 'Unfolding Uncertainties'
         (http://private.hawc-observatory.org/hawc.umd.edu/internal/doc.php?id=2329).
     """
-    
+
     '''Set the Current State of dcdn and dcdP'''
     def setCurrent_State(self, Mij, f_norm, n_c, n_c_prev):
         # For ease of typing
@@ -137,7 +129,7 @@ class CovarianceMatrix:
         self.dcdP = dcdP.copy()
         # On to next iteration
         self.counter += 1
-    
+
     ''' Get Covariance Matrix of N(E), ie from Observed Effects '''
     def getVcd(self):
 
@@ -148,7 +140,7 @@ class CovarianceMatrix:
             Vcd[ei,ei] = self.NEobs_err[ei]**2
 
         return Vcd
-    
+
     ''' Get full Vc0 (data) contribution to cov matrix '''
     def getVc0(self):
 
@@ -159,10 +151,10 @@ class CovarianceMatrix:
         dcdn = self.dcdn.copy()
         # Get NObs Covariance
         Vcd = self.getVcd()
-        # Set Data Covariance 
+        # Set Data Covariance
         Vc0 = dcdn.T.dot(Vcd).dot(dcdn)
         return Vc0
-                
+
     ''' Get Covariance Matrix of P(E|C), ie from MC'''
     def getVcPP(self):
         cbins = self.cbins
@@ -207,7 +199,7 @@ class CovarianceMatrix:
         # Set MC Covariance
         Vc1 = dcdP.dot(CovPP).dot(dcdP.T)
         return Vc1
-    
+
     ''' Get full covariance matrix '''
     def getCov(self):
         # Get Contributions from Vc0 and Vc1
@@ -224,7 +216,7 @@ class CovarianceMatrix:
         "ACM" : True, #Propagate Errors as Adye
         "DCM" : False #Propagate Errors as DAgostini
         }
-    
+
     def SetErrorPropFlag(self,func=None):
         if func in self.ErrorPropOptionsKey:
             return self.ErrorPropOptionsKey[func]
@@ -237,13 +229,13 @@ class CovarianceMatrix:
             print("Exiting...")
             import sys
             sys.exit(0)
-    
-    ''' Key for Selecting PEC Covariance Matrix Type ''' 
+
+    ''' Key for Selecting PEC Covariance Matrix Type '''
     PecCovOptionsKey = {
         "Poisson" : 1,
         "Multinomial" : 2
         }
-    
+
     def SetPecCovType(self,func=None):
         if func in self.PecCovOptionsKey:
             return self.PecCovOptionsKey[func]

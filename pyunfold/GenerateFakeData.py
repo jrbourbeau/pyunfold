@@ -5,29 +5,20 @@
    By default looks for config.cfg
    file for response file, zenith
    bin and outfile definitions.
-
-.. codeauthor: Zig Hampel
 """
 
-__version__ = "$Id"
+import numpy as np
+import argparse
+import sys
+import os
 
+from .Mix import Mixer
+from .Utils import *
+from .LoadStats import *
+from .IterUnfold import *
 
-try:
-    import numpy as np
-    import argparse
-    import sys
-    import os
-
-    from Mix import Mixer
-    from Utils import *
-    from LoadStats import *
-    from IterUnfold import *
-    
-    from Plotter import *
-    from RootReader import *
-except ImportError as e:
-    print e
-    raise ImportError
+from .Plotter import *
+from .RootReader import *
 
 
 # Global program options
@@ -42,7 +33,7 @@ def main():
     p.add_argument("-p", "--plot", dest="plot_local", action="store_true", help="Friendly plotter")
     args = p.parse_args()
     usage = "%prog -c config_file -o outfile -z zbin -p"
-   
+
     if (args.config_name is None): raise Exception, "Need a config file!"
 
     config = ConfigFM(args.config_name)
@@ -54,7 +45,7 @@ def main():
     dataHeader = "data"
     NC_outname =  config.get(dataHeader,"nc_thrown",default="",cast=str)
     NE_outname =  config.get(dataHeader,"ne_meas",default="",cast=str)
-    
+
     # Get MCInput
     mcHeader = "mcinput"
     StatsFile = config.get(mcHeader,"stats_file",default="",cast=str)
@@ -86,7 +77,7 @@ def main():
     pec_shape = pec.shape
     e_bins = pec_shape[0]
     c_bins = pec_shape[1]
-   
+
     # Observed effect frequency dist
     Nevents1 = 1e15
     idx1 = 2.6
@@ -142,11 +133,11 @@ def main():
     NTHROWN.Write(NC_outname)
     NOBS.Write(NE_outname)
     RFile.Close()
-    
+
     print "\n\n========== Writing ROOT File ==============="
     print "\nFake Data ROOT file saved as %s\n"%OutFileName
     print "============= Done Writing =================\n\n"
-    
+
     if (args.plot_local):
         print("*********\n\nIf you can't see your distributions, "\
               "check to see if log plot flags are set in script.\n\n*********")
@@ -171,7 +162,7 @@ def main():
         ax.set_title(title)
         ax.grid(True)
         fig.subplots_adjust(left=0.125, right=0.85)
-        
+
         ax = fig.add_subplot(122)
         title = "Integral Effects Distribution"
         xlim = [Eaxis[0],Eaxis[-1]]
@@ -191,7 +182,7 @@ def main():
         fig.subplots_adjust(left=0.125, right=0.85)
         plt.show()
 
-    
+
 
 if __name__ == "__main__":
     main()

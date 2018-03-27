@@ -5,34 +5,26 @@
    defined function.
    Requires config script via command line
    option -c.
-
-.. codeauthor: Zig Hampel
 """
 
-__version__ = "$Id"
+import ROOT
+from ROOT import TCanvas, TFile, TH1D, TH1F, TF1, TGraph, TGraphErrors
+from ROOT import gROOT, gPad, gRandom, gSystem, TDirectory
+gROOT.Reset()
 
-try:
-    import ROOT
-    from ROOT import TCanvas, TFile, TH1D, TH1F, TF1, TGraph, TGraphErrors
-    from ROOT import gROOT, gPad, gRandom, gSystem, TDirectory
-    gROOT.Reset()
-    
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    from matplotlib.ticker import ScalarFormatter
-    
-    import Utils
-    import RootReader as rr
-    
-    import numpy as np
-    import argparse
-    import sys
-    import os
-    import re
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
-except ImportError as e:
-    print e
-    raise ImportError
+import Utils
+import RootReader as rr
+
+import numpy as np
+import argparse
+import sys
+import os
+import re
+
 
 # Global program options
 args = None
@@ -42,10 +34,10 @@ styles = ["-", "--", "-."]
 
 
 def getZenithLimits(cuts):
-    
+
     # Grab zenith angle cut
     if "theta" not in cuts:
-        raise ValueError("\nNeed to define some zenith angle (theta) cut.\nPlease, fix your mistake. Exiting...\n")  
+        raise ValueError("\nNeed to define some zenith angle (theta) cut.\nPlease, fix your mistake. Exiting...\n")
 
     zcutstring = re.finditer("theta([<>=]*)([0-9.e-]*)", cuts)
     #zcutstring = re.finditer("rec.zenithAngle([<>=]*)([0-9.e-]*)", cuts)
@@ -57,7 +49,7 @@ def getZenithLimits(cuts):
 
     if len(zcuts)>2:
         print("\n=========================\n")
-        raise ValueError("Too many zenith cuts! There can only be one (or two)!\nPlease, fix your mistake. Exiting...\n")  
+        raise ValueError("Too many zenith cuts! There can only be one (or two)!\nPlease, fix your mistake. Exiting...\n")
 
     zlo = np.min(zcuts)
     zhi = np.max(zcuts)
@@ -82,12 +74,12 @@ def main():
     except:
         p.print_help()
         sys.exit(0)
-    
+
     if (args.config_name is None): raise Exception, "Need a config file!"
-    
+
     #### Get the Configuration Parameters from the Config File ####
     config = Utils.ConfigFM(args.config_name)
-    
+
     # Raw (reco) Data ROOT File Name
     dataHeader = "data"
     RawFile = config.get(dataHeader,"inputfile",default="",cast=str)
@@ -97,7 +89,7 @@ def main():
     inHeader = "output"
     InputFile = config.get(inHeader,"outfile",default="",cast=str)
     NC_meas = config.get(inHeader,"nc_meas",default="",cast=str)
-    
+
     # Get MCInput - Needed for Zenith Cuts
     mcHeader = "mcinput"
     StatsFile = config.get(mcHeader,"stats_file",default="",cast=str)
@@ -213,7 +205,7 @@ def main():
         Rglzr = Utils.Regularizer("REG",FitFunc=[RegFunc],Range=RegRange,InitialParams=InitParams,ParamLo=PLimLo,ParamHi=PLimHi,\
                             ParamNames=ParamNames,xarray=Caxis,xedges=Cedges,verbose=True,plot=False)
 
-        # Fit Flux 
+        # Fit Flux
         reg_fit, FitParams = Rglzr.Regularize(flux, flux_err)
         FLUXFIT = Rglzr.FIT
 
@@ -285,7 +277,7 @@ def main():
             yerr = flux_stat_err*Caxis**scale
             top_err = flux_sys_err*Caxis**scale
             bot_err = flux_sys_err*Caxis**scale
-        
+
             #ax.set_ylim(np.min(flux)*.05,1e-6)
             ax.set_ylim(np.min(flux)*.05,np.max(flux)*20)
 

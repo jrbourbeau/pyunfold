@@ -3,37 +3,40 @@
    Class to perform an iterative unfolding,
    stopping when either max_iter or test
    statistic tolerance is reached.
-
-.. codeauthor: Zig Hampel
 """
 
-__version__ = "$Id"
+import numpy as np
+import sys
+import os
 
-try:
-    import numpy as np
-    import sys
-    import os
+import ROOT
+from ROOT import TCanvas, TFile, TH2F, TH1F, TF1, TGraph, TGraphErrors, TGraphAsymmErrors
+from ROOT import gROOT, gPad, gRandom, gSystem, TDirectory
+gROOT.Reset()
 
-    import ROOT
-    from ROOT import TCanvas, TFile, TH2F, TH1F, TF1, TGraph, TGraphErrors, TGraphAsymmErrors
-    from ROOT import gROOT, gPad, gRandom, gSystem, TDirectory
-    gROOT.Reset()
-    
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    from matplotlib.ticker import ScalarFormatter
-    
-    from Mix import Mixer
-    from Utils import *
-    from Plotter import *
-    from RootReader import mkDir
-except ImportError as e:
-    print e
-    raise ImportError
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
-class IterativeUnfolder():
-    'Common base class for Unfolder'
-    def __init__(self,name,maxIter=100,smoothIter=False,n_c=[],MixFunc=[],RegFunc=[],TSFunc=[],Stack=False,verbose=False,**kwargs):
+from .Mix import Mixer
+from .Utils import *
+from .Utils import none_to_empty_list
+from .Plotter import *
+from .RootReader import mkDir
+
+
+class IterativeUnfolder(object):
+    """Common base class for Unfolder
+    """
+    def __init__(self, name, maxIter=100, smoothIter=False, n_c=None,
+                 MixFunc=None, RegFunc=None, TSFunc=None, Stack=False,
+                 verbose=False, **kwargs):
+
+        n_c, MixFunc, RegFunc, TSFunc = none_to_empty_list(n_c,
+                                                           MixFunc,
+                                                           RegFunc,
+                                                           TSFunc)
+
         self.name = name
         self.maxIter = maxIter
         self.smoothIter = smoothIter
@@ -119,7 +122,7 @@ class IterativeUnfolder():
             inc = self.n_c[iind]
             self.n_c_iters[iS].append(inc)
             incu = n_c_update[iind]
-            TS_cur, TS_del, TS_prob = self.tsFunc[iS].GetStats(incu,inc) 
+            TS_cur, TS_del, TS_prob = self.tsFunc[iS].GetStats(incu,inc)
             self.TS_out[iS].append(TS_cur)
         prev_fit = self.n_c.copy()
 
@@ -130,12 +133,12 @@ class IterativeUnfolder():
 
             # Updated unfolded distribution
             n_c = n_c_update.copy()
-            # For test statistic purposes. 
+            # For test statistic purposes.
             # Don't want to compare reg_fit to n_c_update
             n_c_prev = n_c_update.copy()
             # Save n_update for root output
             self.N_measured_out.append(n_update)
-            
+
             # Regularize unfolded dist in favor of 'smooth physics' prior
             for iS in range(self.nStack):
                 iind = self.StackInd[iS][0]
@@ -157,7 +160,7 @@ class IterativeUnfolder():
             n_c_update = self.Mix.Smear(n_c)
             self.counter += 1
             n_update = np.sum(n_c_update)
-            
+
             print("Iter: %i"%self.counter)
             # Calculate Chi2 wrt previous regularization
             for iS in range(self.nStack):
@@ -169,7 +172,7 @@ class IterativeUnfolder():
                 #TS_cur, TS_del, TS_prob = self.tsFunc[iS].GetStats(n_c_update[iind],n_c_prev[iind])
                 self.TS_out[iS].append(TS_cur)
             prev_fit = reg_fit.copy()
-            
+
 
         # Final Iteration
         n_c_final = n_c_update.copy()
@@ -201,7 +204,11 @@ class IterativeUnfolder():
         self.Eylab = Eylab
 
     # Save ROOT Output
-    def WriteResults(self,OutFileName="",NCName="NC",NEName="NE",Eaxis=[],BinList=[],subdirName="",**kwargs):
+    def WriteResults(self, OutFileName="", NCName="NC", NEName="NE",
+                     Eaxis=None, BinList=None, subdirName="", **kwargs):
+
+        Eaxis, BinList = none_to_empty_list(Eaxis, BinList)
+
         Cxlab= self.Cxlab
         Cylab= self.Cylab
         Exlab= self.Exlab
@@ -240,7 +247,7 @@ class IterativeUnfolder():
             NCFINAL.SetStats(0)
             NCFINAL.GetXaxis().SetLimits(Cedges[0],Cedges[-1])
             NCFINAL.GetYaxis().SetRangeUser(np.min(n_c_final[(n_c_final>0)])/2,np.max(n_c_final)*2)
-            
+
             # Save Statistical and MC (Systematic) Errors
             errStat = self.statErr.copy()
             errSys = self.sysErr.copy()
@@ -268,7 +275,7 @@ class IterativeUnfolder():
             NMEASURED.SetTitle("Number of Events Measured vs Iteration")
             NMEASURED.GetXaxis().SetTitle('Iteration')
             NMEASURED.GetYaxis().SetTitle('N_{measured}')
-   
+
             # Regularization Parameters's Values vs Iteration
             PARAMS = []
             for j in xrange(0,Rglzr.nParams):
@@ -276,7 +283,7 @@ class IterativeUnfolder():
                 PARAMS[j].SetTitle(Rglzr.ParamNames[j]+' of Regularization Fit vs Iteration')
                 PARAMS[j].GetXaxis().SetTitle('Iteration')
                 PARAMS[j].GetYaxis().SetTitle(Rglzr.ParamNames[j])
-            
+
             # Test Statistic vs Iteration
             TS_TGRAPH = TGraph(nIter,ArrIter,np.asarray(TS_out))
             TS_TGRAPH.SetTitle('Test Statistic vs Iteration')

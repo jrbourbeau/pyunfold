@@ -4,6 +4,8 @@ Pyunfold is a Python package for implementing the iterative Bayesian unfolding m
 
 > G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A 362 (1995) 487
 
+The original incarnation of this project was developed by Zigfried Hampel-Arias and can found in this [GitHub repository](https://github.com/zhampel/PyUnfold).
+
 ## Installation
 
 The latest development version of pyunfold can be install directly from GitHub
