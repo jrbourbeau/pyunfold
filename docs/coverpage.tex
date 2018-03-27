@@ -1,0 +1,46 @@
+%%%%%%%%%% Define the cover page
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue,
+}
+%
+\lstset{columns=fullflexible,basicstyle=\ttfamily}
+%
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+%
+\newcommand*{\plogo}
+{
+  \includegraphics[width=0.3\textwidth]{figures/HAWCLogo.pdf}%
+}
+%
+\addtolength{\textwidth}{3.5cm}
+\addtolength{\oddsidemargin}{-2cm}
+\addtolength{\topmargin}{-1cm}
+\addtolength{\textheight}{3cm}
+%
+\newcommand*{\titleGP}{\begingroup 
+\centering 
+
+\vspace*{\baselineskip} 
+
+\rule{\textwidth}{1.6pt}\vspace*{-\baselineskip}\vspace*{2pt} 
+\rule{\textwidth}{0.4pt}\\[\baselineskip] 
+
+{\LARGE ITERATIVE UNFOLDING REFERENCE}\\[0.4\baselineskip] 
+
+\rule{\textwidth}{0.4pt}\vspace*{-\baselineskip}\vspace{3.2pt} 
+\rule{\textwidth}{1.6pt}\\[\baselineskip] 
+
+\scshape 
+Towards understanding iterative unfolding  \\[\baselineskip] 
+\today  \par 
+
+\vspace*{2\baselineskip} 
+{\large Revision 1.0} 
+\vskip 8cm 
+
+\vskip0.5cm
+
+\endgroup}

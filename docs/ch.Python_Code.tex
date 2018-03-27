@@ -1,0 +1,302 @@
+
+
+%%%%%%%%%%%%%%%%%%% Simple Unfolding Section %%%%%%%%%%%%%%%%%%
+
+\subsection{PyUnfold: Unfolding Made Simple - But Not Simpler}
+The PyUnfold package is available for checkout on \href{https://github.com/zhampel/PyUnfold}{GitHub},
+and was used in the spectrum analysis found in \cite{hawc-cr-spectrum}.
+Its main dependencies are \verb|matplotlib|, \verb|pyROOT|, and \verb|numpy|.
+It is rather simple to implement a spline regularization routine, simply ask the author how.
+To run an unfolding from the command line is simple:
+
+\mint{bash}|python Unfold.py -c config.cfg -p|
+
+This will unfold a data set with response matrix, prior, and other input parameters all specified in the configuration file (via the \verb|-c| flag).
+An output ROOT \cite{root} file, also specified in \verb|config.cfg|, will be generated with all pertinent details of the unfolding, 
+including the input effects distribution, all cause distribution iterations, and the test statistic and regularization parameter values for each iteration.
+The \verb|-p| flag plots the input effects distribution, a subset of unfolded distribution iterations, and the final unfolded cause distribution.
+
+
+One can call the unfolding function from within other python scripts as well.
+This can be useful if one desires to unfold an effects distribution subject to different response functions,
+or perhaps different input distributions with the same response matrix, for example. 
+To implement this, the \verb|Unfold.py| script is first imported, then the main unfolding function can be called as:
+
+%\begin{minted}[frame=lines,framerule=1pt]{python}
+\begin{minted}[frame=single,framerule=1pt]{python}
+# import the unfolding project and utils
+from Unfold import Unfold
+from Utils import *
+
+# grab the effects distribution 
+# with errors and axis properties 
+# as numpy arrays here
+
+# set the RecoDist object here to pass to unfolder
+RecoDist = DataDist("Reco",data=data,error=error,axis=cause,edges=cause_edges,
+                     xlabel="Reco Var",ylabel="Freq.",units="Arb Units")
+
+# do the unfolding
+CauseDist = Unfold(config_name="config.cfg",return_dists=True,EffDist=RecoDist)
+
+# grab the unfolded distribution and errors
+unf_dist = CauseDist.getData()
+unf_err = CauseDist.getError()
+
+\end{minted}
+Of course, in this example, the script would be located in the PyUnfold project directory in order to import \verb|Unfold| and \verb|Utils|.
+For clarity, \verb|RecoDist| is an instance of the class \verb|DataDist| found in \verb|Utils.py|, which gets passed to the \verb|Unfold| function. 
+The input variables \verb|data|, \verb|error|, \verb|axis|, \verb|edges| are all assigned to numpy arrays containing their respective namesakes. 
+Hence, the bin centers for the \verb|data| distribution are defined by \verb|axis|, and the bin edges by \verb|edges|. 
+Finally, the unfolded distribution and respective error numpy arrays are accessed as shown in the final two lines of the above example.
+
+If one specifically is making an {\bf energy} dependent flux measurement, the \verb|FluxFit.py| script can be used to account for 
+the energy bin spacing to calculate a differential flux from the unfolded counts distribution. The command command line with all options is
+
+\mint{bash}|python FluxFit.py -c config.cfg -p -s 2.6 -w|
+
+where \verb|-p| plots the differential flux scaled by the value given to \verb|-s|, and the resulting flux values and fit parameters (function defined in the config file)
+are written to the same unfolding output ROOT file with \verb|-w|.
+
+
+%%%%%%%%%%%%%%%%%%% ROOT File Section %%%%%%%%%%%%%%%%%%
+\subsection{ROOT}
+A quick word on ROOT. The PyUnfold package relies on some tools provided by ROOT and pyROOT.
+These are {\bf requirements} to using PyUnfold.
+
+Another requirement is the structure of ROOT files.
+As shown in the next section, data structures are stored as histograms in a specific directory structure.
+When generating a ROOT file with the efficiency histogram and response matrix, they {\bf must} be located inside 
+a directory labeled \verb|binX| where \verb|X| is an integer identifying the bin number.
+Similarly, the corresponding data set to unfold must be in a directory with the same name in its ROOT file.
+This ensures one can use different analysis cuts defining differnet bins and pack them orderly in respective data and response files.
+Apart from this, one can name the ROOT objects as one wishes, so long as these labels are reflected in the configuration file.
+
+For two analysis bins, the directories for the three ROOT files defined in the configuration file follow this structure:
+
+% Latex file structure code taken from:
+% http://tex.stackexchange.com/questions/5073/making-a-simple-directory-tree
+
+\begin{multicols}{3}
+\begin{forest}
+  for tree={
+    font=\sffamily, minimum height=0.75cm, rounded corners=4pt, grow'=0, inner ysep=8pt, child anchor=west,parent anchor=south,
+    anchor=west, calign=first, edge={rounded corners},
+    edge path={
+      \noexpand\path [draw, \forestoption{edge}]
+      (!u.south west) +(12.5pt,0) |- (.child anchor)\forestoption{edge label};
+    },
+    before typesetting nodes={
+      if n=1
+        {insert before={[,phantom,minimum height=18pt]}}
+        {}
+    },
+    fit=band, s sep=2pt, before computing xy={l=25pt},
+  }
+  [stats\_file
+    [\myfolder{bin0}
+      [eff\_hist]
+      [mm\_hist]
+    ]
+    [\myfolder{bin1}
+      [eff\_hist]
+      [mm\_hist]
+    ]
+  ]
+\end{forest}
+
+\begin{forest}
+  for tree={
+    font=\sffamily, minimum height=0.75cm, rounded corners=4pt, grow'=0, inner ysep=8pt, child anchor=west,parent anchor=south,
+    anchor=west, calign=first, edge={rounded corners},
+    edge path={
+      \noexpand\path [draw, \forestoption{edge}]
+      (!u.south west) +(12.5pt,0) |- (.child anchor)\forestoption{edge label};
+    },
+    before typesetting nodes={
+      if n=1
+        {insert before={[,phantom,minimum height=18pt]}}
+        {}
+    },
+    fit=band, s sep=2pt, before computing xy={l=25pt},
+  }
+  [input\_file
+    [\myfolder{bin0}
+      [ne\_meas]
+      [obstime]
+    ]
+    [\myfolder{bin1}
+      [ne\_meas]
+      [obstime]
+    ]
+  ]
+\end{forest}
+
+\begin{forest}
+  for tree={
+    font=\sffamily, minimum height=0.75cm, rounded corners=4pt, grow'=0, inner ysep=8pt, child anchor=west,parent anchor=south,
+    anchor=west, calign=first, edge={rounded corners},
+    edge path={
+      \noexpand\path [draw, \forestoption{edge}]
+      (!u.south west) +(12.5pt,0) |- (.child anchor)\forestoption{edge label};
+    },
+    before typesetting nodes={
+      if n=1
+        {insert before={[,phantom,minimum height=18pt]}}
+        {}
+    },
+    fit=band, s sep=12pt, before computing xy={l=25pt},
+  }
+  [outfile
+    [\myfolder{{\footnotesize \ UNF\_TS\_COV}}
+      [\myfolder{bin0}
+        [nc\_meas]
+        ]
+      [\myfolder{bin1}
+        [nc\_meas]
+        ]
+      ]
+    ]
+  ]
+\end{forest}
+
+
+\end{multicols}
+
+%%%%%%%%%%%%%%%%%%% Configuration File Section %%%%%%%%%%%%%%%%%%
+
+\subsection{Configuration File}
+
+The configuration file contains many keyword sections and options, however, only a few parameters need specification to get started.
+The following sections are from a complete config file which is included in the GitHub project. 
+Each header section is presented in detail below.
+For beginners, the most relevant sections are \verb|data|, \verb|mcinput|, \verb|output|, and \verb|regularization|.
+Other sections have default values set for most purposes.
+
+\newpage
+\noindent\hrulefill
+
+\inputminted[firstline=5,lastline=11]{ini}{config_example.cfg}
+The \verb|data| section corresponds to the extracted data effects distribution.
+In practice, one will only modify the first two options:
+the path to the ROOT input data file (\verb|inputfile|), and the name of the measured effects histogram to unfold (\verb|ne_meas|).
+The \verb|obstime| option identifies the ROOT histogram containing a single bin the total observation time in seconds.
+If one is unfolding a Monte Carlo generated data set, then the \verb|ismc| flag must be set to \verb|True| and the appropriate cause distribution (\verb|nc_thrown|)
+can be identified.
+
+\noindent\hrulefill
+
+\inputminted[firstline=13,lastline=17]{ini}{config_example.cfg}
+The \verb|mcinput| section corresponds to the response function model. 
+The \verb|stats_file| key identifies the path to the ROOT file containing the histograms for the 1D efficiency, \verb|eff_hist|, and 2D mixing matrix, \verb|mm_hist|.
+
+
+\noindent\hrulefill
+
+\inputminted[firstline=19,lastline=22]{ini}{config_example.cfg}
+The \verb|output| section details whether to write the output to file (\verb|write_output|), which file to write (\verb|outfile|), and the name
+of the final unfolded cause distribution (\verb|nc_meas|).
+
+\noindent\hrulefill
+
+\inputminted[firstline=1,lastline=3]{ini}{config_example.cfg}
+The \verb|analysisbins| section tells the unfolder which bin(s) to consider for the unfolding. 
+The \verb|bin| option specifies the analysis bin number to access in the above ROOT files.
+The value must be an integer, and the unfolder expects the ROOT files to have the directory \verb|bini| for the $i$th bin.
+For example, one could define a set of bins each with different data cuts, and thus require respectively different response functions.
+The \verb|data| \verb|inputfile| would also hold the extracted data distributions in their respective bins.
+Of course, we can only unfold a single {\bf data} bin at a time. Thus, for most unfoldings, \verb|bin| will be a single integer.
+
+If one desires to stack several bins, for example to include response functions from two distinct cause populations,
+then the appropriate bin numbers are provided to \verb|bin| via comma separated values. The \verb|stack| flag also must be set to \verb|True|.
+In this case, the \verb|ne_meas| in the \verb|data| \verb|inputfile| {\bf must} be located in the \verb|bin0| directory, though this is not explicitly
+stated in the configuration file.
+
+A quick note on stacked unfolding: there is nothing new in introducing a stacked unfolding. Looking back to Section \ref{unfolding_method_section},
+we see that the definition of the causes, $C_{\mu}$, is completely general. Hence, one can simply `stack' families of causes together.
+Visually, this is equivalent to setting two response matrices next to each other along the cause axis.
+For example, we can split the all-particle cosmic ray spectrum into two groups: light (P+He) and heavy (> He). 
+Their respective response functions are generated separately (with the same analysis cuts) and placed in different bin directories of the same \verb|stats_file|.
+A {\bf single} effects distribution is extracted from the data, again with the same cuts, and must be in \verb|bin0| of the \verb|data| \verb|inputfile|.
+When running the unfolder, the results for each stacked bin are saved in respective directories of the same \verb|outfile|.
+
+In general one must be mindful of the choice of initial priors for each bin when stacking. The simplest example is to stack the same response matrix with itself.
+If we choose priors for bins $0,1$ with fixed ratio $r$ for all cause bins, ie
+
+\begin{equation} \label{eq:equalstackedpriors}
+ \begin{split}
+    \frac{P_{0}(C_{\mu})}{P_{1}(C_{\mu})} = r \quad \forall \mu.
+ \end{split}
+\end{equation}
+then the unfolded cause distributions will retain this ratio through all iterations. 
+Of course, summing the two distributions at any point in the unfolding gives the same result as using the single response matrix.
+
+
+\noindent\hrulefill
+
+\inputminted[firstline=24,lastline=27]{ini}{config_example.cfg}
+Here the user can define a functional form of the initial prior.
+The default is `Jeffreys' prior \cite{jeffreys}.
+A user provided function must be single-valued and conform to \verb|numpy| syntax if special functions are used.
+If doing a stacked unfolding, formulae must be separated by commas for each bin.
+
+
+\noindent\hrulefill
+
+\inputminted[firstline=29,lastline=34]{ini}{config_example.cfg}
+This section gives the user choice over the name of the unfolding function (\verb|unfolder_name|), 
+the maximum allowed number of iterations via \verb|max_iter|,
+and whether to include regularization at each step with \verb|smooth_with_reg|.
+Details of the regularization are found in the next section.
+The \verb|verbose| flag prints out detailed information of the unfolding.
+
+
+
+\noindent\hrulefill
+
+\inputminted[firstline=36,lastline=48]{ini}{config_example.cfg}
+The choice of regularization scheme can be manipulated in a manner consistent with ROOT histogram fitting.
+The functional form in \verb|reg_func| is single-valued and the parameters must be labeled in sequential order via [].
+The restrictions on range in x is defined with \verb|reg_range|. 
+For example, when unfolding the all-particle spectrum, regularization to a power law is done on a subrange of interest in Energy.
+The fit parameters are given labels, initial values, and low and high limits per the respective keywords.
+Finally, for detailed fitting information, \verb|plot| and \verb|verbose| flags can be set appropriately.
+
+
+\noindent\hrulefill
+
+\inputminted[firstline=50,lastline=57]{ini}{config_example.cfg}
+The test statistic, $TS$, is used to compare the unfolded distributions from two consecutive iterations: $TS = TS(N_{i},N_{i+1})$.
+This threshold to determine convergence is defined with the \verb|ts_tolerance| keyword,
+and a subset of the cause range can be provided via \verb|ts_range|.
+The test statistic functions available are the following:
+
+\begin{itemize}
+  \item rmd: Maximum relative deviation, $\sup(\frac{|N_{i}-N_{i+1}|}{N_{i}+N_{i+1}})$
+  \item chi2: Reduced $\chi^{2}$
+  \item pf: Bayes Factor (Pfendner Factor) \cite{pfenderfactor}
+  \item ks: Kolmogorov-Smirnov
+\end{itemize}
+
+
+\noindent\hrulefill
+
+\inputminted[firstline=59,lastline=62]{ini}{config_example.cfg}
+The \verb|mixer| section simply names the mixer function and has two methods for the calculation 
+of the covariance matrix due to the limited statistics in the response function.
+
+\begin{itemize}
+  \item DCM: D'Agositini method outlined in \cite{agostini}
+  \item ACM: Adye uncertainty from \cite{adye2}; defined in this document with Eqs. \ref{eq:Vn_matrix} and \ref{eq:Vmc_matrix} and fully outlined in Section \ref{adye_full_derivation}
+\end{itemize}
+
+While the comment in this section claims that DCM is faster, the updated implementation of ACM no longer influences performance.
+
+
+\noindent\hrulefill
+
+\inputminted[firstline=64,lastline=80]{ini}{config_example.cfg}
+The final section is identical in form to the \verb|regularization| section.
+However, it only pertains to fitting a differential flux once the unfolding procedure is finished.
+The parameters here are only read by the \verb|FluxFit.py| script, and hence
+can be modified to test different fit parameters and/or functions after the unfolding.

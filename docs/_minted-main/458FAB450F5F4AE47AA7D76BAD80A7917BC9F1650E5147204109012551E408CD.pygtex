@@ -1,0 +1,20 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} import the unfolding project and utils}
+\PYG{k+kn}{from} \PYG{n+nn}{Unfold} \PYG{k+kn}{import} \PYG{n}{Unfold}
+\PYG{k+kn}{from} \PYG{n+nn}{Utils} \PYG{k+kn}{import} \PYG{o}{*}
+
+\PYG{c+c1}{\PYGZsh{} grab the effects distribution}
+\PYG{c+c1}{\PYGZsh{} with errors and axis properties}
+\PYG{c+c1}{\PYGZsh{} as numpy arrays here}
+
+\PYG{c+c1}{\PYGZsh{} set the RecoDist object here to pass to unfolder}
+\PYG{n}{RecoDist} \PYG{o}{=} \PYG{n}{DataDist}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Reco\PYGZdq{}}\PYG{p}{,}\PYG{n}{data}\PYG{o}{=}\PYG{n}{data}\PYG{p}{,}\PYG{n}{error}\PYG{o}{=}\PYG{n}{error}\PYG{p}{,}\PYG{n}{axis}\PYG{o}{=}\PYG{n}{cause}\PYG{p}{,}\PYG{n}{edges}\PYG{o}{=}\PYG{n}{cause\PYGZus{}edges}\PYG{p}{,}
+                     \PYG{n}{xlabel}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Reco Var\PYGZdq{}}\PYG{p}{,}\PYG{n}{ylabel}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Freq.\PYGZdq{}}\PYG{p}{,}\PYG{n}{units}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Arb Units\PYGZdq{}}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} do the unfolding}
+\PYG{n}{CauseDist} \PYG{o}{=} \PYG{n}{Unfold}\PYG{p}{(}\PYG{n}{config\PYGZus{}name}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}config.cfg\PYGZdq{}}\PYG{p}{,}\PYG{n}{return\PYGZus{}dists}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{,}\PYG{n}{EffDist}\PYG{o}{=}\PYG{n}{RecoDist}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} grab the unfolded distribution and errors}
+\PYG{n}{unf\PYGZus{}dist} \PYG{o}{=} \PYG{n}{CauseDist}\PYG{o}{.}\PYG{n}{getData}\PYG{p}{()}
+\PYG{n}{unf\PYGZus{}err} \PYG{o}{=} \PYG{n}{CauseDist}\PYG{o}{.}\PYG{n}{getError}\PYG{p}{()}
+\end{Verbatim}

@@ -1,0 +1,407 @@
+
+
+To begin the excursion into the calculation of uncertainties, we first shorten the notation in accordance with footnote \footref{fnote1}:
+\begin{align*}
+	P(E_{i}|C_{\mu}) &= P_{\mu i}
+	&
+	\phi(C_{\mu}) &= \phi_{\mu}
+	&
+	n(E_{j}) = n_{j}.
+\end{align*}
+
+As outlined in \cite{agostini} (section 4), the covariance matrix $V=V(\phi,\phi\textprime)$ from statistical contributions has two components: $V^{Data}$ from the 
+counted measured effects distribution, and $V^{MC}$ due to the limited MC statistics in $P_{\mu j}$.
+This can be seen from considering the uncertainties from $n_{j}$ and $M_{\mu j}$ in eq. \ref{eq:fullUnf}.
+Since $\phi=M\times n=M(P(E|C))\times n$, we can identify respectively the aforementioned error contributions as
+\begin{align*}
+% \begin{split}
+  V^{Total} &= V^{Data}+V^{MC} \\
+  &= \frac{\partial \phi}{\partial n} \, Cov({n,n\textprime}) \, \frac{\partial \phi\textprime}{\partial n}
+  \\
+  &
+  +\frac{\partial \phi}{\partial P} \, Cov({P,P\textprime}) \, \frac{\partial \phi\textprime}{\partial P}.
+% \end{split}
+\end{align*}
+
+% V_Data
+\subsubsection{$V^{Data}$}
+D\textquotesingle Agostini argues that since the data sample $n_{j}$ is a realization of a multinomial distribution,
+then
+\begin{equation} \label{eq:Vn_agos}
+V^{Data} = M \, Cov(n,n\textprime) \, M
+\end{equation}
+where the $Cov(n,n\textprime)$ is the 
+covariance matrix of the measurements with respect to the estimated true number of events $\sum_{\mu}{\phi_{\mu}}=N_{true}$:
+
+\begin{equation}
+ \begin{split}
+Cov(n_{k},n_{j}) = 
+  \begin{cases}
+    n_{j}(1-\frac{n_{j}}{N_{true}})       & \quad \text{if } k = j \\
+    -\frac{n_{j}n_{k}}{N_{true}}  & \quad \text{if } k \ne j \\
+  \end{cases}.
+ \end{split}
+\end{equation}
+
+However, Adye (\cite{adye} section 5) demonstrates that this error estimation is only valid for the first iteration, as subsequent $\phi^{i}$ are \textbf{not independent} of $n_{j}$. 
+Indeed, we should re-write eq. \ref{eq:Vn_agos} appropriately as
+\begin{equation} \label{eq:Vn_matrix}
+	V^{Data} = 
+	\frac{\partial \phi^{i+1}}{\partial n} \times
+	Cov(n,n\textprime) \times
+	\frac{\partial \phi^{i+1}\textprime}{\partial n} ,
+\end{equation}
+with 
+\begin{equation*}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial n_{j}}
+	= M_{\mu j} + \frac{\phi^{i+1}_{\mu}}{\phi^{i}_{\mu}} \, \frac{\partial \phi^{i}_{\mu}}{\partial n_{j}}
+	- \sum_{\sigma, k}{ \epsilon_{\sigma} \, \frac{n_{k}}{\phi^{i}_{\sigma}} \, M_{\mu k} \, M_{\sigma k} \, \frac{\partial \phi^{i}_{\sigma}}{\partial n_{j}}}
+\end{equation*}
+where again the superscripts $i$ and $i+1$ refer to the iteration number.
+The full derivation of $\frac{\partial \phi^{i+1}}{\partial n}$ (eq. \ref{eq:dphidn}) is found in section \ref{ExpVn} below.
+In some cases it is safe to use the Poisson form of $Cov(n,n\textprime)$:
+
+\begin{equation}
+ \begin{split}
+Cov(n_{k},n_{j}) = n_{k} \, \delta_{kj} \,.
+ \end{split}
+\end{equation}
+
+% V_MC
+\subsubsection{$V^{MC}$}
+The contribution from $V^{MC}$, while well outlined in \cite{agostini} and below, is quite a monster. If one simply implements the equation verbatim 
+into code, the expected time for calculating all elements $\sim \textnormal{(number of bins)}^{7}$. Thus, here we present the form of $V^{MC}$, 
+while in section \ref{ExpVm} we show the explicit expansion and further contraction of indices towards a more reasonable, practical calculation.
+
+D'Agostini identifies $V^{MC}$ via $\frac{\partial}{\partial M}$ giving
+\begin{equation} \label{eq:Vmc_dagos}
+	V^{MC} = 
+	n\times Cov(M,M\textprime) \times n\textprime.
+\end{equation}
+Further expansion reveals 
+\begin{equation} \label{eq:CovMM}
+	Cov(M_{\mu k},M_{\lambda j}) = 
+	\sum_{\{\sigma r\},\{\sigma s\}} 
+	\frac{\partial M_{\mu k}}{\partial P_{\sigma r}}
+  \,
+	\frac{\partial M_{\lambda j}}{\partial P_{\sigma s}} 
+  \,
+	Cov \big( P_{\sigma r}, P_{\sigma s} \big),
+\end{equation}
+
+\begin{equation}
+	\frac{\partial M_{\mu k}}{\partial P_{\sigma j}} = 
+	M_{\mu k}
+  \, 
+	\Bigg[
+	\frac{\delta_{\mu \sigma} \, \delta_{jk}}{P_{\sigma j}}
+	-\frac{\delta_{\mu \sigma}}{\epsilon_{\sigma}}
+	-\frac{\delta_{jk} \, M_{\sigma k} \, \epsilon_{\sigma}}{P_{\sigma k}}
+	\Bigg],
+\end{equation}
+
+\begin{equation} \label{eq:CovPP}
+Cov \big( P_{\sigma r}, P_{\sigma s} \big) =
+  \begin{cases}
+  \frac{1}{\tilde{n}_{\sigma}} \, P_{\sigma r} \, (1-P_{\sigma r})       & \quad \text{if } r = s \\
+    -\frac{1}{\tilde{n}_{\sigma}} \, P_{\sigma r} \, P_{\sigma s}        & \quad \text{if } r \ne s \\
+  \end{cases}.
+\end{equation}
+In the final expression, $\tilde{n}_{\mu}$ represents the number of simulated events which fell into the true cause bin $\mu$. 
+If our simulation is weighted, we identify $\tilde{n}$ with the effective number of events 
+$\tilde{n}_{\mu} = \frac{( \sum_{j} w_{\mu j} )^{2}}{\sum_{j} w_{\mu j}^{2}}$ for all $j$ events in bin $\mu$.
+
+Once again, Adye (\cite{adye2}) shows this is a first order estimate, only valid for the first iteration.
+Re-writing \ref{eq:Vmc_dagos} with $\frac{\partial}{\partial P}$,
+\begin{equation} \label{eq:Vmc_matrix}
+	V^{MC} = 
+	\frac{\partial \phi^{i+1}}{\partial P} \times
+	Cov(P,P\textprime) \times
+	\frac{\partial \phi^{i+1}\textprime}{\partial P},
+\end{equation}
+we identify $\frac{\partial \phi^{i+1}}{\partial P}$ as
+\begin{equation*}
+\begin{split}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial P_{\lambda k}}
+	&= \frac{\delta_{\lambda \mu}}{\epsilon_{\mu}} \, \bigg(\frac { n_{k} \, \phi^{i}_{\mu} }{ f_{k}} - \phi^{i+1}_{\mu} \bigg)
+	- \frac{n_{k} \phi^{i}_{\lambda} }{f_{k}} \, M_{\mu k} \\
+	&
+	+ \frac{\phi^{i+1}_{\mu}}{\phi^{i}_{\mu}} \, \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}} 
+	- \sum_{\rho,j}{ n_{j} \, \frac{\epsilon_{\rho}}{\phi^{i}_{\rho}} \, M_{\rho j} \, M_{\mu j} \, \frac{\partial \phi^{i}_{\rho}}{\partial P_{\lambda k}} }
+\end{split}
+\end{equation*}
+whose derivation (eq. \ref{eq:dphidP}) is found in section \ref{ExpVm} below. 
+Of course, D'Agostini's form of $Cov(P,P\textprime)$ remains valid for use with the new construction of the partials.
+One may also use a Poisson covariance if justified appropriately:
+
+\begin{equation} \label{eq:CovPPPoisson}
+Cov \big( P_{\rho r}, P_{\lambda s} \big) =
+   \sigma_{\rho r} \sigma_{\lambda s} \delta_{\rho \lambda} \delta_{rs},
+\end{equation}
+with $\sigma_{\rho r}$ being the error estimates on $P_{\rho r}$ estimated when filling $P$ with Monte Carlo.
+
+% Updated Algorithm - Including Errors
+\subsubsection{Updated Unfolding Algorithm}
+
+The afore-outlined unfolding algorithm must be modified to include the propagation of systematic errors.
+At each iteration we have $\phi^{i+1}$, so both $\frac{\partial \phi^{i+1}}{\partial n}$ and $\frac{\partial \phi^{i+1}}{\partial P}$
+can be calculated. The results are propagated and saved until the full covariance matrix is required for error estimates on the final $\phi$.
+
+\begin{algorithm}
+  \caption{Unfolding Algorithm - Including Errors}
+  \begin{algorithmic}
+  	\State $\phi^{0}\gets$ Prior
+	\State testStatistic$\gets$ Pass
+  	\While{ ( testStatistic = Pass ) } 
+		\State $M\gets M(P(E|C),\phi^{i})$
+		\State $\phi^{i+1}\gets M \times n$
+		\State $\frac{\partial \phi^{i+1}}{\partial n}\gets$ eq. \ref{eq:dphidn}
+		\State $\frac{\partial \phi^{i+1}}{\partial P}\gets$ eq. \ref{eq:dphidP}
+		\State testStatistic$\gets$ TS$(\phi^{i},\phi^{i+1})$
+	\EndWhile
+	\State $V^{Total}\gets V^{Data}(\frac{\partial \phi^{i+1}}{\partial n})+V^{MC}(\frac{\partial \phi^{i+1}}{\partial P})$
+	\State $\sigma^{2}_{\phi} \approx diag(V^{Total})$
+  \end{algorithmic}
+\end{algorithm}
+
+
+% Expansions of components of full V
+\subsection{Expansion of Components of $V$}\label{adye_full_derivation}
+
+%Useful Formulae
+\subsubsection{Some useful formulae}
+Recalling the unfolding formulae from before,
+\begin{align*}
+	\phi^{i+1}_{\mu} &= \sum_{k}{M_{\mu k} \, n_{k}}
+	&
+	M_{\mu j} &= \frac{ P_{\mu j} \, \phi^{i}_{\mu} }{ \epsilon_{\mu} \, f_{j}},
+\end{align*}
+where the efficiency, $\epsilon$, and normalization, $f$, of $M$ are
+\begin{align*} %\label{eq:useful_eq}
+	\epsilon_{\mu} &= \sum_{j} {P_{\mu j}}
+	&
+	f_{j} &= \sum_{\mu}{P_{\mu j} \, \phi^{i}_{\mu}}.
+\end{align*}
+Of note is the presence of $\phi^{i}$, ie, the unfolded cause distribution from the previous iteration, or the 
+prior in the case $i=0$.
+
+We will be taking derivatives of these objects with respect to $n_{k}$ and $P_{\lambda k}$, to wit,
+\begin{align} \label{eq:useful_derivs}
+	\frac{\partial P_{\mu j}}{\partial n_{k}} &= 0
+	&
+	\frac{\partial \epsilon_{\mu}}{\partial n_{k}} &= 0
+	&
+	\frac{\partial f_{j}}{\partial n_{k}} &= \sum_{\mu}{P_{\mu j} \, \frac{\partial \phi^{i}_{\mu}}{\partial n_{k}}} \\
+  	\frac{\partial P_{\mu j}}{\partial P_{\lambda k}} &= \delta_{\mu \lambda} \, \delta_{jk}
+	&
+	\frac{\partial \epsilon_{\mu}}{\partial P_{\lambda k}} &= \delta_{\lambda \mu}
+	&
+	\frac{\partial f_{j}}{\partial P_{\lambda k}} &= \delta_{jk} \, \phi^{i}_{\lambda} + \sum_{\mu} {P_{\mu j} \, \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}}}.
+\end{align}
+
+
+The explicit forms of $\frac{\partial \phi^{i}_{\mu}}{\partial n_{k}}$ and $\frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}}$ will be shown below, but only for $i=0$ do
+\begin{equation} \label{eq:first_deriv}
+	\frac{\partial \phi^{i}_{\mu}}{\partial n_{k}} = 0 \quad , \quad \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}} = 0,
+\end{equation}
+as no unfolding has been performed. This will clearly not be the case for subsequent iterations when $\phi^{i}$ becomes dependent on $n_{k}$ and $P_{\lambda k}$.
+
+%Expansion of V_Data
+\subsubsection{Expansion of $V^{Data}$} \label{ExpVn}
+Making the appropriate substitutions, the index representation of eq. \ref{eq:Vn_matrix} is
+\begin{align*}
+	V(\phi^{i+1}_{\mu},\phi^{i+1}_{\nu})^{Data} = 
+	\sum_{jk}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial n_{j}} \,
+	Cov(n_{j},n_{k}) \,
+	\frac{\partial \phi^{i+1}_{\nu}}{\partial n_{k}},
+\end{align*}
+with
+\begin{align*}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial n_{j}} &= \frac{\partial}{\partial n_{j}} \sum_{k}{M_{\mu k} \, n_{k}} \\
+	&= \sum_{k} \bigl ( {M_{\mu k} \, \frac{\partial n_{k}}{\partial n_{j}} + n_{k}  \, \frac{\partial M_{\mu k}}{\partial n_{j}}} \bigr) \\
+	&= \sum_{k} \bigl ( {M_{\mu k} \, \delta_{jk} + n_{k}  \, \frac{\partial M_{\mu k}}{\partial n_{j}}} \bigr) \\
+	&= M_{\mu j} + \sum_{k}{n_{k}  \, \underbrace{\frac{\partial M_{\mu k}}{\partial n_{j}}}}
+\end{align*}
+%
+\begin{align*}
+	\frac{\partial M_{\mu k}}{\partial n_{j}} &= \frac{\partial}{\partial n_{j}} \frac{P_{\mu k} \phi^{i}_{\mu} }{ \epsilon_{\mu} f_{k} } \\
+	%
+	&= \underbrace{ \frac{P_{\mu k}}{\epsilon_{\mu} f_{k}} }_{\frac{M_{\mu k}}{\phi^{i}_{\mu}}} \frac{\partial \phi^{i}_{\mu}}{\partial n_{j}}
+	- \underbrace{ \frac{P_{\mu k} \phi^{i}_{\mu}}{\epsilon_{\mu} f_{k}} }_{M_{\mu k}}
+	\frac{1}{f_{k}}\sum_{\sigma}{P_{\sigma k} \frac{\partial \phi^{i}_{\sigma}}{\partial n_{j}} } \\
+	%
+	&= \frac{M_{\mu k}}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial n_{j}} - M_{\mu k}
+	\sum_{\sigma}{ \epsilon_{\sigma} \underbrace{ \frac{ P_{\sigma k} }{  \epsilon_{\sigma} f_{k} } }_{\frac{M_{\sigma k}}{\phi^{i}_{\sigma}}}
+	\frac{\partial \phi^{i}_{\sigma}}{\partial n_{j}}} \\
+	%
+	&= \frac{M_{\mu k}}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial n_{j}} - \sum_{\sigma}{ \frac{\epsilon_{\sigma}}{\phi^{i}_{\rho}} M_{\mu k} M_{\sigma k} \frac{\partial \phi^{i}_{\sigma}}{\partial n_{j}}}
+\end{align*}
+%
+\begin{align*}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial n_{j}}
+	&= M_{\mu j} + \frac{1}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial n_{j}} \underbrace{\sum_{k} {M_{\mu k} n_{k}}}_{\phi^{i+1}_{\mu}}
+	- \sum_{\sigma, k}{ \epsilon_{\sigma} \frac{n_{k}}{\phi^{i}_{\rho}} M_{\mu k} M_{\sigma k} \frac{\partial \phi^{i}_{\sigma}}{\partial n_{j}}} \\
+\end{align*}
+%
+\begin{equation} \label{eq:dphidn}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial n_{j}}
+	= M_{\mu j} + \frac{\phi^{i+1}_{\mu}}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial n_{j}}
+	- \sum_{\sigma, k}{ \epsilon_{\sigma} \frac{n_{k}}{\phi^{i}_{\sigma}} M_{\mu k} M_{\sigma k} \frac{\partial \phi^{i}_{\sigma}}{\partial n_{j}}}
+\end{equation}
+
+Recalling eq. \ref{eq:first_deriv}, $\frac{\partial \phi^{0}_{\mu}}{\partial n_{j}} = 0$ for the first iteration, eliminating the last two terms of eq. \ref{eq:dphidn} and recovering $\frac{\partial \phi^{1}_{\mu}}{\partial n_{j}} = M_{\mu j}$ as per \cite{agostini}. In practice, one need only calculate $\frac{\partial \phi^{i+1}_{\mu}}{\partial n_{j}}$ for each iteration, saving the result until the full calculation of $V^{Data}$ is required.
+
+%Expansion of V_MC
+\subsubsection{Expansion of $V^{MC}$} \label{ExpVm}
+
+Similar to $V(\phi^{i+1}_{\mu},\phi^{i+1}_{\nu})^{Data}$, we identify the contributions to $V$ from the Monte Carlo:
+
+\begin{align*}
+	V(\phi^{i+1}_{\mu},\phi^{i+1}_{\nu})^{MC} = 
+	\sum_{\lambda j} \sum_{\rho k}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial P_{\lambda j}} 
+	Cov(P_{\lambda j},P_{\rho k}) 
+	\frac{\partial \phi^{i+1}_{\nu}}{\partial P_{\rho k}}.
+\end{align*}
+
+Proceeding forward,
+
+\begin{align*}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial P_{\lambda k}} 
+	&= \frac{\partial}{\partial P_{\lambda k}} \sum_{j}{M_{\mu j} n_{j}}
+	= \sum_{j} { n_{j} \underbrace{\frac{\partial M_{\mu j}}{\partial P_{\lambda k}} } }
+\end{align*}
+\begin{align*}
+	\frac{\partial M_{\mu j}}{\partial P_{\lambda k}}
+	&= \frac{\partial}{\partial P_{\lambda k}} \frac{ P_{\mu j} \phi^{i}_{\mu} }{ \epsilon_{\mu} f_{j}} \\
+	&= \frac{\phi^{i}_{\mu} }{ \epsilon_{\mu} f_{j}} \frac{\partial P_{\mu j}}{\partial P_{\lambda k}}
+	+ \underbrace{ \frac{P_{\mu j}}{\epsilon_{\mu} f_{j}} }_{\frac{M_{\mu j}}{\phi^{i}_{\mu}} } \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}}
+	- \frac{1}{\epsilon_{\mu} f_{j}} \underbrace{\frac{P_{\mu j} \phi^{i}_{\mu}}{\epsilon_{\mu} f_{j}}}_{M_{\mu j}}
+	\bigg( f_{j} \frac{\partial \epsilon_{\mu}}{\partial P_{\lambda k}} + \epsilon_{\mu} \frac{\partial f_{j}}{\partial P_{\lambda k}}\bigg)
+	\\
+	&= \frac {\phi^{i}_{\mu} }{\epsilon_{\mu} f_{j}} \delta _{\lambda \mu} \delta_{jk}
+	+ \frac{M_{\mu j}}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}}
+	- \frac{1}{\epsilon_{\mu} f_{j}} M_{\mu j} \bigg( f_{j} \delta_{\lambda \mu} 
+	+ \epsilon_{\mu}\delta_{jk} \phi^{i}_{\lambda} + \epsilon_{\mu} \sum_{\rho} {P_{\rho j} \frac{\partial \phi^{i}_{\rho}}{\partial P_{\lambda k}}}\bigg)
+	\\
+	&= \frac {\phi^{i}_{\mu} }{\epsilon_{\mu} f_{j}} \delta _{\lambda \mu} \delta_{jk}
+	+ \frac{M_{\mu j}}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}}
+	- \frac{M_{\mu j}}{\epsilon_{\mu}} \delta_{\lambda \mu}
+	- \frac{M_{\mu j} \phi^{i}_{\lambda}}{f_{j}} \delta_{jk}
+	- \sum_{\rho}{\epsilon_{\rho} M_{\mu j} \underbrace{\frac{P_{\rho j}}{\epsilon_{\rho} f_{j}}}_{\frac{M_{\rho j}}{\phi^{i}_{\rho}}} \frac{\partial \phi^{i}_{\rho}}{\partial P_{\lambda k}}}
+	\\
+	&= \frac {\phi^{i}_{\mu} }{\epsilon_{\mu} f_{j}} \delta _{\lambda \mu} \delta_{jk}
+	+ \frac{M_{\mu j}}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}}
+	- \frac{M_{\mu j}}{\epsilon_{\mu}} \delta_{\lambda \mu}
+	- \frac{M_{\mu j} \phi^{i}_{\lambda}}{f_{j}} \delta_{jk}
+	- \sum_{\rho} M_{\rho j}M_{\mu j} \frac{\epsilon_{\rho}}{\phi^{i}_{\rho}} \frac{\partial \phi^{i}_{\rho}}{\partial P_{\lambda k}},
+\end{align*}
+
+and going back to $\frac{\partial \phi^{i+1}_{\mu}}{\partial P_{\lambda k}}$ to include the sum over $j$,
+
+\begin{align*}
+\begin{split}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial P_{\lambda k}} =
+\end{split}
+\end{align*}
+%
+\begin{align*}
+\begin{split}
+	\sum_{j} n_{j} \bigg[ \frac {\phi^{i}_{\mu} }{\epsilon_{\mu} f_{j}} \delta _{\lambda \mu} \delta_{jk}
+	+ \frac{M_{\mu j}}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}}
+	- \frac{M_{\mu j}}{\epsilon_{\mu}} \delta_{\lambda \mu}
+	- \frac{M_{\mu j} \phi^{i}_{\lambda}}{f_{j}} \delta_{jk}
+	- \sum_{\rho} M_{\rho j}M_{\mu j} \frac{\epsilon_{\rho}}{\phi^{i}_{\rho}} \frac{\partial \phi^{i}_{\rho}}{\partial P_{\lambda k}} \bigg] 
+	\\
+	= \frac { n_{k} \phi^{i}_{\mu} }{\epsilon_{\mu} f_{k}} \delta _{\lambda \mu}
+	+ \frac{1}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}} \underbrace{\sum_{j}{ M_{\mu j} n_{j} }}_{\phi^{i+1}_{\mu}}
+	- \frac{\delta_{\lambda \mu}}{\epsilon_{\mu}} \underbrace{\sum_{j}{ M_{\mu j} n_{j}}}_{\phi^{i+1}_{\mu}} 
+	- \frac{n_{k} M_{\mu k} \phi^{i}_{\lambda}}{f_{k}}
+	\\
+	- \sum_{j}{ \sum_{\rho} n_{j} \frac{\epsilon_{\rho}}{\phi^{i}_{\rho}} M_{\rho j}M_{\mu j} \frac{\partial \phi^{i}_{\rho}}{\partial P_{\lambda k}} },
+\end{split}
+\end{align*}
+
+with final form
+
+\begin{equation} \label{eq:dphidP}
+\begin{split}
+	\frac{\partial \phi^{i+1}_{\mu}}{\partial P_{\lambda k}}
+	&= \frac{\delta_{\lambda \mu}}{\epsilon_{\mu}} \bigg(\frac { n_{k} \phi^{i}_{\mu} }{ f_{k}} - \phi^{i+1}_{\mu} \bigg)
+	- \frac{n_{k} \phi^{i}_{\lambda} }{f_{k}} M_{\mu k} \\
+	&
+	+ \frac{\phi^{i+1}_{\mu}}{\phi^{i}_{\mu}} \frac{\partial \phi^{i}_{\mu}}{\partial P_{\lambda k}} 
+	- \sum_{\rho,j}{ n_{j} \frac{\epsilon_{\rho}}{\phi^{i}_{\rho}} M_{\rho j}M_{\mu j} \frac{\partial \phi^{i}_{\rho}}{\partial P_{\lambda k}} }.
+\end{split}
+\end{equation}
+
+Again for the first iteration $\frac{\partial \phi^{0}_{\mu}}{\partial P_{\lambda k}} = 0$, eliminating the last two terms of eq. \ref{eq:dphidP}, and recovering
+D'Agostini's version. Again, upon implementation one need only calculate $\frac{\partial \phi^{i+1}_{\mu}}{\partial P_{\lambda k}}$ at each iteration, 
+saving it until $V^{MC}$ is needed for error estimation.
+
+%To obtain a simplified representation of eq. \ref{eq:CovMM}, we first re-write \ref{eq:CovPP}:
+%
+%\begin{equation}
+%Cov \Bigg[ P(E_{r}|C_{u}), P(E_{s}|C_{u}) \Bigg] =
+%    \frac{\delta_{rs}}{n_{u}}P(E_{r}|C_{u})-\frac{1}{n_{u}}P(E_{r}|C_{u})P(E_{s}|C_{u}).
+%\end{equation}
+%
+%Next, we consider the combination of the two partial derivative factors in \ref{eq:CovMM}. In the following derivation, $P(E_{r}|C_{u})=P_{ru}$.
+%
+%\begin{equation}
+% \begin{split}
+%    \frac{\partial M_{ki}}{\partial P_{ru}} \times \frac{\partial M_{lj}}{\partial P_{su}} \\
+%    = M_{ki}M_{lj}
+%    \Bigg[
+%    	\frac{\delta_{ku}\delta_{ri}}{P_{ru}}
+%	-\frac{\delta_{ku}}{\epsilon_{u}}
+%        -\frac{\delta_{ri}M_{ui}\epsilon_{u}}{P_{iu}}
+%    \Bigg] 
+%    \Bigg[  
+%    	\frac{\delta_{lu}\delta_{sj}}{P_{su}}
+%	-\frac{\delta_{lu}}{\epsilon_{u}}
+%        -\frac{\delta_{sj}M_{uj}\epsilon_{u}}{P_{ju}}
+%    \Bigg]  \\
+%    = M_{ki}M_{lj}
+%    \Bigg[  
+%    \frac{\delta_{ku}\delta_{ri}\delta_{lu}\delta_{sj}}{P_{ru}P_{su}}
+%    -\frac{\delta_{ku}\delta_{ri}\delta_{lu}}{P_{ru}\epsilon_{u}} 
+%    -\frac{\delta_{ku}\delta_{ri}\delta_{sj}M_{uj}}{P_{ru}P_{ju}}
+%    -\frac{\delta_{ku}\delta_{lu}\delta_{sj}}{P_{su}\epsilon_{u}}
+%    +\frac{\delta_{ku}\delta_{lu}}{\epsilon_{u}\epsilon_{u}} \\
+%    +\frac{\delta_{ku}\delta_{sj}M_{uj}\epsilon_{u}}{\epsilon_{u}P_{ju}}
+%    -\frac{\delta_{lu}\delta_{ri}\delta_{sj}M_{ui}}{P_{su}P_{iu}}
+%    +\frac{\delta_{lu}\delta_{ri}M_{ui}\epsilon_{u}}{\epsilon_{u}P_{iu}}
+%    +\frac{\delta_{ri}\delta_{sj}M_{ui}M_{uj}\epsilon_{u}\epsilon_{u}}{P_{iu}P_{ju}}
+%    \Bigg]  \\
+% \end{split}
+%\end{equation}
+%
+%Finally, we arrive at the simplified expression
+%\begin{equation} \label{eq:CovMM_full}
+% \begin{split}
+%    Cov(M_{ki},M_{lj})
+%    = M_{ki}M_{lj}
+%    \Bigg[
+%    	\frac{M_{kj}}{n_{k}}
+%    	+\frac{M_{li}}{n_{l}}
+%	-\delta_{ij}
+%	\Bigg(
+%	\frac{M_{kj}\epsilon_{k}}{n_{k}P_{jk}}
+%	+\frac{M_{kj}\epsilon_{k}}{n_{k}P_{jk}}
+%	\Bigg)  \\
+%        +\delta_{kl}
+%	\Bigg(
+%	\frac{\delta_{ij}}{n_{k}P_{ik}}
+%	-\frac{1}{n_{k}\epsilon_{k}}
+%	\Bigg)
+%	+\sum_{u}^{n_{C}}
+%	\frac{M_{ui}M_{uj}\epsilon_{u}\epsilon_{u}}{n_{u}}
+%	\Big(
+%	\frac{\delta_{ij}}{P_{ju}}-1
+%	\Big)
+%        \Bigg].
+% \end{split}
+%\end{equation}
+%The final summation term can be computed prior to solving for all elements of $Cov(M_{ki},M_{lj})$, allowing for a speedier than expected set of loops.

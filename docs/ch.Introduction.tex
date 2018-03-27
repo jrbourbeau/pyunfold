@@ -1,0 +1,23 @@
+The general class of unfolding methods is amongst the physicist's toolbox as a powerful 
+means to connect an experiment's observable variables with true physical quantities.
+Typically a matrix can be built to encompass the effects of the measurement process
+on a simulated `true' distribution and the manifestation of said distribution as an 
+experimenter's desired observable. With this response matrix, a distribution of 
+the observable in an experiment can be \textbf{unfolded}, providing an estimate of the 
+true parent distribution.
+
+A variety of unfolding methods exist, each with its respective strengths and weaknesses.
+For example, the simplest method is the matrix inversion unfolding, which for a well 
+populated, highly linear response matrix can be both efficient and precise.
+However, even with relatively small off-diagonal elements, this method can be unfavorable,
+as the matrix may be singular or may introduce wildly fluctuating results due to limited 
+statistics. There exist methods to quell such issues, though these require the tuning
+of various parameters which typically have no physical connection to the experiment at hand.
+
+Here we discuss D'Agostini's Bayesian unfolding technique presented in \cite{agostini}, a manifestly 
+\textbf{inferential} method.
+%, and its relation to the cosmic-ray energy reconstruction for the 
+%HAWC experiment. 
+Starting from Bayes' theorem, an iterative unfolding procedure is developed, 
+which then can be implemented without too much difficulty for the typical experimenter.
+This document has been adapted from Chapter 7 and Appendix B of \cite{zhampel-thesis}.

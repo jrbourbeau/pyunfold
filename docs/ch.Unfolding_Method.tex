@@ -1,0 +1,87 @@
+As discussed in the Section \ref{introduction_section}, the conceptually simplest way to connect
+true (causes, $C_{\mu}$) and observable (effects, $E_{j}$) variables is via a 
+matrix, $R$, and it's inverse $M$\footnote{\label{fnote1} Except for C and E, all variables and subscripts related to causes are Greek letters, while Latin letters are used for effects. The only superscript is the iteration number, i.}:
+\begin{equation}
+ \begin{split}
+  n(E)=R \, \phi(C), \\
+  \phi(C)=M \, n(E).
+ \end{split}
+\end{equation} 
+Due to the aforementioned potential difficulties in matrix inversion, we can take
+into consideration Bayes' theorem,
+\begin{equation} \label{eq:bayes}
+ \begin{split}
+  P(C_{\mu}|E_{j})=\frac{P(E_{j}|C_{\mu}) \, P(C_{\mu})}{\sum_{\nu}^{n_{C}} P(E_{j}|C_{\nu}) \, P(C_{\nu})} \, ,
+ \end{split}
+\end{equation}
+where $n_{C}$ is the number of possible causes.
+Equation \ref{eq:bayes} dictates that having observed the effect $E_{j}$, the probability that it's origin is due
+to the cause $C_{\mu}$ is proportional to product of the probability of the cause and the probability
+of the cause to produce that effect. Hence, the elements $P(E_{i}|C_{\mu})$ represent the probability that a given 
+$C_{\mu}$ results in the effect $E_{i}$, and is the response matrix typically generated via modeling or simulation.
+Continuing with $P(C_{\mu}|E_{j})$, we can then connect the measured observed effects to their causes by
+
+\begin{equation} \label{eq:firstUnf}
+ \begin{split}
+  \phi(C_{\mu}) = \sum_{i}^{n_{E}} P(C_{\mu}|E_{i}) \, n(E_{i}) \, .
+ \end{split}
+\end{equation}
+
+Stepping back to eq. \ref{eq:bayes} for a moment, one identifies $P(C_{\mu})$ as the prior cause distribution, representing our current 
+knowledge of the causes. The prior is a normalized distribution such that $\sum_{\mu}^{n_{C}}P(C_{\mu})=1$. 
+This normalization requirement is not imposed on the response matrix efficiency $\epsilon_{\mu}$: 
+$0 \leq \epsilon_{\mu} = \sum_{j}^{n_{E}}P(E_{j}|C_{\mu}) \leq 1$, 
+ie, a cause does not need to produce any effect. Taking this (in)-efficiency into account, we rewrite eq. \ref{eq:firstUnf} as
+
+\begin{equation}
+ \begin{split}
+  \phi(C_{\mu}) = \frac{1}{\epsilon_{\mu}} \, \sum_{i}^{n_{E}} P(C_{\mu}|E_{i}) \, n(E_{i}) \, .
+ \end{split}
+\end{equation}
+Identifying here the explicit form of $M$, the full matrix (Bayesian) inversion equation is then 
+\begin{equation} \label{eq:fullUnf}
+ \begin{split}
+  \phi(C_{\mu}) = \sum_{j}^{n_E}M_{\mu j} \, n(E_{j}) \, ,
+ \end{split}
+\end{equation}
+where 
+\begin{equation} \label{eq:fullM}
+	M_{\mu j}= \frac{P(E_{i}|C_{\mu}) \, P(C_{\mu})}{[\sum_{k}^{n_{E}} \, P(E_{k}|C_{\mu})][\sum_{\nu}^{n_{C}} \, P(E_{i}|C_{\nu}) \, P(C_{\nu})]} \, .
+\end{equation}
+The response matrix $P(E_{i}|C_{\mu})$ is generated via simulation, and the $n(E_{i})$ provided through measurement, 
+apparently bestowing the freedom to choose the form of $P(C_{\mu})$. Again, $P(C_{\mu})$ represents the total of our prior knowledge 
+of the parent distribution. Typically an experimenter refrains from introducing bias in the prior
+so an appropriate choice is the Jeffreys Prior \cite{jeffreys}:
+\begin{equation*} \label{eq:JeffPrior}
+  P_{Jeffrey}(C_{\mu}) = \frac{1}{log(C_{max}/C_{min}) \, C_{\mu}} \, ,
+\end{equation*}
+keeping in mind that the this prior dictates that all cause bins are of equal probability, not that all parent distributions are of equal probability.
+
+We now possess all the necessary machinery to perform an unfolding. Having started with the conservative Jeffreys Prior,
+the unfolded result is a Bayesian best estimate of the true distribution. There is nothing stopping us from using this result as 
+the best knowledge estimate of $P(C_{\mu})$ in eq. \ref{eq:fullM} for a subsequent unfolding. We can take this any number of steps further, 
+making the process an iterative unfolding. Thus, after calculating $\phi(C_{\mu})$ via eq. \ref{eq:fullUnf}, 
+we recalculate $M_{\mu j}$ per eq. \ref{eq:fullM}, returning again to eq. \ref{eq:fullUnf} for an updated $\phi(C_{\mu})\textprime$.
+Since $P(C_{\mu}) = \frac{\phi_{\mu}}{\sum_{\nu}{\phi_{\nu}}} = \frac{\phi_{\mu}}{N_{True}}$, where $N_{True}$ is the estimated true number of 
+cause events, we can make the change $P(C_{\mu}) \rightarrow \phi_{\mu}$ in eq. \ref{eq:fullM}. 
+Adding the iteration superscript and shortening the notation\footref{fnote1}, this equates to
+
+\begin{align*}
+	M_{\mu j} &= \frac{P_{\mu j} \, \phi^{i}_{\mu}}{\epsilon_{\mu} \sum_{\rho}{P_{\rho j} \, \phi^{i}_{\rho}}}
+	\\
+	\phi^{i+1}_{\mu} &= \sum_{j}{M_{\mu j} \, n_{j}}.
+\end{align*}
+The unfolding proceeds until a desired stopping criterion is satisfied, say by comparing subsequent iterations with a test statistic such as a $\chi^{2}$. 
+The algorithm below outlines the basics to the iterative unfolding scheme:
+\begin{algorithm}
+  \caption{Unfolding Algorithm}
+  \begin{algorithmic}
+  	\State $\phi^{0}\gets$ Prior
+	\State testStatistic$\gets$ Pass
+  	\While{ ( testStatistic = Pass ) } 
+		\State $M\gets M(P(E|C),\phi^{i})$
+		\State $\phi^{i+1}\gets M \times n$
+		\State testStatistic$\gets$ TS$(\phi^{i},\phi^{i+1})$
+	\EndWhile
+  \end{algorithmic}
+\end{algorithm}

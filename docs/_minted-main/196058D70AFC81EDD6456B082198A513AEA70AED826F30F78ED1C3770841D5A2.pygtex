@@ -1,0 +1,78 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{[analysisbins]}
+\PYG{n+na}{bin} \PYG{o}{=} \PYG{l+s}{0}
+\PYG{n+na}{stack} \PYG{o}{=} \PYG{l+s}{False}
+
+\PYG{k}{[data]}
+\PYG{c+c1}{\PYGZsh{} File containing effects dist: N(E)}
+\PYG{n+na}{inputfile} \PYG{o}{=} \PYG{l+s}{PATH\PYGZus{}TO\PYGZus{}INPUT\PYGZus{}ROOT\PYGZus{}FILE/INPUT\PYGZus{}FILE.root}
+\PYG{n+na}{ne\PYGZus{}meas} \PYG{o}{=} \PYG{l+s}{Energy}
+\PYG{n+na}{obstime} \PYG{o}{=} \PYG{l+s}{TIME}
+\PYG{n+na}{ismc} \PYG{o}{=} \PYG{l+s}{False}
+\PYG{n+na}{nc\PYGZus{}thrown} \PYG{o}{=} \PYG{l+s}{NC}
+
+\PYG{k}{[mcinput]}
+\PYG{c+c1}{\PYGZsh{} File containing MC params: Eff(C), P(E|C)}
+\PYG{n+na}{stats\PYGZus{}file} \PYG{o}{=} \PYG{l+s}{PATH\PYGZus{}TO\PYGZus{}RESPONSE\PYGZus{}ROOT\PYGZus{}FILE/RESPONSE\PYGZus{}FILE.root}
+\PYG{n+na}{eff\PYGZus{}hist} \PYG{o}{=} \PYG{l+s}{Eff}
+\PYG{n+na}{mm\PYGZus{}hist} \PYG{o}{=} \PYG{l+s}{MM}
+
+\PYG{k}{[output]}
+\PYG{n+na}{write\PYGZus{}output} \PYG{o}{=} \PYG{l+s}{True}
+\PYG{n+na}{outfile} \PYG{o}{=} \PYG{l+s}{PATH\PYGZus{}TO\PYGZus{}OUTPUT\PYGZus{}ROOT\PYGZus{}FILE/UNFOLD\PYGZus{}FILE.root}
+\PYG{n+na}{nc\PYGZus{}meas} \PYG{o}{=} \PYG{l+s}{NC}
+
+\PYG{k}{[prior]}
+\PYG{c+c1}{\PYGZsh{} Options: Jeffreys or user defined f(x) such as 10*x**\PYGZhy{}1.6}
+\PYG{c+c1}{\PYGZsh{} NB: comma separated funcs required for stacking...}
+\PYG{n+na}{func} \PYG{o}{=} \PYG{l+s}{Jeffreys}
+
+\PYG{k}{[unfolder]}
+\PYG{n+na}{unfolder\PYGZus{}name} \PYG{o}{=} \PYG{l+s}{Unf}
+\PYG{n+na}{max\PYGZus{}iter} \PYG{o}{=} \PYG{l+s}{100}
+\PYG{c+c1}{\PYGZsh{} Smooth each iter w/Regulizer}
+\PYG{n+na}{smooth\PYGZus{}with\PYGZus{}reg} \PYG{o}{=} \PYG{l+s}{True}
+\PYG{n+na}{verbose} \PYG{o}{=} \PYG{l+s}{False}
+
+\PYG{k}{[regularization]}
+\PYG{c+c1}{\PYGZsh{} Function form, in root format}
+\PYG{n+na}{reg\PYGZus{}func} \PYG{o}{=} \PYG{l+s}{[0]*x**[1]}
+\PYG{c+c1}{\PYGZsh{} Fit Range}
+\PYG{n+na}{reg\PYGZus{}range} \PYG{o}{=} \PYG{l+s}{1e4,1e10}
+\PYG{c+c1}{\PYGZsh{} Give your parameters names!}
+\PYG{n+na}{param\PYGZus{}names} \PYG{o}{=} \PYG{l+s}{Norm,Idx}
+\PYG{c+c1}{\PYGZsh{} And initial values \PYGZam{} limits}
+\PYG{n+na}{param\PYGZus{}init} \PYG{o}{=} \PYG{l+s}{1e8,\PYGZhy{}2.5}
+\PYG{n+na}{param\PYGZus{}lim\PYGZus{}lo} \PYG{o}{=} \PYG{l+s}{1e2,\PYGZhy{}10}
+\PYG{n+na}{param\PYGZus{}lim\PYGZus{}hi} \PYG{o}{=} \PYG{l+s}{1e20,\PYGZhy{}1}
+\PYG{n+na}{plot} \PYG{o}{=} \PYG{l+s}{False}
+\PYG{n+na}{verbose} \PYG{o}{=} \PYG{l+s}{False}
+
+\PYG{k}{[teststatistic]}
+\PYG{c+c1}{\PYGZsh{} TS method. Options: rmd, chi2, pf, ks}
+\PYG{n+na}{ts\PYGZus{}name} \PYG{o}{=} \PYG{l+s}{ks}
+\PYG{c+c1}{\PYGZsh{} TS equivalence tolerance}
+\PYG{n+na}{ts\PYGZus{}tolerance} \PYG{o}{=} \PYG{l+s}{0.001}
+\PYG{c+c1}{\PYGZsh{} TS cause range}
+\PYG{n+na}{ts\PYGZus{}range} \PYG{o}{=} \PYG{l+s}{1e4,1e10}
+\PYG{n+na}{verbose} \PYG{o}{=} \PYG{l+s}{True}
+
+\PYG{k}{[mixer]}
+\PYG{n+na}{mix\PYGZus{}name} \PYG{o}{=} \PYG{l+s}{SrMixALot}
+\PYG{c+c1}{\PYGZsh{} Cov Matrix. Options: DCM (faster), ACM (more correct)}
+\PYG{n+na}{error\PYGZus{}type} \PYG{o}{=} \PYG{l+s}{ACM}
+
+\PYG{k}{[flux]}
+\PYG{c+c1}{\PYGZsh{} Function form, in root format}
+\PYG{n+na}{reg\PYGZus{}func} \PYG{o}{=} \PYG{l+s}{[0]*x**[1]}
+\PYG{c+c1}{\PYGZsh{} Fit Range}
+\PYG{n+na}{reg\PYGZus{}range} \PYG{o}{=} \PYG{l+s}{5e3,5e6}
+\PYG{c+c1}{\PYGZsh{} Give your parameters names!}
+\PYG{n+na}{param\PYGZus{}names} \PYG{o}{=} \PYG{l+s}{Norm,Idx}
+\PYG{c+c1}{\PYGZsh{} And initial values \PYGZam{} limits}
+\PYG{n+na}{param\PYGZus{}init} \PYG{o}{=} \PYG{l+s}{1e4,\PYGZhy{}2.5}
+\PYG{n+na}{param\PYGZus{}lim\PYGZus{}lo} \PYG{o}{=} \PYG{l+s}{1e1,\PYGZhy{}5}
+\PYG{n+na}{param\PYGZus{}lim\PYGZus{}hi} \PYG{o}{=} \PYG{l+s}{1e10,\PYGZhy{}1}
+\PYG{n+na}{plot} \PYG{o}{=} \PYG{l+s}{False}
+\PYG{n+na}{verbose} \PYG{o}{=} \PYG{l+s}{False}
+\end{Verbatim}

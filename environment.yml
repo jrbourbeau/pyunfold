@@ -1,0 +1,15 @@
+name: pyunfold_dev
+channels:
+  - conda-forge
+dependencies:
+  # Analysis requirements
+  - numpy
+  - matplotlib
+  - root5
+  # Testing requirements
+  - pytest
+  - flake8
+  # Documentation requirements
+  - sphinx
+  - numpydoc
+  - sphinx_rtd_theme
