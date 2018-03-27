@@ -4,6 +4,7 @@ channels:
 dependencies:
   # Analysis requirements
   - numpy
+  - scipy
   - matplotlib
   - root5
   # Testing requirements

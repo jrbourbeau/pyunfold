@@ -181,7 +181,7 @@ def Unfold(config_name="",return_dists=False,EffDist=None,plot_local=False, **kw
     Rglzr = [Utils.Regularizer("REG",FitFunc=[RegFunc],Range=RegRange,InitialParams=InitParams,ParamLo=PLimLo,ParamHi=PLimHi,\
                                ParamNames=ParamNames,xarray=Caxis[i],xedges=Cedges[i],verbose=RegVFlag,plot=RegPFlag) for i in range(nStack)]
     # Prepare Test Statistic-er
-    tsMeth = Utils.GetTS(tsname)
+    tsMeth = Utils.get_ts(tsname)
     tsFunc = [tsMeth(tsname,tol=tsTol,Xaxis=Caxis[i],TestRange=tsRange,verbose=tsVerbFlag) for i in range(nStack)]
 
     # Prepare Mixer
