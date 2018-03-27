@@ -5,24 +5,23 @@
    and regularization.
 """
 
+from __future__ import division, print_function
+import sys
+import ConfigParser
 import numpy as np
+from scipy.special import gammainc as gammaq
+from scipy.special import gammaln as lgamma
+from scipy.stats import kstwobign
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 import ROOT
 from ROOT import TF1, TH1F
 from ROOT import gROOT, gSystem
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.ticker import ScalarFormatter
-
-from functools import wraps
-import ConfigParser
-import re
-
-
 gROOT.Reset()
 # Turn Off TCanvas Warning at DATA.Fit
-ROOT.gErrorIgnoreLevel=ROOT.kWarning
+ROOT.gErrorIgnoreLevel = ROOT.kWarning
 
 
 def none_to_empty_list(*args):
@@ -42,80 +41,116 @@ def none_to_empty_list(*args):
 
 # Inverse of Numpy Array; Set Elements to 0 if 0
 def safe_inverse(x):
-    idx_nzer = (np.abs(x)>0)
-    inv = np.zeros(x.shape)
-    inv[idx_nzer] = 1/x[idx_nzer]
+    """Safely inverts the elements in x
+
+    Parameters
+    ----------
+    x : array_like
+        Input array to take the inverse of (i.e. 1 / x).
+
+    Returns
+    -------
+    inv : numpy.ndarray
+        Inverse of input array with inf set to zero.
+
+    Examples
+    --------
+    >>> a = [1, 2, 3, 0, 4]
+    >>> safe_inverse(a)
+    array([1.        , 0.5       , 0.33333333, 0.        , 0.25      ])
+    """
+    x = np.asarray(x)
+    is_zero = x == 0
+    with np.errstate(divide='ignore'):
+        inv = 1 / x
+    inv[is_zero] = 0
+
     return inv
+
 
 # Class for Managing Configuration Files
 class ConfigFM:
-  def __init__(self,file):
-    self.parser = ConfigParser.ConfigParser()
-    self.parser.readfp(open(file))
-    self.parser.read(file)
+    """Class for Managing Configuration Files
+    """
+    def __init__(self, file):
+        self.parser = ConfigParser.ConfigParser()
+        self.parser.readfp(open(file))
+        self.parser.read(file)
 
-  def get(self,sec,opt,is_bool = False,is_quiet = True,default = None,cast = None):
-    response = default
-    if sec in self.parser.sections():
-      if opt.lower() in self.parser.options(sec):
-        try: response = self.parser.getboolean(sec,opt) if is_bool else self.parser.get(sec,opt)
-        except Exception,e: print "Exception: %s" % e
-      elif(not is_quiet and default is None):
-          raise ValueError("Requested option %s not present in section %s" % (opt,sec))
-    elif(not is_quiet):
-        raise ValueError("Requested section %s not found" % sec)
-    if(response is not None and cast is not None):
-      try: newresp = cast(response)
-      except: return response
-      return newresp
-    return response
+    def get(self, sec, opt, is_bool=False, is_quiet=True, default=None,
+            cast=None):
+        response = default
+        if sec in self.parser.sections():
+            if opt.lower() in self.parser.options(sec):
+                try:
+                    response = self.parser.getboolean(sec, opt) if is_bool else self.parser.get(sec, opt)
+                except Exception as e:
+                    print('Exception: {}'.format(e))
+            elif(not is_quiet and default is None):
+                raise ValueError("Requested option {} not present in section {}".format(opt, sec))
+        elif(not is_quiet):
+            raise ValueError("Requested section {} not found".format(sec))
+        if(response is not None and cast is not None):
+            try:
+                newresp = cast(response)
+                return newresp
+            except Exception as e:
+                return response
 
-  def get_boolean(self,sec,opt,is_quiet = True,default = None):
-    return self.get(sec,opt,True,is_quiet,default)
+        return response
 
-# Jeffreys Prior
-def JeffreysPrior(norm,xarray):
+    def get_boolean(self, sec, opt, is_quiet=True, default=None):
+        return self.get(sec, opt, True, is_quiet, default)
+
+
+def JeffreysPrior(norm, xarray):
+    """Jeffreys Prior
+    """
     # All cause bins are given equal probability.
     # Best prior for x-ranges spanning decades.
     ilen = len(xarray)
-    ln_factor = np.log(xarray[ilen-1]/xarray[0])
-    jprior = norm/(ln_factor*xarray)
+    ln_factor = np.log(xarray[ilen - 1] / xarray[0])
+    jprior = norm / (ln_factor * xarray)
 
     return jprior
 
-# User provided prior function
+
 def UserPrior(FuncList, xarray, norm):
+    """User provided prior function
+    """
     nAnalysisBins = len(FuncList)
     prior = []
     for ibin in range(nAnalysisBins):
         FuncString = FuncList[ibin]
         ixarray = xarray[ibin].copy()
         if (FuncString.lower() == "jeffreys"):
-            iprior = JeffreysPrior(norm,ixarray)
+            iprior = JeffreysPrior(norm, ixarray)
         else:
-            exec "def func(x): return %s"%FuncString
+            exec("def func(x): return {}".format(FuncString))
             iprior = func(ixarray)
         if prior == []:
             prior = iprior
         else:
-            prior = np.append(prior,iprior)
+            prior = np.append(prior, iprior)
 
     return prior
 
-# Class to define generic distribution w/assoc labels & axes
+
 class DataDist:
+    """Class to define generic distribution w/assoc labels & axes
+    """
     def __init__(self, name="", data=None, error=None, axis=None, edges=None,
                  xlabel="", ylabel="", units="", **kwargs):
         data, error, axis, edges = none_to_empty_list(data, error, axis, edges)
-        self.name  = name
-        self.data  = data
+        self.name = name
+        self.data = data
         self.nbins = len(data)
         self.error = error
-        self.axis  = axis
+        self.axis = axis
         self.edges = edges
         self.width = np.diff(edges)
-        self.xlab  = xlabel
-        self.ylab  = ylabel
+        self.xlab = xlabel
+        self.ylab = ylabel
         self.units = units
         # Systematic and Statistical Error
         self.sterr = np.zeros(self.nbins)
@@ -124,24 +159,33 @@ class DataDist:
 
     # Ensure that arrays are of proper lenghts
     def CheckArrays(self):
-        if (self.nbins != len(self.error)): raise Exception, "%s data and error arrays unequal length!"%self.name
-        if (self.nbins != len(self.axis)): raise Exception, "%s data and axis arrays unequal length!"%self.name
-        if (self.nbins != len(self.edges)-1): raise Exception, "%s data and edges arrays improper length!"%self.name
+        if self.nbins != len(self.error):
+            raise ValueError("{} data and error arrays unequal length!".format(self.name))
+        if self.nbins != len(self.axis):
+            raise ValueError("{} data and axis arrays unequal length!".format(self.name))
+        if self.nbins != len(self.edges) - 1:
+            raise ValueError("{} data and edges arrays improper length!".format(self.name))
 
     # Getter functions for data and error arrays
     def getData(self):
         return self.data
+
     def getError(self):
         return self.error
+
     # Setter functions systematic and statistical error arrays
-    def setStatErr(self,staterr):
+    def setStatErr(self, staterr):
         self.sterr = staterr.copy()
-    def setSysErr(self,syserr):
+
+    def setSysErr(self, syserr):
         self.syerr = syserr.copy()
 
-# Class to define power law and further functionality
-class PowerLaw:
-    def __init__(self, name="ExamplePowerLaw", Nevents=1e5, Index=2.7, Xlim=[1e12,1e15]):
+
+class PowerLaw(object):
+    """Class to define power law and further functionality
+    """
+    def __init__(self, name="ExamplePowerLaw", Nevents=1e5, Index=2.7,
+                 Xlim=(1e12, 1e15)):
         self.name = name
         self.Nevents = Nevents
         self.idx = Index
@@ -149,54 +193,45 @@ class PowerLaw:
         self.xhi = Xlim[1]
 
     # Get the number of events in a x-range
-    def getN(self,xlo,xhi):
+    def getN(self, xlo, xhi):
         if (self.idx == 1):
-            numer = np.log(xhi)-np.log(xlo)
-            denom = np.log(self.xhi)-np.log(self.xlo)
+            numer = np.log(xhi) - np.log(xlo)
+            denom = np.log(self.xhi) - np.log(self.xlo)
         else:
-            g = 1-self.idx
-            numer = xhi**g-xlo**g
-            denom = self.xhi**g-self.xlo**g
-        return numer/denom
+            g = 1 - self.idx
+            numer = xhi**g - xlo**g
+            denom = self.xhi**g - self.xlo**g
+        return numer / denom
 
     # Fill a frequency spectrum
     # Can either draw from distribution randomly or
     # keep analytical form of dist scaled by Nevents
-    def Fill(self,X=None,method="rand"):
-        N = np.zeros(len(X)-1)
-        if (method=="rand"):
+    def Fill(self, X=None, method="rand"):
+        N = np.zeros(len(X) - 1)
+        if method == "rand":
             rand_E = self.Random()
-            N, bin_edges = np.histogram(rand_E,X)
-        elif (method=="analytic"):
-            for i in xrange(0,len(N)):
-                N[i] = self.Nevents*self.getN(X[i],X[i+1])
+            N, bin_edges = np.histogram(rand_E, X)
+        elif method == "analytic":
+            for i in xrange(0, len(N)):
+                N[i] = self.Nevents*self.getN(X[i], X[i + 1])
                 N[i] = np.int(N[i])
         return N
 
     # Draw a random number or array of random
     # numbers distributed via the parent pl dist
-    def Random(self,N=None):
-        if (N is None):
+    def Random(self, N=None):
+        if N is None:
             N = self.Nevents
-        g = 1-self.idx
+        g = 1 - self.idx
         y = np.random.rand(N)
-        pl_rand = (self.xhi**g-self.xlo**g)*y+self.xlo**g
-        pl_rand = pl_rand**(1/g)
+        pl_rand = (self.xhi**g - self.xlo**g) * y + self.xlo**g
+        pl_rand = pl_rand**(1 / g)
         return pl_rand
 
-    def Print(self):
-        print ""
-        print ""
-        print "Power Law %s data:"%self.name
-        print "\tSpectral (Flux) Index:\t%.01f"%self.idx
-        print "\tNevents: \t\t%.0e"%self.Nevents
-        print "\tEnergy Limits: \t\t%.01e %.01e"%(self.xlo,self.xhi)
-        print ""
-        print ""
 
-# Generic Test Statistic Class
-class TestStat:
-    'Common base class for test statistic methods'
+class TestStat(object):
+    """Common base class for test statistic methods
+    """
     def __init__(self, name="TestStat", tol=None, Xaxis=None, TestRange=None,
                  verbose=False, **kwargs):
         Xaxis, TestRange = none_to_empty_list(Xaxis, TestRange)
@@ -213,7 +248,7 @@ class TestStat:
         self.verbose = verbose
         self.printProbMessage = True
         self.printStatsHeader = True
-        if (verbose):
+        if verbose:
             self.PrintName()
         # Initialize Unnatural TS data
         self.stat = -1
@@ -274,7 +309,9 @@ class TestStat:
 
     # Calculate the TS
     def TSCalc(self, N1, N2):
-        return "Undefined Test Statistics Calculator"
+        """Undefined Test Statistics Calculator
+        """
+        raise NotImplementedError()
 
     # Calculate the TS Probability Function
     def Prob(self):
@@ -283,8 +320,8 @@ class TestStat:
             self.printProbMessage = False
 
     def PrintName(self):
-        print "\nTest Statistic Method: ", self.__doc__
-        print "Test statistic only valid in range: %e %e\n"%(self.TSRange[0],self.TSRange[1])
+        print("\nTest Statistic Method: ", self.__doc__)
+        print("Test statistic only valid in range: %e %e\n"%(self.TSRange[0],self.TSRange[1]))
 
     def PrintStats(self):
         if (self.printStatsHeader):
@@ -308,9 +345,10 @@ class TestStat:
         # Return TS Data
         return self.stat, self.delstat, self.prob
 
-# Chi2 test - comparing two binned distributions
+
 class Chi2(TestStat):
-    'Reduced Chi2 Test Statistic'
+    """Reduced Chi2 Test Statistic
+    """
     def TSCalc(self, N1, N2):
         N1, N2 = self.GetArrayRange(N1,N2)
         self.TestLengths(N1,N2)
@@ -328,11 +366,6 @@ class Chi2(TestStat):
         self.SetStat(stat)
 
     def Prob(self):
-        try:
-            from scipy.special import gammainc as gammaq
-        except:
-            print("Cannot find scipy.special.gammainc... :(")
-
         # Chi2 Probability Function
         self.prob = gammaq(0.5*self.dof,0.5*self.stat)
 
@@ -347,12 +380,6 @@ class PF(TestStat):
         lnB = 0
         n1 = np.sum(N1)
         n2 = np.sum(N2)
-        try:
-            from scipy.special import gammaln as lgamma
-        except e:
-            print e
-            raise ImportError
-
         nFactor = lgamma(n1+n2+2) - lgamma(n1+1) - lgamma(n2+1)
 
         lnB += nFactor
@@ -384,10 +411,11 @@ class RMD(TestStat):
 # and
 # http://docs.scipy.org/doc/scipy-0.13.0/reference/generated/scipy.stats.kstwobign.html
 class KS(TestStat):
-    'KS Test Statistic'
-    def TSCalc(self,N1, N2):
-        N1, N2 = self.GetArrayRange(N1,N2)
-        self.TestLengths(N1,N2)
+    """KS Test Statistic
+    """
+    def TSCalc(self, N1, N2):
+        N1, N2 = self.GetArrayRange(N1, N2)
+        self.TestLengths(N1, N2)
 
         n1 = np.sum(N1)
         n2 = np.sum(N2)
@@ -403,7 +431,6 @@ class KS(TestStat):
 
     def Prob(self):
         try:
-            from scipy.stats import kstwobign
             prob = kstwobign.sf((en+.12+.11/en)*d)
         except:
             prob = 1.0
@@ -412,27 +439,30 @@ class KS(TestStat):
         self.prob = prob
 
 
-# Key for Selecting TS Method
-global StatOptionsKey
-StatOptionsKey = {
-    "chi2" : Chi2,
-    "pf" : PF,
-    "rmd" : RMD,
-    "ks" : KS
-    }
+def get_ts(name='ks'):
+    """Convenience function for retrieving TestStat object
 
-def GetTS(func=None):
-    if func in StatOptionsKey:
-        return StatOptionsKey[func]
+    Parameters
+    ----------
+    name : {'ks', 'chi2', 'pf', 'rmd'}
+        Name of test statistic.
+
+    Returns
+    -------
+    ts : TestStat
+        Test statistics object
+    """
+    name_to_ts = {"chi2": Chi2,
+                  "pf": PF,
+                  "rmd": RMD,
+                  "ks": KS,
+                  }
+    if name in name_to_ts:
+        ts = name_to_ts[name]
+        return ts
     else:
-        print("==================================")
-        print("Test statistic function not found.")
-        print("Options in TS tests are:")
-        for keys,values in StatOptionsKey.items():
-            print("  "+keys+":\t"+values.__doc__)
-        print("Exiting...")
-        import sys
-        sys.exit(0)
+        raise ValueError('Invalid test statisitc, {}, entered. Must be '
+                         'in {}'.format(name, name_to_ts.keys()))
 
 
 class Regularizer:
@@ -482,8 +512,8 @@ class Regularizer:
             stringFunc = stringFunc.replace("%i"%i,self.ParamNames[i])
         stringFunc = stringFunc.replace('[',"")
         stringFunc = stringFunc.replace(']',"")
-        print "\nRegularizing %i-parameter function initialized to form: %s"%(self.nParams,stringFunc)
-        print "Can only support fit functions with up to 10 parameters.\n"
+        print("\nRegularizing %i-parameter function initialized to form: %s"%(self.nParams,stringFunc))
+        print("Can only support fit functions with up to 10 parameters.\n")
 
     def SetFitRange(self,Range):
 
@@ -550,7 +580,7 @@ class Regularizer:
     # Regularization procedure
     def Regularize(self, ydata, yerr=None):
 
-        if yerr is None
+        if yerr is None:
             yerr = []
 
         # Local variable for cleanliness
@@ -596,12 +626,12 @@ class Regularizer:
 
         # Print Results Nicely :)
         if (self.verbose):
-            print "====================="
-            print "Fit Parameter Results"
+            print("=====================")
+            print("Fit Parameter Results")
             for i in xrange(0,nPar):
-                print self.ParamNames[i], " = ", self.Params[i]
-            print "Red X2: = ", self.GetRedChi2()
-            print "====================="
+                print(self.ParamNames[i], " = ", self.Params[i])
+            print("Red X2: = ", self.GetRedChi2())
+            print("=====================")
 
         # Plot Comparison Nicely :)
         if (self.plot):
