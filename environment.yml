@@ -9,7 +9,6 @@ dependencies:
   - pandas
   - matplotlib
   - root5
-  - root-numpy
   # Testing requirements
   - pytest
   - flake8
