@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
    Functions to load monte carlo statistic
    data from provided root file.

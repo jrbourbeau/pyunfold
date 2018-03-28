@@ -1,5 +1,8 @@
 # pyunfold
 
+[![Build Status](https://travis-ci.org/jrbourbeau/pyunfold.svg?branch=master)](https://travis-ci.org/jrbourbeau/pyunfold)
+![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
+
 Pyunfold is a Python package for implementing the iterative Bayesian unfolding method outlined in
 
 > G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A 362 (1995) 487

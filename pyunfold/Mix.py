@@ -9,7 +9,7 @@
 import sys
 import numpy as np
 from CovMatrix import CovarianceMatrix as CovMatrix
-from .Utils import safe_inverse
+from .Utils import safe_inverse, none_to_empty_list
 
 
 class Mixer:

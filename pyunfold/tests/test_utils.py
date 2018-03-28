@@ -1,12 +1,17 @@
 
-from __future__ import division
+from __future__ import division, print_function
 import numpy as np
 import pytest
 
 from pyunfold.Utils import none_to_empty_list, safe_inverse, get_ts
 
 
-def test_none_to_empty_list():
+def test_none_to_empty_list_single_input():
+    assert none_to_empty_list(None) == []
+    assert none_to_empty_list('not empty') == 'not empty'
+
+
+def test_none_to_empty_list_multi_input():
     a_original, b_original, c_original = 1, None, 'a string'
     a, b, c = none_to_empty_list(a_original, b_original, c_original)
 

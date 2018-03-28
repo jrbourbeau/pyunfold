@@ -1,13 +1,14 @@
-#!/usr/bin/env python
 """
    Class to perform an iterative unfolding,
    stopping when either max_iter or test
    statistic tolerance is reached.
 """
 
-import numpy as np
-import sys
 import os
+import sys
+import warnings
+import numpy as np
+import pandas as pd
 
 import ROOT
 from ROOT import TCanvas, TFile, TH2F, TH1F, TF1, TGraph, TGraphErrors, TGraphAsymmErrors
@@ -24,31 +25,34 @@ from .Utils import none_to_empty_list
 from .Plotter import *
 from .RootReader import mkDir
 
+# Ignore ROOT fit RuntimeWarning
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="ROOT")
+
 
 class IterativeUnfolder(object):
     """Common base class for Unfolder
     """
-    def __init__(self, name, maxIter=100, smoothIter=False, n_c=None,
-                 MixFunc=None, RegFunc=None, TSFunc=None, Stack=False,
+    def __init__(self, name, max_iter=100, smooth_iter=False, n_c=None,
+                 mix_func=None, reg_func=None, ts_func=None, stack=False,
                  verbose=False, **kwargs):
 
-        n_c, MixFunc, RegFunc, TSFunc = none_to_empty_list(n_c,
-                                                           MixFunc,
-                                                           RegFunc,
-                                                           TSFunc)
+        n_c, mix_func, reg_func, ts_func = none_to_empty_list(n_c,
+                                                              mix_func,
+                                                              reg_func,
+                                                              ts_func)
 
         self.name = name
-        self.maxIter = maxIter
-        self.smoothIter = smoothIter
-        # Stacking Info
-        self.StackFlag = Stack
-        self.nStack = len(RegFunc)
-        # Stacking Bin Indices Initializer
-        self.StackInd = [[] for i in range(self.nStack)]
+        self.max_iter = max_iter
+        self.smooth_iter = smooth_iter
+        # stacking Info
+        self.stack_flag = stack
+        self.nstack = len(reg_func)
+        # stacking Bin Indices Initializer
+        self.stackInd = [[] for i in range(self.nstack)]
         # Mixing, Regularizing, Test Statistic Functions
-        self.Mix = MixFunc
-        self.Rglzr = RegFunc
-        self.tsFunc = TSFunc
+        self.Mix = mix_func
+        self.Rglzr = reg_func
+        self.ts_func = ts_func
         # If user doesn't provide prior...
         self.n_c = n_c.copy()
         # Count Iterations
@@ -56,7 +60,7 @@ class IterativeUnfolder(object):
 
         # Lists to Append Iteration Results
         #  Unfolded Results
-        self.n_c_iters = [[] for i in range(self.nStack)]
+        self.n_c_iters = [[] for i in range(self.nstack)]
         self.n_c_labels = []
         self.n_c_labels.append("Prior")
         self.n_c_final = []
@@ -64,17 +68,17 @@ class IterativeUnfolder(object):
         self.statErr = []
         self.sysErr = []
         #  Regularization Results
-        self.ParamOut = [[] for i in range(self.nStack)]
-        for j in range(self.nStack):
-            [self.ParamOut[j].append([]) for i in xrange(0,RegFunc[j].nParams)]
+        self.ParamOut = [[] for i in range(self.nstack)]
+        for j in range(self.nstack):
+            [self.ParamOut[j].append([]) for i in xrange(0,reg_func[j].nParams)]
         self.N_measured_out = []
         self.N_measured_out.append(np.sum(n_c))
 
         #  Test Statistic Results
-        self.TS_out = [[] for i in range(self.nStack)]
+        self.TS_out = [[] for i in range(self.nstack)]
 
-        # Set Stacking Bin Indices
-        self.SetStackInd()
+        # Set stacking Bin Indices
+        self.SetstackInd()
 
         # ROOT Output Info
         self.RootName = ""
@@ -95,40 +99,59 @@ class IterativeUnfolder(object):
     def GetINC(self,ind):
         return self.n_c_iters[ind], self.n_c_labels
 
-    def SetStackInd(self):
+    def SetstackInd(self):
         iind = 0
-        for iS in range(self.nStack):
+        for iS in range(self.nstack):
             iaxis = self.Rglzr[iS].xarray.copy()
-            self.StackInd[iS] = [range(iind,iind+len(iaxis))]
+            self.stackInd[iS] = [range(iind,iind+len(iaxis))]
             iind += len(iaxis)
 
     def passTol(self):
         passFlag = True
-        for iS in range(self.nStack):
-            passFlag *= self.tsFunc[iS].PassTol()
+        for iS in range(self.nstack):
+            passFlag *= self.ts_func[iS].PassTol()
         return passFlag
 
     def IUnfold(self):
-        print("\n====Starting Iterative Unfolding! Exciting!!!===\n")
-        print("Iter: %i"%self.counter)
+        """Perform iterative unfolding
+
+        Parameters
+        ----------
+        self : self
+
+        Returns
+        -------
+        unfolding_result : pandas.DataFrame
+            DataFrame containing the unfolded result for each iteration.
+            Each row in unfolding_result corresponds to an iteration.
+        """
+        # Create dictionary to store unfolding result at each iteration
+        unfolding_result = {}
+
         # First Mixing
         n_c_update = self.Mix.Smear(self.n_c)
-        self.counter += 1
         n_update = np.sum(n_c_update)
 
+        # Add first mixing result to unfolding_result
+        unfolding_result[self.counter] = {'n_c': n_c_update,
+                                         'stat_err': self.Mix.getStatErr(),
+                                         'sys_err': self.Mix.getMCErr()}
+
+        self.counter += 1
+
         # Calculate Chi2 of first mix with prior
-        for iS in range(self.nStack):
-            iind = self.StackInd[iS]
+        for iS in range(self.nstack):
+            iind = self.stackInd[iS]
             inc = self.n_c[iind]
             self.n_c_iters[iS].append(inc)
             incu = n_c_update[iind]
-            TS_cur, TS_del, TS_prob = self.tsFunc[iS].GetStats(incu,inc)
+            TS_cur, TS_del, TS_prob = self.ts_func[iS].GetStats(incu,inc)
             self.TS_out[iS].append(TS_cur)
         prev_fit = self.n_c.copy()
 
         reg_fit = np.zeros(self.n_c.shape)
         # Perform Iterative Unfolding
-        while (not self.passTol() and self.counter < self.maxIter):
+        while (not self.passTol() and self.counter < self.max_iter):
             self.n_c_labels.append("Iter %s"%self.counter)
 
             # Updated unfolded distribution
@@ -140,8 +163,8 @@ class IterativeUnfolder(object):
             self.N_measured_out.append(n_update)
 
             # Regularize unfolded dist in favor of 'smooth physics' prior
-            for iS in range(self.nStack):
-                iind = self.StackInd[iS][0]
+            for iS in range(self.nstack):
+                iind = self.stackInd[iS][0]
                 incu = n_c_update[iind]
                 self.n_c_iters[iS].append(incu)
                 reg_fit_iS, FitParams = self.Rglzr[iS].Regularize(incu)
@@ -152,24 +175,29 @@ class IterativeUnfolder(object):
                     self.ParamOut[iS][j].append(FitParams[j])
 
                 # Smoothed n_c for next iteration
-                if (self.smoothIter):
+                if (self.smooth_iter):
                     n_c[iind] = reg_fit_iS.copy()
             #n_reg_events = np.sum(reg_fit)
 
             # Mix w/n_c from previous iter
             n_c_update = self.Mix.Smear(n_c)
-            self.counter += 1
             n_update = np.sum(n_c_update)
 
-            print("Iter: %i"%self.counter)
+            # Add mixing result to unfolding_result
+            unfolding_result[self.counter] = {'n_c': n_c_update,
+                                             'stat_err': self.Mix.getStatErr(),
+                                             'sys_err': self.Mix.getMCErr()}
+
+            self.counter += 1
+
             # Calculate Chi2 wrt previous regularization
-            for iS in range(self.nStack):
-                iind = self.StackInd[iS][0]
+            for iS in range(self.nstack):
+                iind = self.stackInd[iS][0]
                 inc = self.n_c[iind]
                 incu = n_c_update[iind]
                 incp = n_c_prev[iind]
-                TS_cur, TS_del, TS_prob = self.tsFunc[iS].GetStats(incu,incp)
-                #TS_cur, TS_del, TS_prob = self.tsFunc[iS].GetStats(n_c_update[iind],n_c_prev[iind])
+                TS_cur, TS_del, TS_prob = self.ts_func[iS].GetStats(incu,incp)
+                #TS_cur, TS_del, TS_prob = self.ts_func[iS].GetStats(n_c_update[iind],n_c_prev[iind])
                 self.TS_out[iS].append(TS_cur)
             prev_fit = reg_fit.copy()
 
@@ -184,8 +212,8 @@ class IterativeUnfolder(object):
         # Save n_update for root output
         self.N_measured_out.append(n_update)
         # Regularize unfolded dist in favor of 'smooth physics' prior
-        for iS in range(self.nStack):
-            iind = self.StackInd[iS]
+        for iS in range(self.nstack):
+            iind = self.stackInd[iS]
             incu = n_c_final[iind]
             self.n_c_iters[iS].append(incu)
             final_fit, FitParams = self.Rglzr[iS].Regularize(incu)
@@ -195,6 +223,11 @@ class IterativeUnfolder(object):
 
         ## Plot results of iterations
         self.n_c_labels.append("Final")
+
+        # Convert unfolding_result dictionary to a pandas DataFrame
+        unfolding_result = pd.DataFrame.from_dict(unfolding_result, orient='index')
+
+        return unfolding_result
 
     # Set the Labels for ROOT Plots
     def SetAxesLabels(self,Exlab,Eylab,Cxlab,Cylab):
@@ -218,8 +251,8 @@ class IterativeUnfolder(object):
         Vc = self.covM.copy()
         n_c_err_tot = np.sqrt(Vc.diagonal())
 
-        for iS in range(self.nStack):
-            sind = self.StackInd[iS]
+        for iS in range(self.nstack):
+            sind = self.stackInd[iS]
             n_c_final = n_c_final_tot[sind]
             n_c_err = n_c_err_tot[sind]
             # Get the results
@@ -230,7 +263,7 @@ class IterativeUnfolder(object):
 
             nIter = self.counter
 
-            tsFunc = self.tsFunc[iS]
+            ts_func = self.ts_func[iS]
 
             Rglzr = self.Rglzr[iS]
             Caxis = Rglzr.xarray.copy()
@@ -288,7 +321,7 @@ class IterativeUnfolder(object):
             TS_TGRAPH = TGraph(nIter,ArrIter,np.asarray(TS_out))
             TS_TGRAPH.SetTitle('Test Statistic vs Iteration')
             TS_TGRAPH.GetXaxis().SetTitle('Iteration')
-            TS_TGRAPH.GetYaxis().SetTitle(tsFunc.name)
+            TS_TGRAPH.GetYaxis().SetTitle(ts_func.name)
 
             # Final Covariance and Coefficient of Correlation Matrices
             COV = TH2F("COVM","Covariance Matrix - %s"%self.Mix.ErrorType,len(Caxis),Cedges,len(Caxis),Cedges)
@@ -343,7 +376,7 @@ class IterativeUnfolder(object):
                 CORR.Write("CorrM")
                 NOBSERVED.Write(NEName)
                 NMEASURED.Write("%sMeasured"%NCName.lower())
-                TS_TGRAPH.Write("%s"%(tsFunc.name))
+                TS_TGRAPH.Write("%s"%(ts_func.name))
                 for j in xrange(0,Rglzr.nParams):
                     PARAMS[j].Write("%s"%(Rglzr.ParamNames[j]))
 

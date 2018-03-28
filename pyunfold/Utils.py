@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
    Utility functions provided for
    config file parsing, test statistic methods,
@@ -29,6 +28,13 @@ def none_to_empty_list(*args):
 
     Examples
     --------
+    Single input case
+
+    >>> none_to_empty_list(None)
+    []
+
+    Multiple input case
+
     >>> a, b, c = None, 'woo', 34
     >>> none_to_empty_list(a, b, c)
     [[], 'woo', 34]
@@ -36,7 +42,10 @@ def none_to_empty_list(*args):
     outputs = []
     for arg in args:
         outputs.append(arg if arg is not None else [])
-    return outputs
+    if len(outputs) == 1:
+        return outputs[0]
+    else:
+        return outputs
 
 
 # Inverse of Numpy Array; Set Elements to 0 if 0
@@ -503,7 +512,7 @@ class Regularizer:
         # Set the Parameter limits if provided
         self.SetParLimits()
 
-        self.PrintInitMessage()
+        # self.PrintInitMessage()
 
     # Initialization Message Print Out
     def PrintInitMessage(self):

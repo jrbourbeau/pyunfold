@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
    Root file reading routines for getting
    various plotting objects from specified
