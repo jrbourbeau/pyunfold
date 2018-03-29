@@ -78,16 +78,27 @@ def safe_inverse(x):
     return inv
 
 
-def save_root_file(counts, counts_err, response, response_err,
-                   efficiencies, efficiencies_err, outfile):
-    """Save numpy arrays to a ROOT file
+def save_input_to_root_file(counts, counts_err, response, response_err,
+                            efficiencies, efficiencies_err, outfile):
+    """Save input arrays to a ROOT file
 
     Parameters
     ----------
+    counts : array_like
+        Input observed data distribution.
+    counts_err : array_like
+        Uncertainties associated with the input observed data distribution.
+        Must be the same shape as counts.
+    response : array_like
+        Response matrix.
+    response_err : array_like
+        Response matrix errors.
+    efficiencies : array_like
+        Detection efficiencies for the observed data distribution.
+    efficiencies_err : array_like
+        Uncertainty in detection efficiencies.
     outfile : str
         Path where output ROOT file will be saved.
-    response : {'diagonal', 'triangular'}
-        Whether to use a diagonal or upper-triangular response matrix.
     """
     if os.path.exists(outfile):
         os.remove(outfile)
