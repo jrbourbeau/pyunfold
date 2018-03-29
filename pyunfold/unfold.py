@@ -60,6 +60,25 @@ def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
     unfolding_results : pandas.DataFrame
         Returned if return_iterations is True. DataFrame containing the
         unfolded distribution and associated uncertainties at each iteration.
+
+    Examples
+    --------
+    >>> from pyunfold import iterative_unfold
+    >>> data = [100, 150]
+    >>> data_err = [10, 12.2]
+    >>> response = [[0.9, 0.1],
+    ...             [0.1, 0.9]]
+    >>> response_err = [[0.01, 0.01],
+    ...                 [0.01, 0.01]]
+    >>> efficiencies = [1, 1]
+    >>> efficiencies_err = [0.01, 0.01]
+    >>> unfolded = iterative_unfold(data, data_err,
+    ...                             response, response_err,
+    ...                             efficiencies, efficiencies_err)
+    >>> unfolded
+    {'unfolded': array([ 94.48002622, 155.51997378]),
+    'sys_err': array([0.66204237, 0.6620424 ]),
+    'stat_err': array([11.2351567 , 13.75617997])}
     """
     # Validate user input
     counts, counts_err = cast_to_array(counts, counts_err)
