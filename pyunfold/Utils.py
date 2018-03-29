@@ -5,6 +5,7 @@
 """
 
 from __future__ import division, print_function
+import os
 import sys
 import ConfigParser
 import numpy as np
@@ -15,12 +16,57 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import ROOT
-from ROOT import TF1, TH1F
+from ROOT import TF1, TH1F, TH2F, TFile
 from ROOT import gROOT, gSystem
 
 gROOT.Reset()
 # Turn Off TCanvas Warning at DATA.Fit
 ROOT.gErrorIgnoreLevel = ROOT.kWarning
+
+
+def assert_same_shape(*arrays):
+    """Checks that each input array_like objects are the same shape
+    """
+    arrays = cast_to_array(*arrays)
+    shapes = [array.shape for array in arrays]
+    unique_shapes = set(shapes)
+    if not len(unique_shapes) == 1:
+        raise ValueError('Multiple shapes found: {}'.format(unique_shapes))
+
+
+def cast_to_array(*arrays):
+    """Casts input arrays to numpy.ndarray objects
+
+    Note that no copy is made if an input array is already a numpy.ndarray.
+
+    Parameters
+    ----------
+    arrays : array_like
+        Input array_like objects to be cast to numpy arrays.
+
+    Returns
+    -------
+    output : list
+        List of casted numpy arrays.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> a_original = [1, 2, 3]
+    >>> b_original = np.array([4.5, 2.1, 900])
+    >>> a, b = cast_to_array(a_original, b_original)
+    >>> a
+    array([1, 2, 3])
+    >>> b
+    array([  4.5,   2.1, 900. ])
+    >>> b is b_original
+    True
+    """
+    if len(arrays) == 1:
+        output = np.asarray(arrays[0])
+    else:
+        output = map(np.asarray, arrays)
+    return output
 
 
 def none_to_empty_list(*args):
@@ -75,6 +121,107 @@ def safe_inverse(x):
     inv[is_zero] = 0
 
     return inv
+
+
+def save_input_to_root_file(counts, counts_err, response, response_err,
+                            efficiencies, efficiencies_err, outfile):
+    """Save input arrays to a ROOT file
+
+    Parameters
+    ----------
+    counts : array_like
+        Input observed data distribution.
+    counts_err : array_like
+        Uncertainties associated with the input observed data distribution.
+        Must be the same shape as counts.
+    response : array_like
+        Response matrix.
+    response_err : array_like
+        Response matrix errors.
+    efficiencies : array_like
+        Detection efficiencies for the observed data distribution.
+    efficiencies_err : array_like
+        Uncertainty in detection efficiencies.
+    outfile : str
+        Path where output ROOT file will be saved.
+    """
+    if os.path.exists(outfile):
+        os.remove(outfile)
+
+    fout = TFile(outfile , 'UPDATE')
+    # Bin Definitions
+    binname = 'bin0'
+    pdir = fout.mkdir(binname, 'Bin number 0')
+    # Go to home of ROOT file
+    fout.cd(binname)
+
+    response_array = response
+    response_err_array = response_err
+
+    cbins = len(counts)+1
+    carray = np.arange(cbins, dtype=float)
+
+    ebins = len(counts)+1
+    earray = np.arange(ebins, dtype=float)
+    cbins -= 1
+    ebins -= 1
+
+    # Measured effects distribution
+    ne_meas = TH1F('ne_meas', 'effects histogram', ebins, earray)
+    ne_meas.GetXaxis().SetTitle('Effects')
+    ne_meas.GetYaxis().SetTitle('Counts')
+    ne_meas.SetStats(0)
+    ne_meas.Sumw2()
+
+    # Prepare Combined Weighted Histograms - To be Normalized by Model After Filling
+    # Isotropic Weights of Causes - For Calculating Combined Species Efficiency
+    eff = TH1F('Eff', 'Non-Normed Combined Efficiency', cbins, carray)
+    eff.GetXaxis().SetTitle('Causes')
+    eff.GetYaxis().SetTitle('Efficiency')
+    eff.SetStats(0)
+    eff.Sumw2()
+
+    # Isotropic Weighted Mixing Matrix - For Calculating Combined Species MM
+    response = TH2F('MM', 'Weighted Combined Mixing Matrix',
+                    cbins, carray, ebins, earray)
+    response.GetXaxis().SetTitle('Causes')
+    response.GetYaxis().SetTitle('Effects')
+    response.SetStats(0)
+    response.Sumw2()
+
+    for ci in range(0, cbins):
+        # Fill measured effects histogram
+        ne_meas.SetBinContent(ci+1, counts[ci])
+        if counts_err is None:
+            ne_meas.SetBinError(ci+1, np.sqrt(counts[ci]))
+        else:
+            ne_meas.SetBinError(ci+1, counts_err[ci])
+
+        # Fill response matrix entries
+        for ek in range(0, ebins):
+            response.SetBinContent(ci+1, ek+1, response_array[ek][ci])
+            response.SetBinError(ci+1, ek+1, response_err_array[ek][ci])
+
+        # Fill efficiency histogram from response matrix
+        eff.SetBinContent(ci+1, efficiencies[ci])
+        eff.SetBinError(ci+1, efficiencies_err[ci])
+
+    # Write measured effects histogram to file
+    ne_meas.Write()
+    # Write the cause and effect arrays to file
+    CARRAY = TH1F('CARRAY','Cause Array', cbins, carray)
+    CARRAY.GetXaxis().SetTitle('Causes')
+    EARRAY = TH1F('EARRAY','Effect Array', ebins, earray)
+    EARRAY.GetXaxis().SetTitle('Effects')
+    CARRAY.Write()
+    EARRAY.Write()
+    # Write efficiencies histogram to file
+    eff.Write()
+    # Write response matrix to file
+    response.Write()
+
+    fout.Write()
+    fout.Close()
 
 
 # Class for Managing Configuration Files
