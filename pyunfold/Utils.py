@@ -24,6 +24,51 @@ gROOT.Reset()
 ROOT.gErrorIgnoreLevel = ROOT.kWarning
 
 
+def assert_same_shape(*arrays):
+    """Checks that each input array_like objects are the same shape
+    """
+    arrays = cast_to_array(*arrays)
+    shapes = [array.shape for array in arrays]
+    unique_shapes = set(shapes)
+    if not len(unique_shapes) == 1:
+        raise ValueError('Multiple shapes found: {}'.format(unique_shapes))
+
+
+def cast_to_array(*arrays):
+    """Casts input arrays to numpy.ndarray objects
+
+    Note that no copy is made if an input array is already a numpy.ndarray.
+
+    Parameters
+    ----------
+    arrays : array_like
+        Input array_like objects to be cast to numpy arrays.
+
+    Returns
+    -------
+    output : list
+        List of casted numpy arrays.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> a_original = [1, 2, 3]
+    >>> b_original = np.array([4.5, 2.1, 900])
+    >>> a, b = cast_to_array(a_original, b_original)
+    >>> a
+    array([1, 2, 3])
+    >>> b
+    array([  4.5,   2.1, 900. ])
+    >>> b is b_original
+    True
+    """
+    if len(arrays) == 1:
+        output = np.asarray(arrays[0])
+    else:
+        output = map(np.asarray, arrays)
+    return output
+
+
 def none_to_empty_list(*args):
     """Replaces None inputs with an empty list
 

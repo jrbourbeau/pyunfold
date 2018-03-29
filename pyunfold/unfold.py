@@ -9,8 +9,8 @@ from .LoadStats import MCTables
 from .IterUnfold import IterativeUnfolder
 from .Mix import Mixer
 from .RootReader import get_labels, get1d
-from .Utils import (save_input_to_root_file, ConfigFM, get_ts, DataDist,
-                    UserPrior, Regularizer)
+from .Utils import (save_input_to_root_file, assert_same_shape, cast_to_array,
+                    ConfigFM, get_ts, DataDist, UserPrior, Regularizer)
 
 
 def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
@@ -61,9 +61,21 @@ def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
         Returned if return_iterations is True. DataFrame containing the
         unfolded distribution and associated uncertainties at each iteration.
     """
+    # Validate user input
+    counts, counts_err = cast_to_array(counts, counts_err)
+    response, response_err = cast_to_array(response, response_err)
+    efficiencies, efficiencies_err = cast_to_array(efficiencies,
+                                                   efficiencies_err)
+
+    assert_same_shape(counts, counts_err, efficiencies, efficiencies_err)
+    assert_same_shape(response, response_err)
+    if priors != 'Jeffreys':
+        assert_same_shape(counts, priors)
+
     # Save counts, response, efficiencies, etc. to a ROOT file
     temp_dir_path = tempfile.mkdtemp()
-    root_file = os.path.join(temp_dir_path, 'pyunfold_root_file.root')
+    root_file = os.path.join(temp_dir_path,
+                             'pyunfold_root_file.root')
     save_input_to_root_file(counts,
                             counts_err,
                             response,

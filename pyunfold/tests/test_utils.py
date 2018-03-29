@@ -3,7 +3,8 @@ from __future__ import division, print_function
 import numpy as np
 import pytest
 
-from pyunfold.Utils import none_to_empty_list, safe_inverse, get_ts
+from pyunfold.Utils import (none_to_empty_list, safe_inverse, get_ts,
+                            cast_to_array, assert_same_shape)
 
 
 def test_none_to_empty_list_single_input():
@@ -36,3 +37,48 @@ def test_get_ts_raises():
     with pytest.raises(ValueError) as excinfo:
         get_ts(name='not a valid name')
     assert 'Invalid test statisitc' in str(excinfo.value)
+
+
+def test_cast_to_array_multi_input():
+    a_original = [1, 2, 3]
+    b_original = np.array([4, 5, 6])
+
+    a, b = cast_to_array(a_original, b_original)
+
+    for output, input_ in zip([a, b], [a_original, b_original]):
+        assert isinstance(output, np.ndarray)
+        np.testing.assert_allclose(output, input_)
+
+
+def test_cast_to_array_single_input():
+    a_original = [1, 2, 3]
+    a = cast_to_array(a_original)
+    assert isinstance(a, np.ndarray)
+    np.testing.assert_allclose(a_original, a)
+
+
+def test_cast_to_array_no_copy():
+    # Check that input numpy arrays are not copied
+    a_original = np.array([1, 2, 3])
+    a = cast_to_array(a_original)
+    assert a is a_original
+
+
+def test_assert_same_shape():
+    a = [1, 2, 3]
+    b = [4, 5, 6]
+    assert_same_shape(a, b)
+
+
+def test_assert_same_shape_raises_1d():
+    a = [1, 2, 3]
+    b = [4, 5, 6, 7]
+    with pytest.raises(ValueError) as excinfo:
+        assert_same_shape(a, b)
+
+
+def test_assert_same_shape_raises_2d():
+    a = [[1, 2, 3], [4, 5, 6]]
+    b = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    with pytest.raises(ValueError) as excinfo:
+        assert_same_shape(a, b)
