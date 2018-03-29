@@ -28,3 +28,15 @@ install:
 
 script:
     - pytest -sv pyunfold
+    - bash ci/build_docs.sh
+
+deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    local_dir: docs/_build/html
+    target_branch: gh-pages
+    email: "github-pages-deploy@travis-ci.org"
+    on:
+        branch: master
+        python: "2.7"
