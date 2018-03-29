@@ -5,6 +5,7 @@
 """
 
 from __future__ import division, print_function
+import os
 import sys
 import ConfigParser
 import numpy as np
@@ -15,7 +16,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import ROOT
-from ROOT import TF1, TH1F
+from ROOT import TF1, TH1F, TH2F, TFile
 from ROOT import gROOT, gSystem
 
 gROOT.Reset()
@@ -75,6 +76,96 @@ def safe_inverse(x):
     inv[is_zero] = 0
 
     return inv
+
+
+def save_root_file(counts, counts_err, response, response_err,
+                   efficiencies, efficiencies_err, outfile):
+    """Save numpy arrays to a ROOT file
+
+    Parameters
+    ----------
+    outfile : str
+        Path where output ROOT file will be saved.
+    response : {'diagonal', 'triangular'}
+        Whether to use a diagonal or upper-triangular response matrix.
+    """
+    if os.path.exists(outfile):
+        os.remove(outfile)
+
+    fout = TFile(outfile , 'UPDATE')
+    # Bin Definitions
+    binname = 'bin0'
+    pdir = fout.mkdir(binname, 'Bin number 0')
+    # Go to home of ROOT file
+    fout.cd(binname)
+
+    response_array = response
+    response_err_array = response_err
+
+    cbins = len(counts)+1
+    carray = np.arange(cbins, dtype=float)
+
+    ebins = len(counts)+1
+    earray = np.arange(ebins, dtype=float)
+    cbins -= 1
+    ebins -= 1
+
+    # Measured effects distribution
+    ne_meas = TH1F('ne_meas', 'effects histogram', ebins, earray)
+    ne_meas.GetXaxis().SetTitle('Effects')
+    ne_meas.GetYaxis().SetTitle('Counts')
+    ne_meas.SetStats(0)
+    ne_meas.Sumw2()
+
+    # Prepare Combined Weighted Histograms - To be Normalized by Model After Filling
+    # Isotropic Weights of Causes - For Calculating Combined Species Efficiency
+    eff = TH1F('Eff', 'Non-Normed Combined Efficiency', cbins, carray)
+    eff.GetXaxis().SetTitle('Causes')
+    eff.GetYaxis().SetTitle('Efficiency')
+    eff.SetStats(0)
+    eff.Sumw2()
+
+    # Isotropic Weighted Mixing Matrix - For Calculating Combined Species MM
+    response = TH2F('MM', 'Weighted Combined Mixing Matrix',
+                    cbins, carray, ebins, earray)
+    response.GetXaxis().SetTitle('Causes')
+    response.GetYaxis().SetTitle('Effects')
+    response.SetStats(0)
+    response.Sumw2()
+
+    for ci in range(0, cbins):
+        # Fill measured effects histogram
+        ne_meas.SetBinContent(ci+1, counts[ci])
+        if counts_err is None:
+            ne_meas.SetBinError(ci+1, np.sqrt(counts[ci]))
+        else:
+            ne_meas.SetBinError(ci+1, counts_err[ci])
+
+        # Fill response matrix entries
+        for ek in range(0, ebins):
+            response.SetBinContent(ci+1, ek+1, response_array[ek][ci])
+            response.SetBinError(ci+1, ek+1, response_err_array[ek][ci])
+
+        # Fill efficiency histogram from response matrix
+        eff.SetBinContent(ci+1, efficiencies[ci])
+        eff.SetBinError(ci+1, efficiencies_err[ci])
+
+    # Write measured effects histogram to file
+    ne_meas.Write()
+    # Write the cause and effect arrays to file
+    CARRAY = TH1F('CARRAY','Cause Array', cbins, carray)
+    CARRAY.GetXaxis().SetTitle('Causes')
+    EARRAY = TH1F('EARRAY','Effect Array', ebins, earray)
+    EARRAY.GetXaxis().SetTitle('Effects')
+    CARRAY.Write()
+    EARRAY.Write()
+    # Write efficiencies histogram to file
+    eff.Write()
+    # Write response matrix to file
+    response.Write()
+
+    fout.Write()
+    fout.Close()
 
 
 # Class for Managing Configuration Files

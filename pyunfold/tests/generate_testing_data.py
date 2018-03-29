@@ -4,7 +4,7 @@ import numpy as np
 from ROOT import TH1F, TH2F, TFile
 
 
-def generate_diagonal_response(size):
+def diagonal_response(size):
     """Returns diagonal response matrix
     """
     # Diagonal response matrix
@@ -14,7 +14,7 @@ def generate_diagonal_response(size):
     return response, response_err
 
 
-def generate_triangular_response(size):
+def triangular_response(size):
     """Returns upper-triangular response matrix
     """
     # Triangular response matrix
@@ -59,9 +59,9 @@ def save_test_root_file(outfile, response='diagonal'):
     counts_err = np.sqrt(counts)
 
     if response == 'diagonal':
-        response_array, response_err_array = generate_diagonal_response(len(counts))
+        response_array, response_err_array = diagonal_response(len(counts))
     else:
-        response_array, response_err_array = generate_triangular_response(len(counts))
+        response_array, response_err_array = triangular_response(len(counts))
 
     efficiencies = np.ones_like(counts, dtype=float)
     efficiencies_err = np.full_like(efficiencies, 0.001)

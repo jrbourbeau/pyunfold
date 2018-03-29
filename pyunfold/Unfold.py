@@ -6,7 +6,6 @@
 """
 
 import os
-import sys
 import numpy as np
 import pandas as pd
 
@@ -15,13 +14,49 @@ import Utils
 import LoadStats
 import IterUnfold
 
-import Plotter as pltr
-from .Plotter import plt, mpl
 import RootReader as rr
 
 
+def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
+                     efficiencies_err, priors='Jeffreys', ts='ks',
+                     ts_stopping=0.01, max_iter=100, return_iterations=False):
+    """Performs iterative Bayesian unfolding
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
+    # Save counts, response, efficiencies, etc. to a ROOT file
+    root_file = os.path.join(os.getcwd(), 'pyunfold_root_file.root')
+    Utils.save_root_file(counts,
+                         counts_err,
+                         response,
+                         response_err,
+                         efficiencies,
+                         efficiencies_err,
+                         outfile=root_file)
+
+    config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config.cfg'))
+
+    unfolding_result = unfold(config_name=config_file,
+                              EffDist=None,
+                              priors=priors,
+                              input_file=root_file,
+                              ts=ts,
+                              ts_stopping=ts_stopping,
+                              max_iter=max_iter)
+    os.remove(root_file)
+
+    if return_iterations:
+        return unfolding_result
+    else:
+        return dict(unfolding_result.iloc[-1])
+
+
 def unfold(config_name=None, EffDist=None, priors='Jeffreys', input_file=None,
-           ts='ks', ts_stopping=0.01, **kwargs):
+           ts='ks', ts_stopping=0.01, max_iter=100, **kwargs):
 
     if config_name is None:
         raise ValueError('config_name must be provided')
@@ -61,7 +96,8 @@ def unfold(config_name=None, EffDist=None, priors='Jeffreys', input_file=None,
     # Unfolder Options
     unfoldHeader = 'unfolder'
     UnfolderName = config.get(unfoldHeader, 'unfolder_name',  default='Unfolder', cast=str)
-    UnfMaxIter = config.get(unfoldHeader, 'max_iter', default=100, cast=int)
+    # UnfMaxIter = config.get(unfoldHeader, 'max_iter', default=100, cast=int)
+    UnfMaxIter = max_iter
     UnfSmoothIter = config.get_boolean(unfoldHeader, 'smooth_with_reg', default=False)
     UnfVerbFlag = config.get_boolean(unfoldHeader, 'verbose', default=False)
 

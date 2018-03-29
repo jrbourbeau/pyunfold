@@ -26,7 +26,7 @@ def test_response_example(tmpdir, response):
                                input_file=root_file,
                                ts='ks',
                                ts_stopping=0.1)
-    unfolded_counts = df_unfolding_iter.iloc[-1]['n_c']
+    unfolded_counts = df_unfolding_iter.iloc[-1]['unfolded']
 
     # Extract input counts distribution from input ROOT file
     f = TFile.Open(root_file)
