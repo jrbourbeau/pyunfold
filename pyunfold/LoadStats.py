@@ -2,14 +2,13 @@
    Functions to load monte carlo statistic
    data from provided root file.
 """
-
 import numpy as np
 import RootReader as rr
 from .Utils import safe_inverse, none_to_empty_list
 
 
 np.set_printoptions(threshold='nan')
-class MCTables:
+class MCTables(object):
     """Base class for loading Monte Carlo tables: Eff, ResponseMatrix
     """
     def __init__(self, MCFile, BinName=None, EffName="", RespMatrixName="",
@@ -38,13 +37,13 @@ class MCTables:
         # Load Objects if Names Provided
         self.NCLoaded = False
         self.EffLoaded = False
-        if (EffName):
+        if EffName:
             self.loadEffTable(EffName)
         self.RespMLoaded = False
-        if (RespMatrixName):
+        if RespMatrixName:
             self.loadResponseMatrix(RespMatrixName)
 
-    def PrintLoadMessage(self,name,hist_name):
+    def PrintLoadMessage(self, name, hist_name):
         print("\n***%s table, %s, already loaded! Ignoring load request.***\n"%(name,hist_name))
 
     def CheckArray(self,inarray,att_axis,name):
@@ -92,41 +91,41 @@ class MCTables:
         return self.Eaxis, self.Eedges
 
     # Get the Effective Area
-    def loadEffTable(self,name):
+    def loadEffTable(self, name):
         tabname = "Eff"
-        if (not self.EffLoaded):
+        if not self.EffLoaded:
             eff_tabs = []
             NCmc_tabs = []
             for ibin in range(self.nStack):
-                axis, edges, eff, eff_err = rr.get1d(self.MCFile,name,self.BinName[ibin])
-                Clabel, Efflabel, Title = rr.get_labels(self.MCFile,name,self.BinName[ibin])
+                axis, edges, eff, eff_err = rr.get1d(self.MCFile, name, self.BinName[ibin])
+                Clabel, Efflabel, Title = rr.get_labels(self.MCFile, name, self.BinName[ibin])
 
                 eff_tabs.append(eff)
                 eff_err_inv = safe_inverse(eff_err)
                 NCmc_tabs.append((eff*eff_err_inv)**2)
 
-                self.Caxis[ibin] = self.CheckArray(axis,self.Caxis[ibin],tabname+" cause axis")
-                self.Cedges[ibin] = self.CheckArray(edges,self.Cedges[ibin],tabname+" cause xedges")
+                self.Caxis[ibin] = self.CheckArray(axis, self.Caxis[ibin], tabname + " cause axis")
+                self.Cedges[ibin] = self.CheckArray(edges, self.Cedges[ibin], tabname + " cause xedges")
                 self.EffLoaded = True
                 self.NCLoaded = True
-            if (self.nStack == 1):
+            if self.nStack == 1:
                 self.eff = eff_tabs[0]
                 self.NCmc = NCmc_tabs[0]
             else:
                 self.eff = np.hstack(eff_tabs)
                 self.NCmc = np.hstack(NCmc_tabs)
         else:
-            self.PrintLoadMessage(tabname,name)
+            self.PrintLoadMessage(tabname, name)
 
     # Get the Migration Matrix table
-    def loadResponseMatrix(self,name):
+    def loadResponseMatrix(self, name):
         tabname = "Resp Matrix"
-        if (not self.RespMLoaded):
+        if not self.RespMLoaded:
             pec_tabs = []
             pec_err_tabs = []
             for ibin in range(self.nStack):
-                axes, edges,  pec, pec_err = rr.get2d(self.MCFile,name,self.BinName[ibin])
-                Clabel, Elabel, Title = rr.get_labels(self.MCFile,name,self.BinName[ibin])
+                axes, edges,  pec, pec_err = rr.get2d(self.MCFile, name, self.BinName[ibin])
+                Clabel, Elabel, Title = rr.get_labels(self.MCFile, name, self.BinName[ibin])
 
                 self.Clabel = Clabel
                 self.Elabel = Elabel
@@ -139,10 +138,10 @@ class MCTables:
                 pec_tabs.append(pec)
                 pec_err_tabs.append(pec_err)
 
-                self.Caxis[ibin] = self.CheckArray(Caxis,self.Caxis[ibin],tabname+" cause axis")
-                self.Cedges[ibin] = self.CheckArray(Cedges,self.Cedges[ibin],tabname+" cause edges")
-                self.Eaxis = self.CheckArray(Eaxis,self.Eaxis,tabname+" effects axis")
-                self.Eedges = self.CheckArray(Eedges,self.Eedges,tabname+" effects edges")
+                self.Caxis[ibin] = self.CheckArray(Caxis, self.Caxis[ibin], tabname + " cause axis")
+                self.Cedges[ibin] = self.CheckArray(Cedges, self.Cedges[ibin], tabname + " cause edges")
+                self.Eaxis = self.CheckArray(Eaxis, self.Eaxis, tabname + " effects axis")
+                self.Eedges = self.CheckArray(Eedges, self.Eedges, tabname + " effects edges")
                 self.RespMLoaded = True
             if (self.nStack == 1):
                 self.pec = pec_tabs[0]
@@ -151,4 +150,4 @@ class MCTables:
                 self.pec = np.hstack(pec_tabs)
                 self.pec_err = np.hstack(pec_err_tabs)
         else:
-            self.PrintLoadMessage(tabname,name)
+            self.PrintLoadMessage(tabname, name)

@@ -432,16 +432,18 @@ class TestStat(object):
         return bins
 
     def GetArrayRange(self,N1,N2):
-        if (self.IsRangeTS):
+        if self.IsRangeTS:
             NR1 = N1[self.TSbins[0]:self.TSbins[1]]
             NR2 = N2[self.TSbins[0]:self.TSbins[1]]
             return NR1, NR2
         else:
             return N1.copy(), N2.copy()
 
-    # Function Testing Whether TS < tol
-    def PassTol(self):
-        return (self.stat < self.tol)
+    def pass_tol(self):
+        """Function testing whether TS < tol
+        """
+        pass_tol = self.stat < self.tol
+        return pass_tol
 
     # Set Degrees of Freedom
     def SetDOF(self,dof):

@@ -10,8 +10,9 @@ import numpy as np
 from .Utils import safe_inverse
 
 
-class CovarianceMatrix:
-    'Covariance Base Class'
+class CovarianceMatrix(object):
+    """Covariance Base Class
+    """
     def __init__(self, name, MCTables, EffectsDist):
 
         '''From Initialization Inputs'''
