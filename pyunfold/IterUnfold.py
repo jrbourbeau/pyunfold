@@ -17,13 +17,13 @@ class IterativeUnfolder(object):
     """Common base class for iterative unfolder
     """
     def __init__(self, name, max_iter=100, smooth_iter=False, n_c=None,
-                 mix_func=None, reg_func=None, ts_func=None, stack=False,
+                 mixer=None, reg_func=None, ts_func=None, stack=False,
                  verbose=False, **kwargs):
 
-        n_c, mix_func, reg_func, ts_func = none_to_empty_list(n_c,
-                                                              mix_func,
-                                                              reg_func,
-                                                              ts_func)
+        n_c, mixer, reg_func, ts_func = none_to_empty_list(n_c,
+                                                           mixer,
+                                                           reg_func,
+                                                           ts_func)
 
         self.name = name
         self.max_iter = max_iter
@@ -33,7 +33,7 @@ class IterativeUnfolder(object):
         # stacking Bin Indices Initializer
         self.stackInd = [[] for i in range(self.nstack)]
         # Mixing, Regularizing, Test Statistic Functions
-        self.Mix = mix_func
+        self.Mix = mixer
         self.Rglzr = reg_func
         self.ts_func = ts_func
         # If user doesn't provide prior...
@@ -91,13 +91,13 @@ class IterativeUnfolder(object):
         unfolding_result = {}
 
         # First Mixing
-        n_c_update = self.Mix.Smear(self.n_c)
+        n_c_update = self.Mix.smear(self.n_c)
         n_update = np.sum(n_c_update)
 
         # Add first mixing result to unfolding_result
         unfolding_result[self.counter] = {'unfolded': n_c_update,
-                                          'stat_err': self.Mix.getStatErr(),
-                                          'sys_err': self.Mix.getMCErr()}
+                                          'stat_err': self.Mix.get_stat_err(),
+                                          'sys_err': self.Mix.get_MC_err()}
 
         self.counter += 1
 
@@ -138,14 +138,14 @@ class IterativeUnfolder(object):
                     n_c[iind] = reg_fit_iS.copy()
 
             # Mix w/n_c from previous iter
-            n_c_update = self.Mix.Smear(n_c)
+            n_c_update = self.Mix.smear(n_c)
             n_update = np.sum(n_c_update)
 
             # Add mixing result to unfolding_result
             unfolding_result[self.counter] = {
                                         'unfolded': n_c_update,
-                                        'stat_err': self.Mix.getStatErr(),
-                                        'sys_err': self.Mix.getMCErr()}
+                                        'stat_err': self.Mix.get_stat_err(),
+                                        'sys_err': self.Mix.get_MC_err()}
 
             self.counter += 1
 
@@ -162,9 +162,9 @@ class IterativeUnfolder(object):
         n_c_final = n_c_update.copy()
         self.n_c_final = n_c_final.copy()
         # Calculate error estimates
-        self.covM = self.Mix.getCov()
-        self.statErr = self.Mix.getStatErr()
-        self.sysErr = self.Mix.getMCErr()
+        self.covM = self.Mix.get_cov()
+        self.statErr = self.Mix.get_stat_err()
+        self.sysErr = self.Mix.get_MC_err()
         # Save n_update for root output
         self.N_measured_out.append(n_update)
         # Regularize unfolded dist in favor of 'smooth physics' prior
