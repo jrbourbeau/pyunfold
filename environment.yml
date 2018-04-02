@@ -12,6 +12,7 @@ dependencies:
   # Testing requirements
   - pytest
   - flake8
+  - pytables
   # Documentation requirements
   - sphinx
   - numpydoc

@@ -1,12 +1,12 @@
 
 import os
 import numpy as np
+import pandas as pd
 from ROOT import TFile
 from root_numpy import hist2array
 import pytest
 
-from .testing_utils import (save_test_root_file, diagonal_response,
-                                    triangular_response)
+from .testing_utils import diagonal_response, triangular_response
 
 from pyunfold.unfold import iterative_unfold, unfold
 
@@ -69,3 +69,25 @@ def test_iterative_unfold_max_iter():
                                        return_iterations=True)
 
     assert unfolded_result.shape[0] == max_iter
+
+
+def test_example():
+    here = os.path.abspath(os.path.dirname(__file__))
+    expected = pd.read_hdf(os.path.join(here, 'example_unfolding.hdf'))
+
+    # Run example case
+    data = [100, 150]
+    data_err = [10, 12.2]
+    response = [[0.9, 0.1],
+                [0.1, 0.9]]
+    response_err = [[0.01, 0.01],
+                    [0.01, 0.01]]
+    efficiencies = [0.4, 0.67]
+    efficiencies_err = [0.01, 0.01]
+    # Perform iterative unfolding
+    unfolded = iterative_unfold(data, data_err,
+                                response, response_err,
+                                efficiencies, efficiencies_err,
+                                return_iterations=True)
+
+    pd.testing.assert_frame_equal(unfolded, expected)
