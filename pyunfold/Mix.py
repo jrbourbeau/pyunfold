@@ -1,18 +1,16 @@
-#!/usr/bin/env python
 """
    D'Agostini mixing routine.
    After MC and observed distribution
    are provided, can perform a single
    mixing, given a prior pdf.
 """
-
-import sys
+from itertools import product
 import numpy as np
-from CovMatrix import CovarianceMatrix as CovMatrix
+from .CovMatrix import CovarianceMatrix
 from .Utils import safe_inverse, none_to_empty_list
 
 
-class Mixer:
+class Mixer(object):
     """DAgostini Bayesian Mixer Class
     """
     def __init__(self, name, ErrorType="", MCTables=None, EffectsDist=None,
@@ -39,89 +37,80 @@ class Mixer:
         dims = self.pec.shape
         self.cbins = dims[1]
         self.ebins = dims[0]
-        # Flag for Correctly Sized Arrays
-        self.DimFlag = False
         # Inverse of Cause Efficiencies
         self.cEff_inv = safe_inverse(self.cEff)
         # Mixing Matrix
         self.Mij = np.zeros(dims)
 
-        '''Covariance Matrix'''
-        self.Cov = CovMatrix(ErrorType, MCTables, EffectsDist)
+        # Covariance Matrix
+        self.Cov = CovarianceMatrix(ErrorType, MCTables, EffectsDist)
 
-
-    ''' Test for Equal Length Arrays '''
-    def CheckDims(self, p_c):
-        if ( len(self.NEobs) != self.ebins ):
-            print("Size of observed effects array, len(NEobs), not equal \
-                   to mixing matrix effects dimension, pec.shape[1].")
-            print("%i != %i" %(len(self.NEobs),self.ebins))
-            import sys
-            sys.exit(0)
-        elif ( len(self.cEff) != self.cbins ):
-            print self.cEff
-            print("Size of effective area array, len(cEff), not equal \
-                   to mixing matrix causes dimension, pec.shape[0].")
-            print("%i != %i" %(len(self.cEff),self.cbins))
-            import sys
-            sys.exit(0)
+    def check_dims(self, p_c):
+        """Test for consistent array sizes
+        """
+        if len(self.NEobs) != self.ebins:
+            err_msg = ('Size of observed effects array, len(NEobs), not equal'
+                       'to mixing matrix effects dimension, pec.shape[1].'
+                       '{} != {}'.format(len(self.NEobs), self.ebins))
+            raise ValueError(err_msg)
+        elif len(self.cEff) != self.cbins:
+            err_msg = ('Size of effective area array, len(cEff), not equal'
+                       'to mixing matrix causes dimension, pec.shape[0].'
+                       '{} != {}'.format(len(self.cEff), self.cbins))
+            raise ValueError(err_msg)
         # Ensure Prior is Properly Sized
-        elif ( len(p_c) != self.cbins ):
-            print("Size of prior array, len(p_c), not equal \
-                   to mixing matrix causes dimension, pec.shape[1].")
-            print("%i != %i" %(len(p_c),self.cbins))
-            import sys
-            sys.exit(0)
-        else:
-            self.DimFlag = True
+        elif len(p_c) != self.cbins:
+            err_msg = ('Size of prior array, len(p_c), not equal'
+                       'to mixing matrix causes dimension, pec.shape[1].'
+                       '{} != {}'.format(len(p_c), self.cbins))
+            raise ValueError(err_msg)
 
-
-    '''Useful Variables for Calculations'''
-
-    # Get the Covariance Matrix
-    def getCov(self):
-        cvm = self.Cov.getCov()
+    def get_cov(self):
+        """Covariance Matrix
+        """
+        cvm = self.Cov.get_cov()
         return cvm
 
-    # Get Statistical Errors
-    def getStatErr(self):
+    def get_stat_err(self):
+        """Statistical Errors
+        """
         cvm = self.Cov.getVc0()
         err = np.sqrt(cvm.diagonal())
         return err
 
-    # Get MC (Systematic) Errors
-    def getMCErr(self):
+    def get_MC_err(self):
+        """MC (Systematic) Errors
+        """
         cvm = self.Cov.getVc1()
         err = np.sqrt(cvm.diagonal())
         return err
 
-    '''Smear Calculation - the Bayesian Mixer!'''
-    # Only needs input prior, n_c, to unfold
-    def Smear(self, n_c):
-        # Test Input Array Sizes
-        if (self.DimFlag == False):
-            self.CheckDims(n_c)
+    def smear(self, n_c):
+        """Smear Calculation - the Bayesian Mixer!
+
+        Only needs input prior, n_c, to unfold
+        """
+        self.check_dims(n_c)
 
         ebins = self.ebins
         cbins = self.cbins
 
         # Bayesian Normalization Term (denominator)
-        f_norm = np.dot(self.pec,n_c)
+        f_norm = np.dot(self.pec, n_c)
         f_inv = safe_inverse(f_norm)
 
         # Unfolding (Mij) Matrix at current step
         Mij = np.zeros(self.Mij.shape)
 
-        n_c_eff = n_c*self.cEff_inv
-        for ti in xrange(0,cbins):
-            for ej in xrange(0,ebins):
-                Mij[ej,ti] = self.pec[ej,ti]*n_c_eff[ti]*f_inv[ej]
+        n_c_eff = n_c * self.cEff_inv
+        for ti, ej in product(xrange(0, cbins), xrange(0, ebins)):
+            Mij[ej, ti] = self.pec[ej, ti] * n_c_eff[ti] * f_inv[ej]
 
         # Estimate cause distribution via Mij
-        n_c_update = np.dot(self.NEobs,Mij)
+        n_c_update = np.dot(self.NEobs, Mij)
 
         # The status quo
         self.Mij = Mij.copy()
-        self.Cov.setCurrent_State(self.Mij,f_norm,n_c_update,n_c)
+        self.Cov.set_current_state(self.Mij, f_norm, n_c_update, n_c)
 
         return n_c_update

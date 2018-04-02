@@ -6,7 +6,6 @@
 
 from __future__ import division, print_function
 import os
-import sys
 import ConfigParser
 import numpy as np
 from scipy.special import gammainc as gammaq
@@ -17,7 +16,7 @@ import matplotlib.pyplot as plt
 
 import ROOT
 from ROOT import TF1, TH1F, TH2F, TFile
-from ROOT import gROOT, gSystem
+from ROOT import gROOT
 
 gROOT.Reset()
 # Turn Off TCanvas Warning at DATA.Fit
@@ -148,7 +147,7 @@ def save_input_to_root_file(counts, counts_err, response, response_err,
     if os.path.exists(outfile):
         os.remove(outfile)
 
-    fout = TFile(outfile , 'UPDATE')
+    fout = TFile(outfile, 'UPDATE')
     # Bin Definitions
     binname = 'bin0'
     pdir = fout.mkdir(binname, 'Bin number 0')
@@ -209,9 +208,9 @@ def save_input_to_root_file(counts, counts_err, response, response_err,
     # Write measured effects histogram to file
     ne_meas.Write()
     # Write the cause and effect arrays to file
-    CARRAY = TH1F('CARRAY','Cause Array', cbins, carray)
+    CARRAY = TH1F('CARRAY', 'Cause Array', cbins, carray)
     CARRAY.GetXaxis().SetTitle('Causes')
-    EARRAY = TH1F('EARRAY','Effect Array', ebins, earray)
+    EARRAY = TH1F('EARRAY', 'Effect Array', ebins, earray)
     EARRAY.GetXaxis().SetTitle('Effects')
     CARRAY.Write()
     EARRAY.Write()
@@ -239,7 +238,10 @@ class ConfigFM:
         if sec in self.parser.sections():
             if opt.lower() in self.parser.options(sec):
                 try:
-                    response = self.parser.getboolean(sec, opt) if is_bool else self.parser.get(sec, opt)
+                    if is_bool:
+                        response = self.parser.getboolean(sec, opt)
+                    else:
+                        response = self.parser.get(sec, opt)
                 except Exception as e:
                     print('Exception: {}'.format(e))
             elif(not is_quiet and default is None):
@@ -414,42 +416,45 @@ class TestStat(object):
         self.dofSet = False
 
     def SetTestRangeBins(self):
-        bins = [0,-1]
+        bins = [0, -1]
         if (not self.TSRange == []):
             lTSR = len(self.TSRange)
-            err_mess = "***\n Test stat range can only have two elements. This has %i. Exiting...***\n"%(lTSR)
-            assert (lTSR==2), err_mess
+            err_mess = ("***\n Test stat range can only have two elements. "
+                        "This has {}. Exiting...***\n".format(lTSR))
+            assert lTSR == 2, err_mess
             xlo = self.TSRange[0]
             xhi = self.TSRange[1]
             err_mess = "***\n Test stat limits reversed. xlo must be < xhi. Exiting...***\n"
-            assert (xlo<xhi), err_mess
+            assert xlo < xhi, err_mess
 
             # Find the bins corresponding to the test range requested
-            lobin = np.searchsorted(self.Xaxis,xlo)
-            hibin = np.searchsorted(self.Xaxis,xhi)
+            lobin = np.searchsorted(self.Xaxis, xlo)
+            hibin = np.searchsorted(self.Xaxis, xhi)
             bins = [lobin, hibin]
             self.IsRangeTS = True
         return bins
 
-    def GetArrayRange(self,N1,N2):
-        if (self.IsRangeTS):
+    def GetArrayRange(self, N1, N2):
+        if self.IsRangeTS:
             NR1 = N1[self.TSbins[0]:self.TSbins[1]]
             NR2 = N2[self.TSbins[0]:self.TSbins[1]]
             return NR1, NR2
         else:
             return N1.copy(), N2.copy()
 
-    # Function Testing Whether TS < tol
-    def PassTol(self):
-        return (self.stat < self.tol)
+    def pass_tol(self):
+        """Function testing whether TS < tol
+        """
+        pass_tol = self.stat < self.tol
+        return pass_tol
 
     # Set Degrees of Freedom
-    def SetDOF(self,dof):
+    def SetDOF(self, dof):
         if (self.dof == -1):
             self.dof = dof
 
     # Set TS and delTS
-    def SetStat(self,stat):
+    def SetStat(self, stat):
         self.delstat = stat - self.stat
         self.stat = stat
 
@@ -457,9 +462,10 @@ class TestStat(object):
     def TestLengths(self, N1, N2):
         ln1 = len(N1)
         ln2 = len(N2)
-        err_mess = "Test Statistic arrays are not equal length. %i != %i. Exiting...\n"%(ln1,ln2)
-        assert (ln1 == ln2), err_mess
-        if (not self.dofSet):
+        err_mess = ("Test Statistic arrays are not equal length. "
+                    "{} != {}. Exiting...\n".format(ln1, ln2))
+        assert ln1 == ln2, err_mess
+        if not self.dofSet:
             self.SetDOF(ln1)
             self.dofSet = True
 
@@ -471,32 +477,31 @@ class TestStat(object):
 
     # Calculate the TS Probability Function
     def Prob(self):
-        if (self.verbose and self.printProbMessage):
-            print("***No probability function defined for this method, %s. It's ok...***"%self.name)
+        if self.verbose and self.printProbMessage:
+            print("***No probability function defined for this method, {}. "
+                  "It's ok...***".format(self.name))
             self.printProbMessage = False
 
     def PrintName(self):
         print("\nTest Statistic Method: ", self.__doc__)
-        print("Test statistic only valid in range: %e %e\n"%(self.TSRange[0],self.TSRange[1]))
+        print("Test statistic only valid in range: {} {}\n".format(self.TSRange[0],
+                                                                   self.TSRange[1]))
 
     def PrintStats(self):
-        if (self.printStatsHeader):
+        output = "\t\t{:.04f}\t{:.04f}\t{:.03f}\n".format(self.stat, self.delstat, self.prob)
+        if self.printStatsHeader:
             print("\t\tStat\tdelStat\tProb")
-            print("\t\t%.04f\t%.04f\t%.03f\n"\
-            %(self.stat,self.delstat,self.prob))
             self.printStatsHeader = False
-        else:
-            print("\t\t%.04f\t%.04f\t%.03f"\
-            %(self.stat,self.delstat,self.prob))
+        print(output)
 
     # Calculate and return TS Data
     def GetStats(self, N1, N2):
         # Calculate the Test Statistic
-        self.TSCalc(N1,N2)
+        self.TSCalc(N1, N2)
         # Calculate the Probability of TS
         self.Prob()
         # Print if default
-        if (self.verbose):
+        if self.verbose:
             self.PrintStats()
         # Return TS Data
         return self.stat, self.delstat, self.prob
@@ -506,16 +511,16 @@ class Chi2(TestStat):
     """Reduced Chi2 Test Statistic
     """
     def TSCalc(self, N1, N2):
-        N1, N2 = self.GetArrayRange(N1,N2)
-        self.TestLengths(N1,N2)
+        N1, N2 = self.GetArrayRange(N1, N2)
+        self.TestLengths(N1, N2)
         n1 = np.sum(N1)
         n2 = np.sum(N2)
 
-        h_sum = N1+N2
+        h_sum = N1 + N2
         # Don't divide by 0...
-        h_sum[(h_sum<1)] = 1.
-        h_dif = n2*N1-n1*N2
-        h_quot = h_dif*h_dif/h_sum
+        h_sum[(h_sum < 1)] = 1.
+        h_dif = n2 * N1 - n1 * N2
+        h_quot = h_dif * h_dif / h_sum
 
         stat = np.sum(h_quot)/(n1*n2)/self.dof
 
@@ -523,23 +528,25 @@ class Chi2(TestStat):
 
     def Prob(self):
         # Chi2 Probability Function
-        self.prob = gammaq(0.5*self.dof,0.5*self.stat)
+        self.prob = gammaq(0.5*self.dof, 0.5*self.stat)
+
 
 # Bayes Factor Test - comparing two binned distributions
 # Method B - Pfendner et al.
 # Recall that lgamma(x) = log ( gamma(x) )
 class PF(TestStat):
-    'Bayes Factor Test Statistic'
+    """Bayes Factor Test Statistic
+    """
     def TSCalc(self, N1, N2):
-        N1, N2 = self.GetArrayRange(N1,N2)
-        self.TestLengths(N1,N2)
+        N1, N2 = self.GetArrayRange(N1, N2)
+        self.TestLengths(N1, N2)
         lnB = 0
         n1 = np.sum(N1)
         n2 = np.sum(N2)
         nFactor = lgamma(n1+n2+2) - lgamma(n1+1) - lgamma(n2+1)
 
         lnB += nFactor
-        for i in xrange(0,len(N1)):
+        for i in xrange(0, len(N1)):
             lnB += lgamma(N1[i]+1) + lgamma(N2[i]+1) - lgamma(N1[i]+N2[i]+2)
 
         self.SetStat(lnB)
@@ -550,13 +557,13 @@ class PF(TestStat):
 class RMD(TestStat):
     'Max Relative Difference Test Statistic'
     def TSCalc(self, N1, N2):
-        N1, N2 = self.GetArrayRange(N1,N2)
-        self.TestLengths(N1,N2)
+        N1, N2 = self.GetArrayRange(N1, N2)
+        self.TestLengths(N1, N2)
 
         h_sum = N1+N2
-        h_sum[(h_sum<1)] = 1.
-        h_dif = np.abs(N1-N2)
-        h_quot = h_dif/h_sum
+        h_sum[(h_sum < 1)] = 1.
+        h_dif = np.abs(N1 - N2)
+        h_quot = h_dif / h_sum
         stat = np.max(h_quot)
 
         self.SetStat(stat)
@@ -578,7 +585,7 @@ class KS(TestStat):
         cs1 = np.cumsum(N1)/n1
         cs2 = np.cumsum(N2)/n2
 
-        NE = n1*n2/(n1+n2)
+        NE = n1 * n2 / (n1 + n2)
 
         len1 = len(N1)
         en = np.sqrt(len1/2)
@@ -588,7 +595,7 @@ class KS(TestStat):
     def Prob(self):
         try:
             prob = kstwobign.sf((en+.12+.11/en)*d)
-        except:
+        except Exception:
             prob = 1.0
 
         # KS Probability Function
@@ -621,9 +628,12 @@ def get_ts(name='ks'):
                          'in {}'.format(name, name_to_ts.keys()))
 
 
-class Regularizer:
-    'Regularizer Class'
-    def __init__(self, name, FitFunc, Range, InitialParams, ParamLo, ParamHi, ParamNames, xarray, xedges, verbose=False, plot=False, **kwargs):
+class Regularizer(object):
+    """Regularizer Class
+    """
+    def __init__(self, name, FitFunc, Range, InitialParams, ParamLo, ParamHi,
+                 ParamNames, xarray, xedges, verbose=False, plot=False,
+                 **kwargs):
 
         # Prepare string fnc definition for ROOT TF1 declaration
         funcstring = str(FitFunc)
@@ -642,9 +652,9 @@ class Regularizer:
         # Number of fit params, names, init vals, & limits
         self.nParams = len(InitialParams)
         self.ParamNames = ParamNames
-        self.Params = np.asarray(InitialParams,dtype=float)
-        self.ParamLimitsLo = np.asarray(ParamLo,dtype=float)
-        self.ParamLimitsHi = np.asarray(ParamHi,dtype=float)
+        self.Params = np.asarray(InitialParams, dtype=float)
+        self.ParamLimitsLo = np.asarray(ParamLo, dtype=float)
+        self.ParamLimitsHi = np.asarray(ParamHi, dtype=float)
         self.ParLimProvided = False
         # Chi2 of fit and degrees of freedom
         self.chi2 = -1
@@ -654,7 +664,7 @@ class Regularizer:
         self.FIT = TF1("FIT", self.FitFunc, self.Range[0], self.Range[1])
 
         # Ensure that Fit Function is Initialized Properly
-        self.TestLengths(ParamNames,InitialParams,"Parameter Names & Initial Value")
+        self.TestLengths(ParamNames, InitialParams, "Parameter Names & Initial Value")
         self.TestFuncString(funcstring)
         # Set the Parameter limits if provided
         self.SetParLimits()
@@ -664,14 +674,15 @@ class Regularizer:
     # Initialization Message Print Out
     def PrintInitMessage(self):
         stringFunc = self.FitFunc
-        for i in xrange(0,self.nParams):
-            stringFunc = stringFunc.replace("%i"%i,self.ParamNames[i])
-        stringFunc = stringFunc.replace('[',"")
-        stringFunc = stringFunc.replace(']',"")
-        print("\nRegularizing %i-parameter function initialized to form: %s"%(self.nParams,stringFunc))
+        for i in xrange(0, self.nParams):
+            stringFunc = stringFunc.replace(str(i), self.ParamNames[i])
+        stringFunc = stringFunc.replace('[', "")
+        stringFunc = stringFunc.replace(']', "")
+        print("\nRegularizing {}-parameter function initialized to "
+              "form: {}".format(self.nParams, stringFunc))
         print("Can only support fit functions with up to 10 parameters.\n")
 
-    def SetFitRange(self,Range):
+    def SetFitRange(self, Range):
 
         if len(Range) == 0:
             Range = np.zeros(2)
@@ -679,12 +690,13 @@ class Regularizer:
             Range[1] = self.xarray[-1]
         else:
             lR = len(Range)
-            err_mess = "\n*** Fit range can only have two elements. This has %i. Exiting...***\n"%(lR)
-            assert (lR==2), err_mess
+            err_mess = ("\n*** Fit range can only have two elements. "
+                        "This has {}. Exiting...***\n".format(lR))
+            assert lR == 2, err_mess
             xlo = Range[0]
             xhi = Range[1]
             err_mess = "\n*** Fit range limits reversed. xlo must be < xhi. Exiting...***\n"
-            assert (xlo<xhi), err_mess
+            assert xlo < xhi, err_mess
 
         return Range
 
@@ -693,43 +705,48 @@ class Regularizer:
         if not len(self.ParamLimitsLo) == 0 and not len(self.ParamLimitsHi) == 0:
             PLo = self.ParamLimitsLo.copy()
             PHi = self.ParamLimitsHi.copy()
-            self.TestLengths(PLo,PHi,"Parameter Limit")
-            self.TestLengths(PLo,self.Params,"Parameter Limit & Initial Value")
-            for i in xrange(0,self.nParams):
-                err_mess = "\n*** Regularizer param %i limits reversed. xlo must be < xhi. Exiting...***\n" %(i)
-                assert (PLo[i]<PHi[i]), err_mess
+            self.TestLengths(PLo, PHi, "Parameter Limit")
+            self.TestLengths(PLo, self.Params, "Parameter Limit & Initial Value")
+            for i in xrange(0, self.nParams):
+                err_mess = ("\n*** Regularizer param {} limits reversed. "
+                            "xlo must be < xhi. Exiting...***\n".format(i))
+                assert PLo[i] < PHi[i], err_mess
                 self.ParLimProvided = True
 
     # Test ROOT String Func Number of Params
-    def TestFuncString(self,string):
+    def TestFuncString(self, string):
         num_nums = sum(c.isdigit() for c in string)
 
-        err_mess = "\nRegularizer func has %i parameters != %i requested in InitialParams keyword. Exiting...\n" %(num_nums,self.nParams)
-        assert (num_nums == self.nParams), err_mess
+        err_mess = ("\nRegularizer func has {} parameters != {} requested "
+                    "in InitialParams keyword. Exiting...\n".format(num_nums, self.nParams))
+        assert num_nums == self.nParams, err_mess
 
         func_pars = np.asarray([float(c) for c in string if c.isdigit()])
 
-        err_mess = "\nRegularizer func definition is funky. Perhaps you counted twice or skipped an integer: %s. Exiting...\n"%(string)
-        assert (np.array_equal(func_pars,np.linspace(0,num_nums-1,num_nums))), err_mess
+        err_mess = ("\nRegularizer func definition is funky. "
+                    "Perhaps you counted twice or skipped an integer: "
+                    "{}. Exiting...\n".format(string))
+        assert np.array_equal(func_pars, np.linspace(0, num_nums-1, num_nums)), err_mess
 
     # Test for Equal Length Arrays
     def TestLengths(self, N1, N2, message):
         ln1 = len(N1)
         ln2 = len(N2)
-        err_mess = "\nRegularizer %s arrays are not equal length. %i != %i. Exiting...\n"%(message,ln1,ln2)
-        assert (ln1 == ln2), err_mess
+        err_mess = ("\nRegularizer {} arrays are not equal length. {} != {}. "
+                    "Exiting...\n".format(message, ln1, ln2))
+        assert ln1 == ln2, err_mess
 
     # Get Reduced Chi2 of Fit
     def GetRedChi2(self):
-        err_mess = "\nFit not yet performed, dof = %f"%(self.dof)
-        assert (not self.dof==0), err_mess
+        err_mess = "\nFit not yet performed, dof = {}".format(self.dof)
+        assert not self.dof == 0, err_mess
 
-        return self.chi2/self.dof
+        return self.chi2 / self.dof
 
     # Evaulate fit at points given by xarray
     def FitEval(self, xarray):
         f_eval = np.zeros(len(xarray))
-        for j in xrange(0,len(xarray)):
+        for j in xrange(0, len(xarray)):
             f_eval[j] = self.FIT.Eval(xarray[j])
         return f_eval
 
@@ -742,38 +759,39 @@ class Regularizer:
         # Local variable for cleanliness
         nPar = self.nParams
 
-        self.TestLengths(self.xarray,ydata,"Cause X-axis & Unfolded Data")
+        self.TestLengths(self.xarray, ydata, "Cause X-axis & Unfolded Data")
         # ROOT object to fit
-        DATA = TH1F("data","data",self.nbins,self.xedges)
-        for i in xrange(0,self.nbins):
-            DATA.SetBinContent(i+1,ydata[i])
-            if ( len(yerr)>0 ):
-                DATA.SetBinError(i+1,yerr[i])
+        DATA = TH1F("data", "data", self.nbins, self.xedges)
+        for i in xrange(0, self.nbins):
+            DATA.SetBinContent(i+1, ydata[i])
+            if len(yerr) > 0:
+                DATA.SetBinError(i+1, yerr[i])
             else:
-                DATA.SetBinError(i+1,np.sqrt(ydata[i]))
+                DATA.SetBinError(i+1, np.sqrt(ydata[i]))
 
         # Prepare fit parameters based on user InitialParams
         # or previous fit if used iteratively
-        Pars = np.array(self.Params,dtype=float)
+        Pars = np.array(self.Params, dtype=float)
         self.FIT.SetParameters(Pars)
 
         # Set Par Limits if provided
-        if (self.ParLimProvided):
+        if self.ParLimProvided:
             PLo = self.ParamLimitsLo.copy()
             PHi = self.ParamLimitsHi.copy()
-            for i in xrange(0,self.nParams):
-                self.FIT.SetParLimits(i,PLo[i],PHi[i])
+            for i in xrange(0, self.nParams):
+                self.FIT.SetParLimits(i, PLo[i], PHi[i])
 
         Fopts = "R"
-        if (not self.verbose):
-            Fopts += "Q" # Quiet mode
-        DATA.Fit(self.FIT,Fopts)
+        if not self.verbose:
+            # Quiet mode
+            Fopts += "Q"
+        DATA.Fit(self.FIT, Fopts)
 
         # Eval fit at xarray
         f_eval = self.FitEval(self.xarray)
 
         # Store fit parameters
-        for i in xrange(0,nPar):
+        for i in xrange(0, nPar):
             self.Params[i] = self.FIT.GetParameter(i)
 
         # Store chi2 and dof of fit
@@ -781,28 +799,28 @@ class Regularizer:
         self.dof = self.FIT.GetNDF()
 
         # Print Results Nicely :)
-        if (self.verbose):
+        if self.verbose:
             print("=====================")
             print("Fit Parameter Results")
-            for i in xrange(0,nPar):
+            for i in xrange(0, nPar):
                 print(self.ParamNames[i], " = ", self.Params[i])
             print("Red X2: = ", self.GetRedChi2())
             print("=====================")
 
         # Plot Comparison Nicely :)
-        if (self.plot):
-            self.Plot(ydata,f_eval)
+        if self.plot:
+            self.Plot(ydata, f_eval)
 
         # Return fit eval array and fit parameters
         return f_eval, self.Params
 
     # Plot data and fit
-    def Plot(self,data,fitdata):
-            fig = plt.figure(figsize=(8,7))
+    def Plot(self, data, fitdata):
+            fig = plt.figure(figsize=(8, 7))
             ax = fig.add_subplot(111)
             mpl.rc("font", family="serif", size=14)
-            ax.plot(self.xarray, data, label="data", color='k',ls='--')
-            ax.plot(self.xarray, fitdata, label="fit", color='r',ls=':')
+            ax.plot(self.xarray, data, label="data", color='k', ls='--')
+            ax.plot(self.xarray, fitdata, label="fit", color='r', ls=':')
             ax.set_xscale("log")
             ax.set_xlabel("X")
             ax.set_xlim([self.xarray[0], self.xarray[-1]])
