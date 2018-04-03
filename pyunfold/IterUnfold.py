@@ -1,80 +1,25 @@
 
-import warnings
-import numpy as np
 import pandas as pd
-from ROOT import gROOT
-
-from .Utils import none_to_empty_list
-
-# Clear ROOT global variables
-gROOT.Reset()
-
-# Ignore ROOT fit RuntimeWarning
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="ROOT")
 
 
 class IterativeUnfolder(object):
     """Common base class for iterative unfolder
     """
-    def __init__(self, name, max_iter=100, smooth_iter=False, n_c=None,
-                 mixer=None, reg_func=None, ts_func=None, stack=False,
-                 verbose=False, **kwargs):
+    def __init__(self, n_c=None, mixer=None, ts_func=None, max_iter=100):
 
-        n_c, mixer, reg_func, ts_func = none_to_empty_list(n_c,
-                                                           mixer,
-                                                           reg_func,
-                                                           ts_func)
-
-        self.name = name
         self.max_iter = max_iter
-        self.smooth_iter = smooth_iter
-        # Stacking info
-        self.nstack = len(reg_func)
-        # stacking Bin Indices Initializer
-        self.stackInd = [[] for i in range(self.nstack)]
         # Mixing, Regularizing, Test Statistic Functions
         self.Mix = mixer
-        self.Rglzr = reg_func
+        # self.Rglzr = reg_func
         self.ts_func = ts_func
-        # If user doesn't provide prior...
-        self.n_c = n_c.copy()
-        # Count Iterations
+        self.current_n_c = n_c.copy()
         self.counter = 0
 
-        # Lists to Append Iteration Results
-        #  Unfolded Results
-        self.n_c_iters = [[] for i in range(self.nstack)]
-        self.n_c_final = []
-        self.covM = []
-        self.statErr = []
-        self.sysErr = []
-        #  Regularization Results
-        self.ParamOut = [[] for i in range(self.nstack)]
-        for j in range(self.nstack):
-            for i in xrange(0, reg_func[j].nParams):
-                self.ParamOut[j].append([])
-        self.N_measured_out = []
-        self.N_measured_out.append(np.sum(n_c))
+    def continue_unfolding(self):
+        continue_unfolding = not self.ts_func.pass_tol() and self.counter < self.max_iter
+        return continue_unfolding
 
-        #  Test Statistic Results
-        self.TS_out = [[] for i in range(self.nstack)]
-
-        # Set stacking Bin Indices
-        self.SetstackInd()
-
-    def SetstackInd(self):
-        iind = 0
-        for iS in range(self.nstack):
-            iaxis = self.Rglzr[iS].xarray.copy()
-            self.stackInd[iS] = [range(iind, iind + len(iaxis))]
-            iind += len(iaxis)
-
-    def pass_tol(self):
-        is_pass_tol = any([self.ts_func[iS].pass_tol()
-                           for iS in range(self.nstack)])
-        return is_pass_tol
-
-    def IUnfold(self):
+    def unfold(self):
         """Perform iterative unfolding
 
         Parameters
@@ -87,98 +32,28 @@ class IterativeUnfolder(object):
             DataFrame containing the unfolded result for each iteration.
             Each row in unfolding_result corresponds to an iteration.
         """
-        # Create dictionary to store unfolding result at each iteration
-        unfolding_result = {}
+        unfolding_results = []
 
-        # First Mixing
-        n_c_update = self.Mix.smear(self.n_c)
-        n_update = np.sum(n_c_update)
-
-        # Add first mixing result to unfolding_result
-        unfolding_result[self.counter] = {'unfolded': n_c_update,
-                                          'stat_err': self.Mix.get_stat_err(),
-                                          'sys_err': self.Mix.get_MC_err()}
-
-        self.counter += 1
-
-        # Calculate Chi2 of first mix with prior
-        for iS in range(self.nstack):
-            iind = self.stackInd[iS]
-            inc = self.n_c[iind]
-            self.n_c_iters[iS].append(inc)
-            incu = n_c_update[iind]
-            TS_cur, TS_del, TS_prob = self.ts_func[iS].GetStats(incu, inc)
-            self.TS_out[iS].append(TS_cur)
-
-        reg_fit = np.zeros(self.n_c.shape)
-        # Perform Iterative Unfolding
-        while (not self.pass_tol() and self.counter < self.max_iter):
+        while self.continue_unfolding():
             # Updated unfolded distribution
-            n_c = n_c_update.copy()
-            # For test statistic purposes.
-            # Don't want to compare reg_fit to n_c_update
-            n_c_prev = n_c_update.copy()
-            # Save n_update for root output
-            self.N_measured_out.append(n_update)
-
-            # Regularize unfolded dist in favor of 'smooth physics' prior
-            for iS in range(self.nstack):
-                iind = self.stackInd[iS][0]
-                incu = n_c_update[iind]
-                self.n_c_iters[iS].append(incu)
-                reg_fit_iS, FitParams = self.Rglzr[iS].Regularize(incu)
-                reg_fit[iind] = reg_fit_iS.copy()
-
-                # Save fit parameters for root output
-                for j in xrange(0, self.Rglzr[iS].nParams):
-                    self.ParamOut[iS][j].append(FitParams[j])
-
-                # Smoothed n_c for next iteration
-                if self.smooth_iter:
-                    n_c[iind] = reg_fit_iS.copy()
-
+            # n_c = unfolded_n_c.copy()
             # Mix w/n_c from previous iter
-            n_c_update = self.Mix.smear(n_c)
-            n_update = np.sum(n_c_update)
+            unfolded_n_c = self.Mix.smear(self.current_n_c)
 
             # Add mixing result to unfolding_result
-            unfolding_result[self.counter] = {
-                                        'unfolded': n_c_update,
-                                        'stat_err': self.Mix.get_stat_err(),
-                                        'sys_err': self.Mix.get_MC_err()}
+            status = {'unfolded': unfolded_n_c,
+                      'stat_err': self.Mix.get_stat_err(),
+                      'sys_err': self.Mix.get_MC_err()}
+            unfolding_results.append(status)
 
+            TS_cur, TS_del, TS_prob = self.ts_func.GetStats(unfolded_n_c,
+                                                            self.current_n_c)
+            self.current_n_c = unfolded_n_c.copy()
             self.counter += 1
 
-            # Calculate TS wrt previous regularization
-            for iS in range(self.nstack):
-                iind = self.stackInd[iS][0]
-                inc = self.n_c[iind]
-                incu = n_c_update[iind]
-                incp = n_c_prev[iind]
-                TS_cur, TS_del, TS_prob = self.ts_func[iS].GetStats(incu, incp)
-                self.TS_out[iS].append(TS_cur)
-
-        # Final Iteration
-        n_c_final = n_c_update.copy()
-        self.n_c_final = n_c_final.copy()
-        # Calculate error estimates
-        self.covM = self.Mix.get_cov()
-        self.statErr = self.Mix.get_stat_err()
-        self.sysErr = self.Mix.get_MC_err()
-        # Save n_update for root output
-        self.N_measured_out.append(n_update)
-        # Regularize unfolded dist in favor of 'smooth physics' prior
-        for iS in range(self.nstack):
-            iind = self.stackInd[iS]
-            incu = n_c_final[iind]
-            self.n_c_iters[iS].append(incu)
-            final_fit, FitParams = self.Rglzr[iS].Regularize(incu)
-
-            for j in xrange(0, self.Rglzr[iS].nParams):
-                self.ParamOut[iS][j].append(FitParams[j])
-
         # Convert unfolding_result dictionary to a pandas DataFrame
-        unfolding_result = pd.DataFrame.from_dict(unfolding_result,
-                                                  orient='index')
+        columns = ['sys_err', 'unfolded', 'stat_err']
+        unfolding_results = pd.DataFrame.from_records(unfolding_results,
+                                                      columns=columns)
 
-        return unfolding_result
+        return unfolding_results

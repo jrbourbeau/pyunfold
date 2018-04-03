@@ -257,12 +257,11 @@ def unfold(config_name=None, EffDist=None, priors='Jeffreys', input_file=None,
              for i in range(nStack)]
     # Prepare Test Statistic-er
     tsMeth = get_ts(tsname)
-    tsFunc = [tsMeth(tsname,
-                     tol=tsTol,
-                     Xaxis=Caxis[i],
-                     TestRange=tsRange,
-                     verbose=tsVerbFlag)
-              for i in range(nStack)]
+    tsFunc = tsMeth(tsname,
+                    tol=tsTol,
+                    Xaxis=Caxis[0],
+                    TestRange=tsRange,
+                    verbose=tsVerbFlag)
 
     # Prepare Mixer
     mixer = Mixer(MixName,
@@ -274,16 +273,11 @@ def unfold(config_name=None, EffDist=None, priors='Jeffreys', input_file=None,
     if stackFlag:
         UnfolderName += '_'+''.join(bin_list)
 
-    Unfolder = IterativeUnfolder(UnfolderName,
-                                 max_iter=UnfMaxIter,
-                                 smooth_iter=UnfSmoothIter,
-                                 n_c=n_c,
+    Unfolder = IterativeUnfolder(n_c=n_c,
                                  mixer=mixer,
-                                 reg_func=Rglzr,
                                  ts_func=tsFunc,
-                                 stack=stackFlag,
-                                 verbose=UnfVerbFlag)
+                                 max_iter=UnfMaxIter)
     # Iterate the Unfolder
-    unfolding_result = Unfolder.IUnfold()
+    unfolding_result = Unfolder.unfold()
 
     return unfolding_result

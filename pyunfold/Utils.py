@@ -409,7 +409,7 @@ class TestStat(object):
         if verbose:
             self.PrintName()
         # Initialize Unnatural TS data
-        self.stat = -1
+        self.stat = np.inf
         self.delstat = 0
         self.prob = -1
         self.dof = -1
