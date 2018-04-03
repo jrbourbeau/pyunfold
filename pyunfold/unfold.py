@@ -85,10 +85,13 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     efficiencies, efficiencies_err = cast_to_array(efficiencies,
                                                    efficiencies_err)
 
-    assert_same_shape(data, data_err, efficiencies, efficiencies_err)
+    assert_same_shape(data, data_err)
+    assert_same_shape(efficiencies, efficiencies_err)
     assert_same_shape(response, response_err)
+    assert len(data) == response.shape[0]
+    assert len(efficiencies) == response.shape[1]
     if priors != 'Jeffreys':
-        assert_same_shape(data, priors)
+        assert_same_shape(efficiencies, priors)
 
     # Save data, response, efficiencies, etc. to a ROOT file
     temp_dir_path = tempfile.mkdtemp()
