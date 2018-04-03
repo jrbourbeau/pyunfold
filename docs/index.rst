@@ -24,12 +24,12 @@ PyUnfold
 
 *NOTE: PyUnfold is still under active development*
 
-PyUnfold is a Python implementation the D'Agostini iterative Bayesian unfolding method [1]_. PyUnfold was originally developed by `Zigfried Hampel-Arias <https://github.com/zhampel>`_ and can found in this `GitHub repository <https://github.com/zhampel/PyUnfold>`_.
+PyUnfold is a Python implementation the D'Agostini iterative unfolding method [1]_. PyUnfold was originally developed by `Zigfried Hampel-Arias <https://github.com/zhampel>`_ and can be found in this `GitHub repository <https://github.com/zhampel/PyUnfold>`_.
 
 Installation
 ------------
 
-The latest development version of PyUnfold can be install directly from GitHub
+The latest development version of PyUnfold can be installed directly from GitHub
 
 .. code-block:: bash
 
