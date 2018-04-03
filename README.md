@@ -5,15 +5,15 @@
 
 _NOTE: PyUnfold is still under active development_
 
-PyUnfold is a Python implementation the iterative Bayesian unfolding method outlined in
+PyUnfold is a Python implementation the iterative unfolding method outlined in
 
 > G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A **362** (1995) 487
 
-PyUnfold was originally developed by [Zigfried Hampel-Arias](https://github.com/zhampel) and can found in this [GitHub repository](https://github.com/zhampel/PyUnfold).
+PyUnfold was originally developed by [Zigfried Hampel-Arias](https://github.com/zhampel) and can be found in this [GitHub repository](https://github.com/zhampel/PyUnfold).
 
 ## Installation
 
-The latest development version of PyUnfold can be install directly from GitHub
+The latest development version of PyUnfold can be installed directly from GitHub
 
 ```
 pip install git+https://github.com/jrbourbeau/pyunfold.git
