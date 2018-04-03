@@ -12,18 +12,18 @@ from .Utils import (save_input_to_root_file, assert_same_shape, cast_to_array,
                     get_ts, DataDist, UserPrior)
 
 
-def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
+def iterative_unfold(data, data_err, response, response_err, efficiencies,
                      efficiencies_err, priors='Jeffreys', ts='ks',
                      ts_stopping=0.01, max_iter=100, return_iterations=False):
     """Performs iterative Bayesian unfolding
 
     Parameters
     ----------
-    counts : array_like
+    data : array_like
         Input observed data distribution.
-    counts_err : array_like
+    data_err : array_like
         Uncertainties associated with the input observed data distribution.
-        Must be the same shape as counts.
+        Must be the same shape as data.
     response : array_like
         Response matrix.
     response_err : array_like
@@ -37,7 +37,7 @@ def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
     priors : str or array_like, optional
         Prior distribution to use in unfolding. If 'Jeffreys', then the
         Jeffreys (flat) prior is used. Otherwise, must be array_like with
-        same shape as counts (default is 'Jeffreys').
+        same shape as data (default is 'Jeffreys').
     ts : {'ks', 'chi2', 'pf', 'rmd'}
         Name of test statistic to use for stopping condition (default is 'ks').
     ts_stopping : float, optional
@@ -80,22 +80,22 @@ def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
     'stat_err': array([11.2351567 , 13.75617997])}
     """
     # Validate user input
-    counts, counts_err = cast_to_array(counts, counts_err)
+    data, data_err = cast_to_array(data, data_err)
     response, response_err = cast_to_array(response, response_err)
     efficiencies, efficiencies_err = cast_to_array(efficiencies,
                                                    efficiencies_err)
 
-    assert_same_shape(counts, counts_err, efficiencies, efficiencies_err)
+    assert_same_shape(data, data_err, efficiencies, efficiencies_err)
     assert_same_shape(response, response_err)
     if priors != 'Jeffreys':
-        assert_same_shape(counts, priors)
+        assert_same_shape(data, priors)
 
-    # Save counts, response, efficiencies, etc. to a ROOT file
+    # Save data, response, efficiencies, etc. to a ROOT file
     temp_dir_path = tempfile.mkdtemp()
     root_file = os.path.join(temp_dir_path,
                              'pyunfold_root_file.root')
-    save_input_to_root_file(counts,
-                            counts_err,
+    save_input_to_root_file(data,
+                            data_err,
                             response,
                             response_err,
                             efficiencies,
@@ -105,9 +105,8 @@ def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
     here = os.path.abspath(os.path.dirname(__file__))
     config_file = os.path.join(here, 'config.cfg')
 
-    mixer, ts_func, n_c = setup_mixer_ts_prior(data=counts,
-                                               data_err=counts_err,
-                                               config_name=config_file,
+    mixer, ts_func, n_c = setup_mixer_ts_prior(data=data,
+                                               data_err=data_err,
                                                priors=priors,
                                                input_file=root_file,
                                                ts=ts,
@@ -127,12 +126,9 @@ def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
         return unfolded_result
 
 
-def setup_mixer_ts_prior(config_name=None, data=None, data_err=None,
+def setup_mixer_ts_prior(data=None, data_err=None,
                          priors='Jeffreys', input_file=None, ts='ks',
                          ts_stopping=0.01, max_iter=100, cov_error='ACM'):
-
-    if config_name is None:
-        raise ValueError('config_name must be provided')
 
     assert input_file is not None
 
