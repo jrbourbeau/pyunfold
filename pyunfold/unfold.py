@@ -1,4 +1,5 @@
 
+from __future__ import division, print_function
 import os
 import tempfile
 import shutil
@@ -7,9 +8,8 @@ import pandas as pd
 
 from .LoadStats import MCTables
 from .Mix import Mixer
-from .RootReader import get_labels, get1d
 from .Utils import (save_input_to_root_file, assert_same_shape, cast_to_array,
-                    ConfigFM, get_ts, DataDist, UserPrior)
+                    get_ts, DataDist, UserPrior)
 
 
 def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
@@ -105,13 +105,19 @@ def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
     here = os.path.abspath(os.path.dirname(__file__))
     config_file = os.path.join(here, 'config.cfg')
 
-    unfolding_iters = unfold(config_name=config_file,
-                             EffDist=None,
-                             priors=priors,
-                             input_file=root_file,
-                             ts=ts,
-                             ts_stopping=ts_stopping,
-                             max_iter=max_iter)
+    mixer, ts_func, n_c = setup_mixer_ts_prior(data=counts,
+                                               data_err=counts_err,
+                                               config_name=config_file,
+                                               priors=priors,
+                                               input_file=root_file,
+                                               ts=ts,
+                                               ts_stopping=ts_stopping,
+                                               max_iter=max_iter)
+    unfolding_iters = perform_unfolding(n_c=n_c,
+                                        mixer=mixer,
+                                        ts_func=ts_func,
+                                        max_iter=max_iter)
+
     shutil.rmtree(temp_dir_path)
 
     if return_iterations:
@@ -121,142 +127,71 @@ def iterative_unfold(counts, counts_err, response, response_err, efficiencies,
         return unfolded_result
 
 
-def unfold(config_name=None, EffDist=None, priors='Jeffreys', input_file=None,
-           ts='ks', ts_stopping=0.01, max_iter=100, **kwargs):
+def setup_mixer_ts_prior(config_name=None, data=None, data_err=None,
+                         priors='Jeffreys', input_file=None, ts='ks',
+                         ts_stopping=0.01, max_iter=100, cov_error='ACM'):
 
     if config_name is None:
         raise ValueError('config_name must be provided')
 
     assert input_file is not None
 
-    # Get the Configuration Parameters from the Config File
-    config = ConfigFM(config_name)
-
-    # Input Data ROOT File Name
-    dataHeader = 'data'
-    InputFile = input_file
-    NE_meas_name = config.get(dataHeader, 'ne_meas', default='', cast=str)
-
-    # Analysis Bin
-    binHeader = 'analysisbins'
-    binnumberStr = config.get(binHeader, 'bin', default=0, cast=str)
-    stackFlag = config.get_boolean(binHeader, 'stack', default=False)
-    bin_list = ['bin'+val.replace(' ', '') for val in binnumberStr.split(',')]
-    nStack = len(bin_list)
-
-    unfbinname = 'bin0'
-
-    # Mixer Name and Error Propagation Type
-    # Options: ACM, DCM
-    mixHeader = 'mixer'
-    MixName = config.get(mixHeader, 'mix_name', default='', cast=str)
-    CovError = config.get(mixHeader, 'error_type', default='', cast=str)
-
-    # # Regularization Function, Initial Parameters, & Options
-    # regHeader = 'regularization'
-    # RegFunc = config.get(regHeader, 'reg_func', default='', cast=str)
-    # #  Param Names
-    # ConfigParamNames = config.get(regHeader, 'param_names', default='',
-    #                               cast=str)
-    # ParamNames = [x.strip() for x in ConfigParamNames.split(',')]
-    # #  Initial Parameters
-    # IPars = config.get(regHeader, 'param_init', default='', cast=str)
-    # InitParams = [float(val) for val in IPars.split(',')]
-    # #  Limits
-    # PLow = config.get(regHeader, 'param_lim_lo', default='', cast=str)
-    # PLimLo = [float(val) for val in PLow.split(',')]
-    # PHigh = config.get(regHeader, 'param_lim_hi', default='', cast=str)
-    # PLimHi = [float(val) for val in PHigh.split(',')]
-    # RegRangeStr = config.get(regHeader, 'reg_range', cast=str)
-    # RegRange = [float(val) for val in RegRangeStr.split(',')]
-    # #  Options
-    # RegPFlag = config.get_boolean(regHeader, 'plot', default=False)
-    # RegVFlag = config.get_boolean(regHeader, 'verbose', default=False)
-
-    # Get MCInput
-    mcHeader = 'mcinput'
-    # StatsFile = config.get(mcHeader, 'stats_file', default='', cast=str)
-    StatsFile = input_file
-    Eff_hist_name = config.get(mcHeader, 'eff_hist', default='', cast=str)
-    MM_hist_name = config.get(mcHeader, 'mm_hist', default='', cast=str)
+    if cov_error not in ['ACM', 'DCM']:
+        raise ValueError('Invalid cov_error entered ({}). Must be in '
+                         'either "ACM" or "DCM"'.format(cov_error))
 
     # Setup the Observed and MC Data Arrays
     # Load MC Stats (NCmc), Cause Efficiency (Eff) and Migration Matrix P(E|C)
-    MCStats = MCTables(StatsFile,
-                       BinName=bin_list,
-                       RespMatrixName=MM_hist_name,
-                       EffName=Eff_hist_name,
-                       Stack=stackFlag)
-    Caxis = []
-    Cedges = []
-    for index in range(nStack):
-        axis, edge = MCStats.GetCauseAxis(index)
-        Caxis.append(axis)
-        Cedges.append(edge)
+    MCStats = MCTables(input_file,
+                       BinName=['bin0'],
+                       RespMatrixName='MM',
+                       EffName='Eff',
+                       Stack=False)
+
+    Caxis, Cedges = MCStats.GetCauseAxis(0)
     Eaxis, Eedges = MCStats.GetEffectAxis()
-    # Effect and Cause X and Y Labels from Respective Histograms
-    Cxlab, Cylab, Ctitle = get_labels(StatsFile, Eff_hist_name, bin_list[0],
-                                      verbose=False)
 
-    # Load the Observed Data (n_eff), define total observed events (n_obs)
-    # Get from ROOT input file if requested
-    if EffDist is None:
-        Exlab, Eylab, Etitle = get_labels(InputFile, NE_meas_name, unfbinname,
-                                          verbose=False)
-        Eaxis, Eedges, n_eff, n_eff_err = get1d(InputFile, NE_meas_name,
-                                                unfbinname)
-        EffDist = DataDist(Etitle, data=n_eff, error=n_eff_err,
-                           axis=Eaxis, edges=Eedges, xlabel=Exlab,
-                           ylabel=Eylab, units='')
-    Exlab = EffDist.xlab
-    Eylab = EffDist.ylab
-    Etitle = EffDist.name
-    n_eff = EffDist.getData()
-    n_eff_err = EffDist.getError()
-    n_obs = np.sum(n_eff)
+    # Load the Observed Data (data), define total observed events (n_obs)
+    Exlab = 'Effects'
+    Eylab = 'Counts'
+    Etitle = 'effects histogram'
+    Eedges = np.arange(len(data) + 1, dtype=float)
+    # Get bin midpoints
+    Eaxis = (Eedges[1:] + Eedges[:-1]) / 2
+    EffDist = DataDist(Etitle, data=data, error=data_err,
+                       axis=Eaxis, edges=Eedges, xlabel=Exlab,
+                       ylabel=Eylab, units='')
+    n_obs = np.sum(data)
 
-    # Initial best guess (0th prior) expected prob dist
-    # default: Jeffrey's Prior
-    if isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
-        n_c = np.asarray(priors)
-    elif priors == 'Jeffreys':
-        n_c = UserPrior(['Jeffreys'], Caxis, n_obs)
+    # Setup prior
+    if priors == 'Jeffreys':
+        n_c = UserPrior(['Jeffreys'], [Caxis], n_obs)
         n_c = n_c / np.sum(n_c)
+    elif isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
+        n_c = np.asarray(priors)
     else:
-        raise TypeError('priors must be a array_like, '
+        raise TypeError('priors must be either "Jeffreys" or array_like, '
                         'but got {}'.format(type(priors)))
-    np.testing.assert_allclose(np.sum(n_c), 1)
 
-    # Setup the Tools Used in Unfolding
-
-    # # Prepare Regularizer
-    # Rglzr = [Regularizer('REG', FitFunc=[RegFunc], Range=RegRange,
-    #                      InitialParams=InitParams, ParamLo=PLimLo,
-    #                      ParamHi=PLimHi, ParamNames=ParamNames,
-    #                      xarray=Caxis[i], xedges=Cedges[i],
-    #                      verbose=RegVFlag, plot=RegPFlag)
-    #          for i in range(nStack)]
+    if not np.allclose(np.sum(n_c), 1):
+        raise ValueError('Prior (which is an array of probabilities) does '
+                         'not add to 1. sum(priors) = {}'.format(np.sum(n_c)))
 
     # Prepare Test Statistic-er
     ts_obj = get_ts(ts)
     ts_func = ts_obj(ts,
                      tol=ts_stopping,
-                     Xaxis=Caxis[0],
+                     Xaxis=Caxis,
                      TestRange=[0, 1e2],
                      verbose=False)
 
     # Prepare Mixer
-    mixer = Mixer(MixName,
-                  ErrorType=CovError,
+    mixer = Mixer('SrMixALot',
+                  ErrorType=cov_error,
                   MCTables=MCStats,
                   EffectsDist=EffDist)
 
-    unfolding_result = perform_unfolding(n_c=n_c,
-                                         mixer=mixer,
-                                         ts_func=ts_func,
-                                         max_iter=max_iter)
-
-    return unfolding_result
+    return mixer, ts_func, n_c
 
 
 def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100):
@@ -285,8 +220,7 @@ def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100):
     unfolding_iters = []
 
     while (not ts_func.pass_tol() and counter < max_iter):
-        # Updated unfolded distribution
-        # Mix w/n_c from previous iter
+        # Perform unfolding for this iteration
         unfolded_n_c = mixer.smear(current_n_c)
 
         # Add mixing result to unfolding_result
@@ -297,6 +231,7 @@ def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100):
 
         ts_cur, ts_del, ts_prob = ts_func.GetStats(unfolded_n_c,
                                                    current_n_c)
+        # Updated current distribution for next iteration of unfolding
         current_n_c = unfolded_n_c.copy()
         counter += 1
 
