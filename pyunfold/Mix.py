@@ -22,11 +22,11 @@ class Mixer(object):
 
         self.name = name
         # Normalized P(E|C)
-        self.pec = MCTables.GetPEC()
+        self.pec = MCTables.pec
         # Cause Efficiencies
-        self.cEff = MCTables.GetEff()
+        self.cEff = MCTables.eff
         # Observed Effects Distribution
-        self.NEobs = EffectsDist.getData()
+        self.NEobs = EffectsDist.data
         # Total Number of Effects
         self.nobs = np.sum(self.NEobs)
         # Error Calculation Type

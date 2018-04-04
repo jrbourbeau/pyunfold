@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from pyunfold.Utils import (none_to_empty_list, safe_inverse, get_ts,
-                            cast_to_array, assert_same_shape)
+                            cast_to_array, assert_same_shape,
+                            assert_kwargs_not_none)
 
 
 def test_none_to_empty_list_single_input():
@@ -82,3 +83,22 @@ def test_assert_same_shape_raises_2d():
     b = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     with pytest.raises(ValueError) as excinfo:
         assert_same_shape(a, b)
+
+
+def test_assert_kwargs_not_none_passes():
+
+    @assert_kwargs_not_none()
+    def example_func(a, b=None, c=None):
+        return
+
+    example_func(10)
+
+
+def test_assert_kwargs_not_none_raises():
+
+    @assert_kwargs_not_none('b', 'c')
+    def example_func(a, b=None, c=None):
+        return
+
+    with pytest.raises(ValueError) as excinfo:
+        example_func(10)
