@@ -1,7 +1,6 @@
 
 import os
 import numpy as np
-from ROOT import TH1F, TH2F, TFile
 
 
 def diagonal_response(size):

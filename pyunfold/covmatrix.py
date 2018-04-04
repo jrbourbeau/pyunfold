@@ -70,13 +70,13 @@ class CovarianceMatrix(object):
         f_inv = safe_inverse(f_norm)
 
         NE_F_R = self.NEobs * f_inv
-        for ej in xrange(0, ebins):
+        for ej in range(0, ebins):
             ne_f_r = NE_F_R[ej]
             # Combined counting index
             ec_j = ej*cbins
-            for ti in xrange(0, cbins):
+            for ti in range(0, cbins):
                 b = -ne_f_r * Mij[ej, ti]
-                for tk in xrange(0, cbins):
+                for tk in range(0, cbins):
                     dcdP[ti, ec_j+tk] = b * n_c_prev[tk]
                 dcdP[ti, ec_j+ti] += (n_c_prev[ti] * ne_f_r-n_c[ti]) * self.cEff_inv[ti]
 
@@ -95,10 +95,10 @@ class CovarianceMatrix(object):
             # Calculate extra dcdn terms
             M1 = dcdn_prev.copy()
             M2 = Mij.copy()
-            for tj in xrange(0, cbins):
+            for tj in range(0, cbins):
                 M1[:, tj] *= nc_r[tj]
                 M2[:, tj] *= -e_r[tj]
-            for ej in xrange(0, ebins):
+            for ej in range(0, ebins):
                 M2[ej, :] *= self.NEobs[ej]
             M3 = np.dot(M2.T, dcdn_prev)
             dcdn += np.dot(Mij, M3)
@@ -108,16 +108,16 @@ class CovarianceMatrix(object):
             #  My Version (from Unfolding HAWC-doc)
             A = Mij.copy()
             B = Mij.copy()
-            for ej in xrange(0, ebins):
+            for ej in range(0, ebins):
                 A[ej, :] *= self.NEobs[ej]
-            for ti in xrange(0, cbins):
+            for ti in range(0, cbins):
                 B[:, ti] *= e_r[ti]
             C = np.dot(A.T, B)
             dcdP_Upd = np.dot(C, dcdP_prev)
             nec = ebins * cbins
-            for tj in xrange(0, cbins):
+            for tj in range(0, cbins):
                 r = nc_r[tj]
-                for jk in xrange(0, nec):
+                for jk in range(0, nec):
                     dcdP[tj, jk] += r * dcdP_prev[tj, jk] - dcdP_Upd[tj, jk]
 
         # Set current derivative matrices
@@ -133,7 +133,7 @@ class CovarianceMatrix(object):
         ebins = self.ebins
         Vcd = np.zeros((ebins, ebins))
 
-        for ei in xrange(0, ebins):
+        for ei in range(0, ebins):
             Vcd[ei, ei] = self.NEobs_err[ei]**2
 
         return Vcd
@@ -160,23 +160,23 @@ class CovarianceMatrix(object):
 
         # Poisson Covariance Matrix
         if self.PecCov == 1:
-            for ej in xrange(0, ebins):
+            for ej in range(0, ebins):
                 ejc = ej * cbins
-                for ti in xrange(0, cbins):
+                for ti in range(0, cbins):
                     CovPP[ejc+ti, ejc+ti] = self.pec_err[ej, ti]**2
         # Multinomial Covariance Matrix
         elif self.PecCov == 2:
 
             NC_inv = safe_inverse(self.NCmc)
 
-            for ej in xrange(0, ebins):
+            for ej in range(0, ebins):
                 ejc = ej * cbins
-                for ti in xrange(0, cbins):
+                for ti in range(0, cbins):
                     # Don't go looping if zeros are present :)
                     if self.pec[ej, ti] > 0 and NC_inv[ti] > 0:
                         CovPP[ejc+ti, ejc+ti] = NC_inv[ti] * self.pec[ej, ti] * (1-self.pec[ej, ti])
                         cov1 = -NC_inv[ti]*self.pec[ej, ti]
-                        for ek in xrange(ej+1, ebins):
+                        for ek in range(ej+1, ebins):
                             ekc = ek * cbins
                             if ejc+ti == ekc+ti or ek == ej:
                                 continue

@@ -1,6 +1,7 @@
 # PyUnfold
 
 [![Build Status](https://travis-ci.org/jrbourbeau/pyunfold.svg?branch=master)](https://travis-ci.org/jrbourbeau/pyunfold)
+![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
 
 _NOTE: PyUnfold is still under active development_

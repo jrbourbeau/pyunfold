@@ -19,6 +19,9 @@ PyUnfold
 .. image:: https://travis-ci.org/jrbourbeau/pyunfold.svg?branch=master
     :target: https://travis-ci.org/jrbourbeau/pyunfold
 
+.. image:: https://img.shields.io/badge/python-3.6-blue.svg
+    :target: https://github.com/jrbourbeau/pyunfold
+
 .. image:: https://img.shields.io/badge/python-2.7-blue.svg
     :target: https://github.com/jrbourbeau/pyunfold
 

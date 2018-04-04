@@ -167,7 +167,7 @@ class PF(TestStat):
         nFactor = lgamma(n1+n2+2) - lgamma(n1+1) - lgamma(n2+1)
 
         lnB += nFactor
-        for i in xrange(0, len(N1)):
+        for i in range(0, len(N1)):
             lnB += lgamma(N1[i]+1) + lgamma(N2[i]+1) - lgamma(N1[i]+N2[i]+2)
 
         self.SetStat(lnB)

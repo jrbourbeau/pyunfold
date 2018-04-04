@@ -3,8 +3,8 @@ from __future__ import division, print_function
 import numpy as np
 import pandas as pd
 
-from .LoadStats import make_mctables
-from .Mix import Mixer
+from .loadstats import make_mctables
+from .mix import Mixer
 from .teststat import get_ts
 from .datadist import DataDist
 from .priors import UserPrior

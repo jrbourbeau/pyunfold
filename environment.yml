@@ -1,14 +1,11 @@
 name: pyunfold_dev
 channels:
   - conda-forge
-  - nlesc
 dependencies:
   # Analysis requirements
   - numpy
   - scipy
   - pandas
-  - matplotlib
-  - root5
   # Testing requirements
   - pytest
   - flake8
