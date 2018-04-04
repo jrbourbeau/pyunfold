@@ -20,20 +20,20 @@ class CovarianceMatrix(object):
 
         self.name = name
         # Normalized P(E|C)
-        self.pec = MCTables.GetPEC()
-        self.pec_err = MCTables.GetPECError()
+        self.pec = MCTables.pec
+        self.pec_err = MCTables.pec_err
         # Errors on P(E|C), for Vc1
         self.pec_cov_type = "Multinomial"
         # self.pec_cov_type = "Poisson"
         self.PecCov = self.SetPecCovType(self.pec_cov_type)
         # Cause Efficiencies
-        self.cEff = MCTables.GetEff()
+        self.cEff = MCTables.eff
         self.cEff_inv = safe_inverse(self.cEff)
         # Effective Number of Sim Events
-        self.NCmc = MCTables.GetNCmc()
+        self.NCmc = MCTables.NCmc
         # Observed Effects Distribution
-        self.NEobs = EffectsDist.getData()
-        self.NEobs_err = EffectsDist.getError()
+        self.NEobs = EffectsDist.data
+        self.NEobs_err = EffectsDist.error
         # Total Number of Effects
         self.nobs = np.sum(self.NEobs)
 

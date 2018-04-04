@@ -1,15 +1,12 @@
 
 from __future__ import division, print_function
-import os
-import tempfile
-import shutil
 import numpy as np
 import pandas as pd
 
-from .LoadStats import MCTables
+from .LoadStats import make_mctables
 from .Mix import Mixer
-from .Utils import (save_input_to_root_file, assert_same_shape, cast_to_array,
-                    get_ts, DataDist, UserPrior)
+from .Utils import (assert_same_shape, cast_to_array, get_ts, DataDist,
+                    UserPrior)
 
 
 def iterative_unfold(data, data_err, response, response_err, efficiencies,
@@ -93,25 +90,13 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     if priors != 'Jeffreys':
         assert_same_shape(efficiencies, priors)
 
-    # Save data, response, efficiencies, etc. to a ROOT file
-    temp_dir_path = tempfile.mkdtemp()
-    root_file = os.path.join(temp_dir_path,
-                             'pyunfold_root_file.root')
-    save_input_to_root_file(data,
-                            data_err,
-                            response,
-                            response_err,
-                            efficiencies,
-                            efficiencies_err,
-                            outfile=root_file)
-
-    here = os.path.abspath(os.path.dirname(__file__))
-    config_file = os.path.join(here, 'config.cfg')
-
     mixer, ts_func, n_c = setup_mixer_ts_prior(data=data,
                                                data_err=data_err,
                                                priors=priors,
-                                               input_file=root_file,
+                                               efficiencies=efficiencies,
+                                               efficiencies_err=efficiencies_err,
+                                               response=response,
+                                               response_err=response_err,
                                                ts=ts,
                                                ts_stopping=ts_stopping,
                                                max_iter=max_iter)
@@ -120,8 +105,6 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
                                         ts_func=ts_func,
                                         max_iter=max_iter)
 
-    shutil.rmtree(temp_dir_path)
-
     if return_iterations:
         return unfolding_iters
     else:
@@ -129,11 +112,11 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
         return unfolded_result
 
 
-def setup_mixer_ts_prior(data=None, data_err=None,
-                         priors='Jeffreys', input_file=None, ts='ks',
-                         ts_stopping=0.01, max_iter=100, cov_error='ACM'):
-
-    assert input_file is not None
+def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
+                         efficiencies=None, efficiencies_err=None,
+                         response=None, response_err=None,
+                         ts='ks', ts_stopping=0.01,
+                         max_iter=100, cov_error='ACM'):
 
     if cov_error not in ['ACM', 'DCM']:
         raise ValueError('Invalid cov_error entered ({}). Must be in '
@@ -141,14 +124,14 @@ def setup_mixer_ts_prior(data=None, data_err=None,
 
     # Setup the Observed and MC Data Arrays
     # Load MC Stats (NCmc), Cause Efficiency (Eff) and Migration Matrix P(E|C)
-    MCStats = MCTables(input_file,
-                       BinName=['bin0'],
-                       RespMatrixName='MM',
-                       EffName='Eff',
-                       Stack=False)
+    MCStats = make_mctables(efficiencies=efficiencies,
+                            efficiencies_err=efficiencies_err,
+                            response=response,
+                            response_err=response_err)
 
-    Caxis, Cedges = MCStats.GetCauseAxis(0)
-    Eaxis, Eedges = MCStats.GetEffectAxis()
+    Cedges = np.arange(len(efficiencies) + 1, dtype=float)
+    # Get bin midpoints
+    Caxis = (Cedges[1:] + Cedges[:-1]) / 2
 
     # Load the Observed Data (data), define total observed events (n_obs)
     Exlab = 'Effects'
