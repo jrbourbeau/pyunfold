@@ -3,9 +3,8 @@ from __future__ import division, print_function
 import numpy as np
 import pytest
 
-from pyunfold.Utils import (none_to_empty_list, safe_inverse, get_ts,
-                            cast_to_array, assert_same_shape,
-                            assert_kwargs_not_none)
+from pyunfold.utils import (none_to_empty_list, safe_inverse, cast_to_array,
+                            assert_same_shape, assert_kwargs_not_none)
 
 
 def test_none_to_empty_list_single_input():
@@ -32,12 +31,6 @@ def test_safe_inverse(dtype):
             assert value == 0
         else:
             assert value != 0
-
-
-def test_get_ts_raises():
-    with pytest.raises(ValueError) as excinfo:
-        get_ts(name='not a valid name')
-    assert 'Invalid test statisitc' in str(excinfo.value)
 
 
 def test_cast_to_array_multi_input():

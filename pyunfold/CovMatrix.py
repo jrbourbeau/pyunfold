@@ -5,7 +5,7 @@
    from user input.
 """
 import numpy as np
-from .Utils import safe_inverse
+from .utils import safe_inverse
 
 
 class CovarianceMatrix(object):
