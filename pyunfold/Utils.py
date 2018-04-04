@@ -6,6 +6,7 @@
 
 from __future__ import division, print_function
 import os
+from itertools import product
 import ConfigParser
 import numpy as np
 from scipy.special import gammainc as gammaq
@@ -157,7 +158,7 @@ def save_input_to_root_file(counts, counts_err, response, response_err,
     response_array = response
     response_err_array = response_err
 
-    cbins = len(counts)+1
+    cbins = len(efficiencies)+1
     carray = np.arange(cbins, dtype=float)
 
     ebins = len(counts)+1
@@ -188,22 +189,23 @@ def save_input_to_root_file(counts, counts_err, response, response_err,
     response.SetStats(0)
     response.Sumw2()
 
-    for ci in range(0, cbins):
-        # Fill measured effects histogram
-        ne_meas.SetBinContent(ci+1, counts[ci])
+    # Fill measured effects histogram
+    for ek in range(0, ebins):
+        ne_meas.SetBinContent(ek+1, counts[ek])
         if counts_err is None:
-            ne_meas.SetBinError(ci+1, np.sqrt(counts[ci]))
+            ne_meas.SetBinError(ek+1, np.sqrt(counts[ek]))
         else:
-            ne_meas.SetBinError(ci+1, counts_err[ci])
+            ne_meas.SetBinError(ek+1, counts_err[ek])
 
-        # Fill response matrix entries
-        for ek in range(0, ebins):
-            response.SetBinContent(ci+1, ek+1, response_array[ek][ci])
-            response.SetBinError(ci+1, ek+1, response_err_array[ek][ci])
-
-        # Fill efficiency histogram from response matrix
+    # Fill efficiency histogram from response matrix
+    for ci in range(0, cbins):
         eff.SetBinContent(ci+1, efficiencies[ci])
         eff.SetBinError(ci+1, efficiencies_err[ci])
+
+    # Fill response matrix entries
+    for ek, ci in product(range(0, ebins), range(0, cbins)):
+        response.SetBinContent(ci+1, ek+1, response_array[ek][ci])
+        response.SetBinError(ci+1, ek+1, response_err_array[ek][ci])
 
     # Write measured effects histogram to file
     ne_meas.Write()
@@ -409,7 +411,7 @@ class TestStat(object):
         if verbose:
             self.PrintName()
         # Initialize Unnatural TS data
-        self.stat = -1
+        self.stat = np.inf
         self.delstat = 0
         self.prob = -1
         self.dof = -1
