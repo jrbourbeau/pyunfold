@@ -1,6 +1,6 @@
 
 from collections import namedtuple
-from .Utils import safe_inverse, assert_kwargs_not_none
+from .utils import safe_inverse, assert_kwargs_not_none
 
 
 # Create path namedtuple object

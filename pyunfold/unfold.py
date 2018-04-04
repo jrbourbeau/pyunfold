@@ -5,8 +5,10 @@ import pandas as pd
 
 from .LoadStats import make_mctables
 from .Mix import Mixer
-from .Utils import (assert_same_shape, cast_to_array, get_ts, DataDist,
-                    UserPrior)
+from .teststat import get_ts
+from .datadist import DataDist
+from .priors import UserPrior
+from .utils import assert_same_shape, cast_to_array
 
 
 def iterative_unfold(data, data_err, response, response_err, efficiencies,
