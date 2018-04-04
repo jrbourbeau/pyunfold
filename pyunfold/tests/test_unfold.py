@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
 import os
+import sys
 import numpy as np
 import pandas as pd
 import pytest
@@ -7,6 +10,8 @@ import pytest
 from .testing_utils import diagonal_response, triangular_response
 
 from pyunfold.unfold import iterative_unfold
+
+PY_VERSION = sys.version_info.major
 
 
 @pytest.mark.parametrize('response_type', ['diagonal', 'triangular'])
@@ -71,7 +76,10 @@ def test_iterative_unfold_max_iter():
 
 def test_example():
     here = os.path.abspath(os.path.dirname(__file__))
-    expected = pd.read_hdf(os.path.join(here, 'example_unfolding.hdf'))
+    test_file = os.path.join(here,
+                             'test_data',
+                             'example1_python{}.hdf'.format(PY_VERSION))
+    expected = pd.read_hdf(test_file)
 
     # Run example case
     data = [100, 150]
@@ -93,7 +101,10 @@ def test_example():
 
 def test_example_2():
     here = os.path.abspath(os.path.dirname(__file__))
-    expected = pd.read_hdf(os.path.join(here, 'example_unfolding_2.hdf'))
+    test_file = os.path.join(here,
+                             'test_data',
+                             'example2_python{}.hdf'.format(PY_VERSION))
+    expected = pd.read_hdf(test_file)
 
     # Run example case
     data = [100, 150]
@@ -117,7 +128,10 @@ def test_example_2():
 
 def test_example_non_square_response():
     here = os.path.abspath(os.path.dirname(__file__))
-    expected = pd.read_hdf(os.path.join(here, 'example_unfolding_3.hdf'))
+    test_file = os.path.join(here,
+                             'test_data',
+                             'example3_python{}.hdf'.format(PY_VERSION))
+    expected = pd.read_hdf(test_file)
 
     # Run example case
     data = [100, 150]

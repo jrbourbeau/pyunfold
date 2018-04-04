@@ -103,7 +103,7 @@ class Mixer(object):
         Mij = np.zeros(self.Mij.shape)
 
         n_c_eff = n_c * self.cEff_inv
-        for ti, ej in product(xrange(0, cbins), xrange(0, ebins)):
+        for ti, ej in product(range(0, cbins), range(0, ebins)):
             Mij[ej, ti] = self.pec[ej, ti] * n_c_eff[ti] * f_inv[ej]
 
         # Estimate cause distribution via Mij
