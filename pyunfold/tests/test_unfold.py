@@ -2,8 +2,6 @@
 import os
 import numpy as np
 import pandas as pd
-from ROOT import TFile
-from root_numpy import hist2array
 import pytest
 
 from .testing_utils import diagonal_response, triangular_response
