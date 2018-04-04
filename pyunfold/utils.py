@@ -110,7 +110,6 @@ def none_to_empty_list(*args):
         return outputs
 
 
-# Inverse of Numpy Array; Set Elements to 0 if 0
 def safe_inverse(x):
     """Safely inverts the elements in x
 
