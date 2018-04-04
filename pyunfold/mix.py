@@ -6,7 +6,7 @@
 """
 from itertools import product
 import numpy as np
-from .CovMatrix import CovarianceMatrix
+from .covmatrix import CovarianceMatrix
 from .utils import safe_inverse, none_to_empty_list
 
 
