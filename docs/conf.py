@@ -44,7 +44,11 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.autosummary',
     'numpydoc',
+    'nbsphinx',
+    'sphinx.ext.mathjax',
 ]
+
+autosummary_generate = ['api.rst']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -68,7 +72,7 @@ language = 'en'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'

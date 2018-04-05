@@ -12,6 +12,7 @@
 
    Overview <self>
    api
+   Examples <examples.ipynb>
 
 PyUnfold
 ========
