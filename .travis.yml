@@ -28,10 +28,11 @@ install:
     # Useful for debugging any issues with conda
     - conda info -a
     - conda create -q --name test-environment python=$TRAVIS_PYTHON_VERSION
-    - conda env update --name=test-environment --file=environment.yml
     - source activate test-environment
     # Install pyunfold
     - pip install .
+    # Install other dependencies needed for testing and building docs
+    - pip install -r requirements/development.txt
 
 script:
     - pytest pyunfold
