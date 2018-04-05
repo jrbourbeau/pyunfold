@@ -1,8 +1,12 @@
 # PyUnfold
 
 [![Build Status](https://travis-ci.org/jrbourbeau/pyunfold.svg?branch=master)](https://travis-ci.org/jrbourbeau/pyunfold)
+[![codecov](https://codecov.io/gh/jrbourbeau/pyunfold/branch/master/graph/badge.svg)](https://codecov.io/gh/jrbourbeau/pyunfold)
+![pypi version](https://img.shields.io/pypi/v/pyunfold.svg 'pypi version')
 ![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
+![license](https://img.shields.io/pypi/l/pyunfold.svg 'license')
+
 
 PyUnfold is a Python implementation the D’Agostini iterative unfolding method outlined in
 
