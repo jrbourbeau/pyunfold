@@ -4,13 +4,10 @@
 ![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)
 ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
 
-_NOTE: PyUnfold is still under active development_
-
-PyUnfold is a Python implementation the iterative unfolding method outlined in
+PyUnfold is a Python implementation the D’Agostini iterative unfolding method outlined in
 
 > G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A **362** (1995) 487
 
-PyUnfold was originally developed by [Zigfried Hampel-Arias](https://github.com/zhampel) and can be found in this [GitHub repository](https://github.com/zhampel/PyUnfold).
 
 ## Installation
 
@@ -64,4 +61,4 @@ print(unfolded)
 
 [MIT License](LICENSE)
 
-Copyright (c) 2018 James Bourbeau
+Copyright (c) 2018 James Bourbeau, Zigfried Hampel-Arias
