@@ -7,18 +7,29 @@ python:
     - "3.4"
     - "3.5"
     - "3.6"
-    - "3.6-dev"
-    - "3.7-dev"
-    - "nightly"
 
 matrix:
     fast_finish: true
-    allow_failures:
-        - python: "3.6-dev"
-        - python: "3.7-dev"
-        - python: "nightly"
 
 install:
+    - sudo apt-get update
+    # We do this conditionally because it saves us some downloading if the
+    # version is the same.
+    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+      else
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      fi
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    # Useful for debugging any issues with conda
+    - conda info -a
+    - conda create -q --name test-environment python=$TRAVIS_PYTHON_VERSION
+    - conda env update --name=test-environment --file=environment.yml
+    - source activate test-environment
     # Install pyunfold
     - pip install .
     # Install other dependencies needed for testing and building docs
@@ -26,7 +37,10 @@ install:
 
 script:
     - pytest --cov pyunfold
-    - bash ci/build_docs.sh
+    # Only test that documentation builds on Python 3.6
+    - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
+        bash ci/build_docs.sh;
+      fi
 
 deploy:
     provider: pages
@@ -37,4 +51,4 @@ deploy:
     email: "github-pages-deploy@travis-ci.org"
     on:
         branch: master
-        python: "2.7"
+        python: "3.6"

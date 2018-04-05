@@ -2,6 +2,7 @@ sphinx
 numpydoc
 sphinx_rtd_theme
 nbsphinx
+pandoc
 jupyter
 matplotlib
 seaborn
