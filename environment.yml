@@ -17,3 +17,4 @@ dependencies:
   - nbsphinx
   - jupyter
   - matplotlib
+  - seaborn
