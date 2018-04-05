@@ -2,6 +2,7 @@
 from __future__ import division, print_function
 import numpy as np
 import pandas as pd
+from six import string_types
 
 from .loadstats import make_mctables
 from .mix import Mixer
@@ -89,7 +90,7 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     assert_same_shape(response, response_err)
     assert len(data) == response.shape[0]
     assert len(efficiencies) == response.shape[1]
-    if not isinstance(priors, basestring):
+    if not isinstance(priors, string_types):
         assert_same_shape(efficiencies, priors)
 
     mixer, ts_func, n_c = setup_mixer_ts_prior(data=data,
@@ -148,7 +149,7 @@ def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
     n_obs = np.sum(data)
 
     # Setup prior
-    if isinstance(priors, basestring) and priors == 'Jeffreys':
+    if isinstance(priors, string_types) and priors == 'Jeffreys':
         n_c = UserPrior(['Jeffreys'], [Caxis], n_obs)
         n_c = n_c / np.sum(n_c)
     elif isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
