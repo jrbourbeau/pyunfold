@@ -32,10 +32,15 @@ install:
     - source activate test-environment
     # Install pyunfold
     - pip install .
+    # Install other dependencies needed for testing and building docs
+    - pip install -r requirements/development.txt
 
 script:
-    - pytest pyunfold
-    - bash ci/build_docs.sh
+    - pytest --cov pyunfold
+    # Only test that documentation builds on Python 3.6
+    - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
+        bash ci/build_docs.sh;
+      fi
 
 deploy:
     provider: pages
@@ -46,4 +51,4 @@ deploy:
     email: "github-pages-deploy@travis-ci.org"
     on:
         branch: master
-        python: "2.7"
+        python: "3.6"
