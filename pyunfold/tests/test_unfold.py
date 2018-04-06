@@ -9,8 +9,11 @@ import pytest
 from .testing_utils import diagonal_response, triangular_response
 
 from pyunfold.unfold import iterative_unfold
+from pyunfold.callbacks import Callback, Logger
 
 PY_VERSION = sys.version_info.major
+
+columns = ['sys_err', 'unfolded', 'stat_err']
 
 
 @pytest.mark.parametrize('response_type', ['diagonal', 'triangular'])
@@ -20,7 +23,7 @@ def test_iterative_unfold(response_type):
 
     samples = np.random.normal(loc=0, scale=1, size=int(1e5))
 
-    bins = np.linspace(-5, 5, 100)
+    bins = np.linspace(-1, 1, 10)
     counts, _ = np.histogram(samples, bins=bins)
     counts_err = np.sqrt(counts)
     if response_type == 'diagonal':
@@ -53,7 +56,7 @@ def test_iterative_unfold_max_iter():
 
     samples = np.random.normal(loc=0, scale=1, size=int(1e5))
 
-    bins = np.linspace(-5, 5, 100)
+    bins = np.linspace(-1, 1, 10)
     counts, _ = np.histogram(samples, bins=bins)
     counts_err = np.sqrt(counts)
     response, response_err = triangular_response(len(counts))
@@ -94,6 +97,7 @@ def test_example():
                                 response, response_err,
                                 efficiencies, efficiencies_err,
                                 return_iterations=True)
+    unfolded = unfolded[columns]
 
     pd.testing.assert_frame_equal(unfolded, expected)
 
@@ -121,6 +125,7 @@ def test_example_2():
                                 efficiencies, efficiencies_err,
                                 priors=priors,
                                 return_iterations=True)
+    unfolded = unfolded[columns]
 
     pd.testing.assert_frame_equal(unfolded, expected)
 
@@ -148,5 +153,29 @@ def test_example_non_square_response():
                                 efficiencies, efficiencies_err,
                                 priors=priors,
                                 return_iterations=True)
+    unfolded = unfolded[columns]
 
     pd.testing.assert_frame_equal(unfolded, expected)
+
+
+def test_invalid_callbacks_raises():
+    # Run example case
+    data = [100, 150]
+    data_err = [10, 12.2]
+    response = [[0.9, 0.1],
+                [0.1, 0.9]]
+    response_err = [[0.01, 0.01],
+                    [0.01, 0.01]]
+    efficiencies = [0.4, 0.67]
+    efficiencies_err = [0.01, 0.01]
+    with pytest.raises(TypeError) as excinfo:
+        # Specify an invalid callback
+        callbacks = ['not a callback', Logger()]
+        # Perform iterative unfolding
+        unfolded = iterative_unfold(data, data_err,
+                                    response, response_err,
+                                    efficiencies, efficiencies_err,
+                                    callbacks=callbacks)
+    invalid_callbacks = [c for c in callbacks if not isinstance(c, Callback)]
+    error = ('Found non-callback object in callbacks: {}'.format(invalid_callbacks))
+    assert error == str(excinfo.value)

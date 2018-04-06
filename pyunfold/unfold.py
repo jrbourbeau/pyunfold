@@ -10,11 +10,13 @@ from .teststat import get_ts
 from .datadist import DataDist
 from .priors import UserPrior
 from .utils import assert_same_shape, cast_to_array
+from .callbacks import Callback
 
 
 def iterative_unfold(data, data_err, response, response_err, efficiencies,
                      efficiencies_err, priors='Jeffreys', ts='ks',
-                     ts_stopping=0.01, max_iter=100, return_iterations=False):
+                     ts_stopping=0.01, max_iter=100, return_iterations=False,
+                     callbacks=None):
     """Performs iterative Bayesian unfolding
 
     Parameters
@@ -106,7 +108,8 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     unfolding_iters = perform_unfolding(n_c=n_c,
                                         mixer=mixer,
                                         ts_func=ts_func,
-                                        max_iter=max_iter)
+                                        max_iter=max_iter,
+                                        callbacks=callbacks)
 
     if return_iterations:
         return unfolding_iters
@@ -179,7 +182,8 @@ def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
     return mixer, ts_func, n_c
 
 
-def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100):
+def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100,
+                      callbacks=None):
     """Perform iterative unfolding
 
     Parameters
@@ -204,25 +208,40 @@ def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100):
 
     unfolding_iters = []
 
+    if callbacks is None:
+        callbacks = []
+    elif isinstance(callbacks, Callback):
+        callbacks = [callbacks]
+    else:
+        if not all([isinstance(c, Callback) for c in callbacks]):
+            invalid_callbacks = [c for c in callbacks if not isinstance(c, Callback)]
+            raise TypeError('Found non-callback object in callbacks: {}'.format(invalid_callbacks))
+
     while (not ts_func.pass_tol() and counter < max_iter):
         # Perform unfolding for this iteration
         unfolded_n_c = mixer.smear(current_n_c)
 
+        ts_cur, ts_del, ts_prob = ts_func.GetStats(unfolded_n_c,
+                                                   current_n_c)
+
         # Add mixing result to unfolding_result
         status = {'unfolded': unfolded_n_c,
                   'stat_err': mixer.get_stat_err(),
-                  'sys_err': mixer.get_MC_err()}
+                  'sys_err': mixer.get_MC_err(),
+                  'ts_iter': ts_cur,
+                  'ts_stopping': ts_func.tol,
+                  }
         unfolding_iters.append(status)
 
-        ts_cur, ts_del, ts_prob = ts_func.GetStats(unfolded_n_c,
-                                                   current_n_c)
+        for callback in callbacks:
+            callback.on_iteration_end(iteration=counter + 1,
+                                      params=status)
+
         # Updated current distribution for next iteration of unfolding
         current_n_c = unfolded_n_c.copy()
         counter += 1
 
     # Convert unfolding_result dictionary to a pandas DataFrame
-    columns = ['sys_err', 'unfolded', 'stat_err']
-    unfolding_iters = pd.DataFrame.from_records(unfolding_iters,
-                                                columns=columns)
+    unfolding_iters = pd.DataFrame.from_records(unfolding_iters)
 
     return unfolding_iters
