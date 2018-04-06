@@ -234,7 +234,7 @@ def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100,
         unfolding_iters.append(status)
 
         for callback in callbacks:
-            callback.on_iteration_end(iteration=counter,
+            callback.on_iteration_end(iteration=counter + 1,
                                       params=status)
 
         # Updated current distribution for next iteration of unfolding

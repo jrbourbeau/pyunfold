@@ -1,9 +1,12 @@
 
+import pytest
+
 from pyunfold.unfold import iterative_unfold
 from pyunfold.callbacks import Logger
 
 
-def test_logger(capsys):
+@pytest.mark.parametrize('callbacks', [[Logger()], Logger()])
+def test_logger(capsys, callbacks):
 
     # Run example case
     data = [100, 150]
@@ -19,7 +22,7 @@ def test_logger(capsys):
                                         response, response_err,
                                         efficiencies, efficiencies_err,
                                         return_iterations=True,
-                                        callbacks=[Logger()])
+                                        callbacks=callbacks)
 
     # Get stdout and std err from iterative_unfold
     out, err = capsys.readouterr()

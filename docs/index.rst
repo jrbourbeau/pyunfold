@@ -13,6 +13,7 @@
    Overview <self>
    installation
    api
+   callbacks
    Examples <examples.ipynb>
    changelog
 
