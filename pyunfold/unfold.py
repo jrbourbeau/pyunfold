@@ -7,7 +7,6 @@ from six import string_types
 from .loadstats import make_mctables
 from .mix import Mixer
 from .teststat import get_ts
-from .datadist import DataDist
 from .priors import UserPrior
 from .utils import assert_same_shape, cast_to_array
 from .callbacks import Callback
@@ -139,20 +138,9 @@ def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
     # Get bin midpoints
     Caxis = (Cedges[1:] + Cedges[:-1]) / 2
 
-    # Load the Observed Data (data), define total observed events (n_obs)
-    Exlab = 'Effects'
-    Eylab = 'Counts'
-    Etitle = 'effects histogram'
-    Eedges = np.arange(len(data) + 1, dtype=float)
-    # Get bin midpoints
-    Eaxis = (Eedges[1:] + Eedges[:-1]) / 2
-    EffDist = DataDist(Etitle, data=data, error=data_err,
-                       axis=Eaxis, edges=Eedges, xlabel=Exlab,
-                       ylabel=Eylab, units='')
-    n_obs = np.sum(data)
-
     # Setup prior
     if isinstance(priors, string_types) and priors == 'Jeffreys':
+        n_obs = np.sum(data)
         n_c = UserPrior(['Jeffreys'], [Caxis], n_obs)
         n_c = n_c / np.sum(n_c)
     elif isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
@@ -177,7 +165,8 @@ def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
     mixer = Mixer('SrMixALot',
                   ErrorType=cov_error,
                   MCTables=MCStats,
-                  EffectsDist=EffDist)
+                  data=data,
+                  data_err=data_err)
 
     return mixer, ts_func, n_c
 

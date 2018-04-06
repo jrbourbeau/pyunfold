@@ -35,6 +35,6 @@ def make_mctables(efficiencies=None, efficiencies_err=None, response=None,
                         pec_err=response_err,
                         NCmc=NCmc,
                         num_causes=num_causes,
-                        num_effects=num_effects
+                        num_effects=num_effects,
                         )
     return mctables

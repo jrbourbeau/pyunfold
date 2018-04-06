@@ -25,7 +25,6 @@ def test_none_to_empty_list_multi_input():
 def test_safe_inverse(dtype):
     a = np.array([1, 0, 3, 0, 5], dtype=dtype)
     a_inv = safe_inverse(a)
-    is_zero = a == 0
     for idx, value in enumerate(a_inv):
         if a[idx] == 0:
             assert value == 0
@@ -67,14 +66,14 @@ def test_assert_same_shape():
 def test_assert_same_shape_raises_1d():
     a = [1, 2, 3]
     b = [4, 5, 6, 7]
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError):
         assert_same_shape(a, b)
 
 
 def test_assert_same_shape_raises_2d():
     a = [[1, 2, 3], [4, 5, 6]]
     b = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError):
         assert_same_shape(a, b)
 
 
@@ -93,5 +92,5 @@ def test_assert_kwargs_not_none_raises():
     def example_func(a, b=None, c=None):
         return
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError):
         example_func(10)

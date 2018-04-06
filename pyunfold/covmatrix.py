@@ -16,7 +16,7 @@ class CovarianceMatrix(object):
     or based on derivations from Unfolding HAWC reference 'Unfolding Uncertainties'
     (http://private.hawc-observatory.org/hawc.umd.edu/internal/doc.php?id=2329).
     """
-    def __init__(self, name, MCTables, EffectsDist):
+    def __init__(self, name, MCTables=None, data=None, data_err=None):
 
         self.name = name
         # Normalized P(E|C)
@@ -32,8 +32,8 @@ class CovarianceMatrix(object):
         # Effective Number of Sim Events
         self.NCmc = MCTables.NCmc
         # Observed Effects Distribution
-        self.NEobs = EffectsDist.data
-        self.NEobs_err = EffectsDist.error
+        self.NEobs = data
+        self.NEobs_err = data_err
         # Total Number of Effects
         self.nobs = np.sum(self.NEobs)
 
