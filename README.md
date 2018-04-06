@@ -8,13 +8,21 @@
 ![license](https://img.shields.io/pypi/l/pyunfold.svg 'license')
 
 
-PyUnfold is a Python implementation the D’Agostini iterative unfolding method outlined in
+PyUnfold is a Python implementation of the D’Agostini iterative unfolding method outlined in
 
 > G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A **362** (1995) 487
 
 
 ## Installation
 
+### Release version
+PyUnfold can be easily installed via `pip`
+
+```
+pip install pyunfold
+```
+
+### Development version
 The latest development version of PyUnfold can be installed directly from GitHub
 
 ```

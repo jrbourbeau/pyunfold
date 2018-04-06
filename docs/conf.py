@@ -79,6 +79,14 @@ exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
+html_show_copyright = True
+
+# If true, links to the reST sources are added to the pages.
+html_show_sourcelink = False
+
+# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
+html_show_sphinx = False
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -94,6 +102,8 @@ html_logo = "_static/logo-light.png"
 #
 html_theme_options = {
     'logo_only': True,
+    'display_version': False,
+    'prev_next_buttons_location': False,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

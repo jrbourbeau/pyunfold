@@ -7,13 +7,23 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: User Guide
    :hidden:
 
    Overview <self>
+   installation
    api
    Examples <examples.ipynb>
    changelog
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Useful links
+   :hidden:
+
+   PyUnfold @ GitHub <https://github.com/jrbourbeau/pyunfold>
+   PyUnfold @ PyPI <https://pypi.org/project/pyunfold/>
+   Issue tracker <https://github.com/jrbourbeau/pyunfold/issues>
 
 PyUnfold
 ========
@@ -27,16 +37,10 @@ PyUnfold
 .. image:: https://img.shields.io/pypi/v/pyunfold.svg
     :target: https://pypi.org/project/PyUnfold/
 
-.. image:: https://img.shields.io/badge/python-3.6-blue.svg
-    :target: https://github.com/jrbourbeau/pyunfold
-
-.. image:: https://img.shields.io/badge/python-2.7-blue.svg
-    :target: https://github.com/jrbourbeau/pyunfold
-
 .. image:: https://img.shields.io/pypi/l/pyunfold.svg
     :target: https://pypi.org/project/PyUnfold/
 
-PyUnfold is a Python implementation the D'Agostini iterative unfolding method [1]_.
+PyUnfold is a Python implementation of the D'Agostini iterative unfolding method [1]_.
 
 Installation
 ------------
