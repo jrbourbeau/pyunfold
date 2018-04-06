@@ -15,7 +15,7 @@ Version 0.2.dev0 (TBD)
 
 **Changes**:
 
--
+- Removed ``datadist.py`` module. (See `PR #19 <https://github.com/jrbourbeau/pyunfold/pull/19>`_)
 
 **Bug Fixes**:
 
