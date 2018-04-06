@@ -172,10 +172,10 @@ def test_invalid_callbacks_raises():
         # Specify an invalid callback
         callbacks = ['not a callback', Logger()]
         # Perform iterative unfolding
-        unfolded = iterative_unfold(data, data_err,
-                                    response, response_err,
-                                    efficiencies, efficiencies_err,
-                                    callbacks=callbacks)
+        iterative_unfold(data, data_err,
+                         response, response_err,
+                         efficiencies, efficiencies_err,
+                         callbacks=callbacks)
     invalid_callbacks = [c for c in callbacks if not isinstance(c, Callback)]
     error = ('Found non-callback object in callbacks: {}'.format(invalid_callbacks))
     assert error == str(excinfo.value)

@@ -7,26 +7,23 @@
 from itertools import product
 import numpy as np
 from .covmatrix import CovarianceMatrix
-from .utils import safe_inverse, none_to_empty_list
+from .utils import safe_inverse
 
 
 class Mixer(object):
     """DAgostini Bayesian Mixer Class
     """
-    def __init__(self, name, ErrorType="", MCTables=None, EffectsDist=None,
-                 **kwargs):
+    def __init__(self, name, ErrorType="", MCTables=None, data=None,
+                 data_err=None):
         """From Initialization Inputs
         """
-
-        MCTables, EffectsDist = none_to_empty_list(MCTables, EffectsDist)
-
         self.name = name
         # Normalized P(E|C)
         self.pec = MCTables.pec
         # Cause Efficiencies
         self.cEff = MCTables.eff
         # Observed Effects Distribution
-        self.NEobs = EffectsDist.data
+        self.NEobs = data
         # Total Number of Effects
         self.nobs = np.sum(self.NEobs)
         # Error Calculation Type
@@ -43,7 +40,8 @@ class Mixer(object):
         self.Mij = np.zeros(dims)
 
         # Covariance Matrix
-        self.Cov = CovarianceMatrix(ErrorType, MCTables, EffectsDist)
+        self.Cov = CovarianceMatrix(ErrorType, MCTables, data=data,
+                                    data_err=data_err)
 
     def check_dims(self, p_c):
         """Test for consistent array sizes
