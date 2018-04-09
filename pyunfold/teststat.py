@@ -206,17 +206,16 @@ class KS(TestStat):
         cs1 = np.cumsum(N1)/n1
         cs2 = np.cumsum(N2)/n2
 
-        NE = n1 * n2 / (n1 + n2)
-
         len1 = len(N1)
-        en = np.sqrt(len1/2)
+        self.en = np.sqrt(len1/2)
         d = np.max(np.abs(cs1-cs2))
+        self.d = d
         self.SetStat(d)
 
     def Prob(self):
         try:
-            prob = kstwobign.sf((en+.12+.11/en)*d)
-        except Exception:
+            prob = kstwobign.sf((self.en + .12 + .11 / self.en) * self.d)
+        except Exception as e:
             prob = 1.0
 
         # KS Probability Function
