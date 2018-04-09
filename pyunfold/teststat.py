@@ -215,7 +215,7 @@ class KS(TestStat):
     def Prob(self):
         try:
             prob = kstwobign.sf((self.en + .12 + .11 / self.en) * self.d)
-        except Exception as e:
+        except Exception:
             prob = 1.0
 
         # KS Probability Function
