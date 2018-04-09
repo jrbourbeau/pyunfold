@@ -3,7 +3,7 @@ from __future__ import division, print_function
 import numpy as np
 
 
-def JeffreysPrior(norm, xarray):
+def jeffreys_prior(norm, xarray):
     """Jeffreys Prior
     """
     # All cause bins are given equal probability.
@@ -15,22 +15,13 @@ def JeffreysPrior(norm, xarray):
     return jprior
 
 
-def UserPrior(FuncList, xarray, norm):
+def user_prior(func, xarray, norm):
     """User provided prior function
     """
-    nAnalysisBins = len(FuncList)
-    prior = []
-    for ibin in range(nAnalysisBins):
-        FuncString = FuncList[ibin]
-        ixarray = xarray[ibin].copy()
-        if (FuncString.lower() == "jeffreys"):
-            iprior = JeffreysPrior(norm, ixarray)
-        else:
-            exec("def func(x): return {}".format(FuncString))
-            iprior = func(ixarray)
-        if prior == []:
-            prior = iprior
-        else:
-            prior = np.append(prior, iprior)
+    if func.lower() == "jeffreys":
+        prior = jeffreys_prior(norm, xarray)
+    else:
+        exec("def func(x): return {}".format(func))
+        prior = func(xarray)
 
     return prior
