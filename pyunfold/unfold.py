@@ -33,8 +33,6 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
         Detection efficiencies for the observed data distribution.
     efficiencies_err : array_like
         Uncertainty in detection efficiencies.
-    outfile : str
-        Path where output ROOT file will be saved.
     priors : str or array_like, optional
         Prior distribution to use in unfolding. If 'Jeffreys', then the
         Jeffreys (flat) prior is used. Otherwise, must be array_like with
@@ -51,6 +49,9 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     return_iterations : bool, optional
         Whether to return unfolded distributions for each iteration
         (default is False).
+    callbacks : list, optional
+        List of ``pyunfold.callbacks.Callback`` instances to be applied during 
+        unfolding (default is None, which means no Callbacks are applied).
 
     Returns
     -------
