@@ -13,8 +13,7 @@ class CovarianceMatrix(object):
 
     All Covariance Matrix Code either transcribed from Adye's RooUnfoldBayes.cxx
     (http://hepunx.rl.ac.uk/~adye/software/unfold/RooUnfold.html#dev),
-    or based on derivations from Unfolding HAWC reference 'Unfolding Uncertainties'
-    (http://private.hawc-observatory.org/hawc.umd.edu/internal/doc.php?id=2329).
+    or based on derivations presented in Unfolding reference section 'Unfolding Uncertainties'
     """
     def __init__(self, name, MCTables=None, data=None, data_err=None):
 
@@ -93,32 +92,20 @@ class CovarianceMatrix(object):
             e_r = self.cEff * n_c_prev_inv
 
             # Calculate extra dcdn terms
-            M1 = dcdn_prev.copy()
-            M2 = Mij.copy()
-            for tj in range(0, cbins):
-                M1[:, tj] *= nc_r[tj]
-                M2[:, tj] *= -e_r[tj]
-            for ej in range(0, ebins):
-                M2[ej, :] *= self.NEobs[ej]
-            M3 = np.dot(M2.T, dcdn_prev)
+            M1 = dcdn_prev * nc_r
+            M2 = -Mij * e_r
+            M2 = M2.T * self.NEobs
+            M3 = np.dot(M2, dcdn_prev)
             dcdn += np.dot(Mij, M3)
             dcdn += M1
 
             # Calculate extra dcdP terms
-            #  My Version (from Unfolding HAWC-doc)
-            A = Mij.copy()
-            B = Mij.copy()
-            for ej in range(0, ebins):
-                A[ej, :] *= self.NEobs[ej]
-            for ti in range(0, cbins):
-                B[:, ti] *= e_r[ti]
-            C = np.dot(A.T, B)
+            #  My Version (from Unfolding doc)
+            At = Mij.T * self.NEobs
+            B = Mij * e_r
+            C = np.dot(At, B)
             dcdP_Upd = np.dot(C, dcdP_prev)
-            nec = ebins * cbins
-            for tj in range(0, cbins):
-                r = nc_r[tj]
-                for jk in range(0, nec):
-                    dcdP[tj, jk] += r * dcdP_prev[tj, jk] - dcdP_Upd[tj, jk]
+            dcdP += (dcdP_prev.T * nc_r).T - dcdP_Upd
 
         # Set current derivative matrices
         self.dcdn = dcdn.copy()
@@ -130,11 +117,7 @@ class CovarianceMatrix(object):
         """Get Covariance Matrix of N(E), ie from Observed Effects
         """
 
-        ebins = self.ebins
-        Vcd = np.zeros((ebins, ebins))
-
-        for ei in range(0, ebins):
-            Vcd[ei, ei] = self.NEobs_err[ei]**2
+        Vcd = np.diag(self.NEobs_err**2)
 
         return Vcd
 
