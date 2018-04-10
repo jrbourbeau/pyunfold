@@ -4,6 +4,7 @@
    error propagation based on method request
    from user input.
 """
+from itertools import product
 import numpy as np
 from .utils import safe_inverse
 
@@ -69,15 +70,14 @@ class CovarianceMatrix(object):
         f_inv = safe_inverse(f_norm)
 
         NE_F_R = self.NEobs * f_inv
-        for ej in range(0, ebins):
-            ne_f_r = NE_F_R[ej]
-            # Combined counting index
+        # (ti, ec_j + tk) elements
+        for ej, ti, tk in product(range(0, ebins), range(0, cbins), range(0, cbins)):
             ec_j = ej*cbins
-            for ti in range(0, cbins):
-                b = -ne_f_r * Mij[ej, ti]
-                for tk in range(0, cbins):
-                    dcdP[ti, ec_j+tk] = b * n_c_prev[tk]
-                dcdP[ti, ec_j+ti] += (n_c_prev[ti] * ne_f_r-n_c[ti]) * self.cEff_inv[ti]
+            dcdP[ti,ec_j+tk] = -NE_F_R[ej] * Mij[ej,ti] * n_c_prev[tk]
+        # (ti, ec_j + ti) elements
+        for ej, ti in product(range(0, ebins), range(0, cbins)):
+            ec_j = ej*cbins
+            dcdP[ti,ec_j+ti] += (n_c_prev[ti]*NE_F_R[ej]-n_c[ti])*self.cEff_inv[ti]
 
         # Adye Propagation Corrections
         if self.ErrorPropFlag and self.counter > 0:
@@ -143,29 +143,27 @@ class CovarianceMatrix(object):
 
         # Poisson Covariance Matrix
         if self.PecCov == 1:
-            for ej in range(0, ebins):
-                ejc = ej * cbins
-                for ti in range(0, cbins):
-                    CovPP[ejc+ti, ejc+ti] = self.pec_err[ej, ti]**2
+            for ej, ti in product(range(0, ebins), range(0, cbins)):
+                ejc = ej*cbins
+                CovPP[ejc+ti,ejc+ti] = self.pec_err[ej,ti]**2
         # Multinomial Covariance Matrix
         elif self.PecCov == 2:
 
             NC_inv = safe_inverse(self.NCmc)
 
-            for ej in range(0, ebins):
+            for ej, ti in product(range(0, ebins), range(0, cbins)):
                 ejc = ej * cbins
-                for ti in range(0, cbins):
-                    # Don't go looping if zeros are present :)
-                    if self.pec[ej, ti] > 0 and NC_inv[ti] > 0:
-                        CovPP[ejc+ti, ejc+ti] = NC_inv[ti] * self.pec[ej, ti] * (1-self.pec[ej, ti])
-                        cov1 = -NC_inv[ti]*self.pec[ej, ti]
-                        for ek in range(ej+1, ebins):
-                            ekc = ek * cbins
-                            if ejc+ti == ekc+ti or ek == ej:
-                                continue
-                            cov = cov1 * self.pec[ek, ti]
-                            CovPP[ejc+ti, ekc+ti] = cov
-                            CovPP[ekc+ti, ejc+ti] = cov
+                # Don't go looping if zeros are present :)
+                if (self.pec[ej,ti] > 0 and NC_inv[ti] > 0):
+                    CovPP[ejc+ti,ejc+ti] = NC_inv[ti]*self.pec[ej,ti]*(1-self.pec[ej,ti])
+                    cov1 = -NC_inv[ti]*self.pec[ej,ti]
+                    for ek in xrange(ej+1,ebins):
+                        ekc = ek*cbins
+                        if (ejc+ti == ekc+ti or ek == ej):
+                            continue
+                        cov = cov1*self.pec[ek,ti]
+                        CovPP[ejc+ti,ekc+ti] = cov
+                        CovPP[ekc+ti,ejc+ti] = cov
 
         return CovPP
 
