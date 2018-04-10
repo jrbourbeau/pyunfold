@@ -157,7 +157,7 @@ class CovarianceMatrix(object):
                 if (self.pec[ej,ti] > 0 and NC_inv[ti] > 0):
                     CovPP[ejc+ti,ejc+ti] = NC_inv[ti]*self.pec[ej,ti]*(1-self.pec[ej,ti])
                     cov1 = -NC_inv[ti]*self.pec[ej,ti]
-                    for ek in xrange(ej+1,ebins):
+                    for ek in range(ej+1,ebins):
                         ekc = ek*cbins
                         if (ejc+ti == ekc+ti or ek == ej):
                             continue
