@@ -20,7 +20,7 @@ Version 0.2.dev0 (TBD)
 
 **Bug Fixes**:
 
--
+- Fixed typos in the online documentation (See `PR #26 <https://github.com/jrbourbeau/pyunfold/pull/26>`_)
 
 
 Version 0.1 (2018-04-05)
