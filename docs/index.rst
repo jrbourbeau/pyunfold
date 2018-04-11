@@ -5,27 +5,6 @@
 
 :github_url: https://github.com/jrbourbeau/pyunfold
 
-.. toctree::
-   :maxdepth: 2
-   :caption: User Guide
-   :hidden:
-
-   Overview <self>
-   installation
-   api
-   callbacks
-   Examples <examples.ipynb>
-   changelog
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Useful links
-   :hidden:
-
-   PyUnfold @ GitHub <https://github.com/jrbourbeau/pyunfold>
-   PyUnfold @ PyPI <https://pypi.org/project/pyunfold/>
-   Issue tracker <https://github.com/jrbourbeau/pyunfold/issues>
-
 PyUnfold
 ========
 
@@ -43,24 +22,10 @@ PyUnfold
 
 PyUnfold is a Python implementation of the D'Agostini iterative unfolding method [1]_.
 
-Installation
-------------
-
-The latest development version of PyUnfold can be installed directly from GitHub
-
-.. code-block:: bash
-
-    pip install git+https://github.com/jrbourbeau/pyunfold.git
-
-or you can `fork <https://guides.github.com/activities/forking/>`_ the `GitHub repository <https://github.com/jrbourbeau/pyunfold>`_ and install PyUnfold on your local machine via
-
-.. code-block:: bash
-
-    git clone https://github.com/<your-username>/pyunfold.git
-    pip install pyunfold
-
 Quickstart
 ----------
+
+Implementing iterative unfolding with PyUnfold only takes a few lines of code.
 
 .. code-block:: python
 
@@ -69,18 +34,21 @@ Quickstart
     # Counts distributions
     data = [100, 150]
     data_err = [10, 12.2]
+
     # Response matrix
     response = [[0.9, 0.1],
                 [0.1, 0.9]]
     response_err = [[0.01, 0.01],
                     [0.01, 0.01]]
+
     # Detection efficiencies
     efficiencies = [1, 1]
     efficiencies_err = [0.01, 0.01]
+
     # Perform iterative unfolding
-    unfolded = iterative_unfold(data, data_err,
-                                response, response_err,
-                                efficiencies, efficiencies_err)
+    unfolded_result = iterative_unfold(data, data_err,
+                                       response, response_err,
+                                       efficiencies, efficiencies_err)
 
 The returned unfolded result is a dictionary containing:
 
@@ -91,8 +59,29 @@ The returned unfolded result is a dictionary containing:
 .. code-block:: python
 
     {'unfolded': array([ 94.48002622, 155.51997378]),
-     'sys_err': array([0.66204237, 0.6620424 ]),
-     'stat_err': array([11.2351567 , 13.75617997])}
+     'sys_err': array([0.66204237, 0.6620424]),
+     'stat_err': array([11.2351567, 13.75617997])}
+
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: User Guide
+
+    installation
+    api
+    callbacks
+    Examples <examples.ipynb>
+    changelog
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Useful links
+   :hidden:
+
+   PyUnfold @ GitHub <https://github.com/jrbourbeau/pyunfold>
+   PyUnfold @ PyPI <https://pypi.org/project/pyunfold/>
+   Issue tracker <https://github.com/jrbourbeau/pyunfold/issues>
 
 
 .. [1] G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A **362** (1995) 487.

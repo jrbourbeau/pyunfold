@@ -12,7 +12,7 @@ unfolding. A list of Callbacks can be passed to the
 
 .. code-block:: python
 
-    imoprt pyunfold
+    import pyunfold
 
     # Setup Logger Callback
     logger = pyunfold.Logger()
