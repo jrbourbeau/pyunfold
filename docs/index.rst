@@ -10,7 +10,6 @@
    :caption: User Guide
    :hidden:
 
-   Overview <self>
    installation
    api
    callbacks
