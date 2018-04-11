@@ -1,5 +1,7 @@
 
 import sys
+import numpy as np
+from scipy.interpolate import UnivariateSpline
 
 
 class Callback(object):
@@ -18,6 +20,13 @@ class Callback(object):
         pass
 
     def on_iteration_end(self, iteration, params):
+        pass
+
+
+class Regularizer(object):
+    """Regularizer callback base class
+    """
+    def __init__(self):
         pass
 
 
@@ -48,3 +57,23 @@ class Logger(Callback):
                                  params['ts_iter'],
                                  params['ts_stopping']))
         sys.stdout.write(output)
+
+
+class SplineRegularizer(Callback, Regularizer):
+    """Spline regularization callback
+
+    Fits scipy.interpolate.UnivariateSpline to unfolded distribution at each
+    iteration.
+    """
+    def __init__(self, degree=3, smooth=None):
+        super(SplineRegularizer, self).__init__()
+        self.degree = degree
+        self.smooth = smooth
+
+    def on_iteration_end(self, iteration, params):
+        y = params['unfolded']
+        x = np.arange(len(y), dtype=float)
+        spline = UnivariateSpline(x, y, k=self.degree, s=self.smooth)
+        fitted_unfolded = spline(x)
+
+        return fitted_unfolded
