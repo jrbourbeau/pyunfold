@@ -7,7 +7,7 @@ from six import string_types
 from .loadstats import make_mctables
 from .mix import Mixer
 from .teststat import get_ts
-from .priors import UserPrior
+from .priors import user_prior
 from .utils import assert_same_shape, cast_to_array
 from .callbacks import Callback
 
@@ -142,7 +142,7 @@ def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
     # Setup prior
     if isinstance(priors, string_types) and priors == 'Jeffreys':
         n_obs = np.sum(data)
-        n_c = UserPrior(['Jeffreys'], [Caxis], n_obs)
+        n_c = user_prior('Jeffreys', Caxis, n_obs)
         n_c = n_c / np.sum(n_c)
     elif isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
         n_c = np.asarray(priors)
