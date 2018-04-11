@@ -24,7 +24,7 @@ Since $\phi=M\times n=M(P(E|C))\times n$, we can identify respectively the afore
 \end{align*}
 
 % V_Data
-\subsubsection{$V^{Data}$}
+\subsection{$V^{Data}$}
 D\textquotesingle Agostini argues that since the data sample $n_{j}$ is a realization of a multinomial distribution,
 then
 \begin{equation} \label{eq:Vn_agos}
@@ -68,7 +68,7 @@ Cov(n_{k},n_{j}) = n_{k} \, \delta_{kj} \,.
 \end{equation}
 
 % V_MC
-\subsubsection{$V^{MC}$}
+\subsection{$V^{MC}$}
 The contribution from $V^{MC}$, while well outlined in \cite{agostini} and below, is quite a monster. If one simply implements the equation verbatim 
 into code, the expected time for calculating all elements $\sim \textnormal{(number of bins)}^{7}$. Thus, here we present the form of $V^{MC}$, 
 while in section \ref{ExpVm} we show the explicit expansion and further contraction of indices towards a more reasonable, practical calculation.
@@ -141,7 +141,7 @@ Cov \big( P_{\rho r}, P_{\lambda s} \big) =
 with $\sigma_{\rho r}$ being the error estimates on $P_{\rho r}$ estimated when filling $P$ with Monte Carlo.
 
 % Updated Algorithm - Including Errors
-\subsubsection{Updated Unfolding Algorithm}
+\subsection{Updated Unfolding Algorithm}
 
 The afore-outlined unfolding algorithm must be modified to include the propagation of systematic errors.
 At each iteration we have $\phi^{i+1}$, so both $\frac{\partial \phi^{i+1}}{\partial n}$ and $\frac{\partial \phi^{i+1}}{\partial P}$

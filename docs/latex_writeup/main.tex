@@ -21,32 +21,32 @@
 \usepackage{subfig}
 \usepackage{mathtools}
 
-% Mint coding calls
-\usepackage[utf8]{inputenc}
-\usepackage[]{minted}
-\usepackage{tcolorbox}
-\usepackage{etoolbox}
-
-\usepackage{multicol}
-
-%%%% Directory Forest %%%%%%
-\usepackage[edges]{forest}
-
-\definecolor{fblue}{RGB}{92,144,192}
-\definecolor{fgreen}{RGB}{34,162,70}
-
-\newcommand\myfolder[2][fblue]{%
- \begin{tikzpicture}[overlay]
-  \begin{scope}[xshift=20pt]
-   \filldraw[rounded corners=1pt,fill=#1,draw=white,double=black]
-     (-23pt,10pt) -- ++(3pt,5pt) -- ++(18pt,0pt) -- ++(40:3pt) -- ++(9pt,0pt) -- ++(-40:3pt)
-     -- (20pt,15pt) -- (23pt,10pt) -- cycle;
-   \filldraw[rounded corners,draw=white,double=black,top color=#1,bottom color=#1!30]
-     (-22pt,-12pt) -- ++(44pt,0pt) -- (25pt,12pt) coordinate (topr) -- ++(-50pt,0pt) coordinate (topl) -- cycle;
-  \end{scope}  
- \end{tikzpicture}%
-\makebox[35pt]{\raisebox{-3pt}{{\ttfamily #2}}}%
-}
+%% Mint coding calls
+%\usepackage[utf8]{inputenc}
+%\usepackage[]{minted}
+%\usepackage{tcolorbox}
+%\usepackage{etoolbox}
+%
+%\usepackage{multicol}
+%
+%%%%% Directory Forest %%%%%%
+%\usepackage[edges]{forest}
+%
+%\definecolor{fblue}{RGB}{92,144,192}
+%\definecolor{fgreen}{RGB}{34,162,70}
+%
+%\newcommand\myfolder[2][fblue]{%
+% \begin{tikzpicture}[overlay]
+%  \begin{scope}[xshift=20pt]
+%   \filldraw[rounded corners=1pt,fill=#1,draw=white,double=black]
+%     (-23pt,10pt) -- ++(3pt,5pt) -- ++(18pt,0pt) -- ++(40:3pt) -- ++(9pt,0pt) -- ++(-40:3pt)
+%     -- (20pt,15pt) -- (23pt,10pt) -- cycle;
+%   \filldraw[rounded corners,draw=white,double=black,top color=#1,bottom color=#1!30]
+%     (-22pt,-12pt) -- ++(44pt,0pt) -- (25pt,12pt) coordinate (topr) -- ++(-50pt,0pt) coordinate (topl) -- cycle;
+%  \end{scope}  
+% \end{tikzpicture}%
+%\makebox[35pt]{\raisebox{-3pt}{{\ttfamily #2}}}%
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{algpseudocode}
@@ -108,8 +108,6 @@ This reference outlines the D'Agostini procedure used for iterative unfolding.
 We first motivate and outline the method in a manner suitable for users new to the technique.
 Next is shown the full propagation of errors due to the unfolding process, including the derivation
 of the final form of the covariance matrix.
-Finally, sample code in the Python language and example inputs are provided as a demonstration 
-of proper implementation.
 
 \end{abstract}
 
@@ -124,25 +122,22 @@ of proper implementation.
 \input{ch.Introduction}\label{introduction_section}
 \newpage
 
-% D'Agostini Unfolding
-\section{D'Agostini Unfolding}
+%% D'Agostini Unfolding
+%\section{D'Agostini Unfolding}
 
 % Description of the Method
-\subsection{Method}\label{unfolding_method_section}
+\section{Method}\label{unfolding_method_section}
 \input{ch.Unfolding_Method}
-
-% Regularization of the Posterior
-\subsection{Regularization}\label{regularization_section}
-\input{ch.Regularization}
-
-% Propagation of Errors
-\subsection{Unfolding Uncertainties}\label{uncertainties_section}
-\input{ch.Unfolding_Cov}
 \newpage
 
-% Implementation in Python Code
-\section{Python Implementation}\label{python_code_section}
-\input{ch.Python_Code}
+% Regularization of the Posterior
+\section{Regularization}\label{regularization_section}
+\input{ch.Regularization}
+\newpage
+
+% Propagation of Errors
+\section{Unfolding Uncertainties}\label{uncertainties_section}
+\input{ch.Unfolding_Cov}
 \newpage
 
 % Bibliography
@@ -154,23 +149,17 @@ Nucl. Instrum. Meth. A {\bf 362} (1995) 487
 \bibitem{zhampel-thesis} Z. Hampel-Arias, \blockquote{Cosmic Ray Observations at the TeV Scale with the HAWC Observatory},
 Ph.D. thesis, University of Wisconsin -- Madison (2017)
 
-\bibitem{adye} T. Adye, \blockquote{Unfolding algorithms and tests using RooUnfold}, Proceedings of the PHYSTAT 2011 Workshop, CERN, Geneva, 
-Switzerland, January 2011, CERN-2011-006, pp 313-318, \href{http://arxiv.org/abs/1105.1160v1}{arXiv:1105.1160}
-
-\bibitem{adye2} T. Adye, \blockquote{Corrected error calculation for iterative Bayesian unfolding}, 
-\href{http://hepunx.rl.ac.uk/~adye/software/unfold/bayes_errors.pdf}{Personal Website}
-
-\bibitem{root} ROOT - An Object Oriented Data Analysis Framework, Proceedings AIHENP'96 Workshop, Lausanne, Sep. 1996, Nucl. 
-Inst. \& Meth. in Phys. Res. A {\bf 389} (1997) 81-86. See also \href{http://root.cern.ch/}{http://root.cern.ch/}
-
 \bibitem{jeffreys} Jeffreys, H., \blockquote{An Invariant Form for the Prior Probability in Estimation Problems}. 
 Proceedings of the Royal Society of London. Series A, Mathematical and Physical Sciences. {\bf 186} (1007): 453–461
 
 \bibitem{hawc-cr-spectrum} Alfaro, R., et al. \blockquote{All-particle cosmic ray energy spectrum measured by the HAWC experiment from 10 to 500 TeV}, 
 Phys. Rev. D {\bf 96}, (2017) 122001, \href{https://journals.aps.org/prd/abstract/10.1103/PhysRevD.96.122001}{doi:10.1103/PhysRevD.96.122001}
 
-\bibitem{pfenderfactor} BenZvi, S., Connolly, B., Pfendner, C.G., Westerhoff, S., \blockquote{A Bayesian Approach to Comparing Cosmic Ray Energy Spectra}, 
-The Astrophysical Journal {\bf 738} (2011) 1, \href{https://arxiv.org/abs/1106.1392}{arXiv:1106.1392}
+\bibitem{adye} T. Adye, \blockquote{Unfolding algorithms and tests using RooUnfold}, Proceedings of the PHYSTAT 2011 Workshop, CERN, Geneva, 
+Switzerland, January 2011, CERN-2011-006, pp 313-318, \href{http://arxiv.org/abs/1105.1160v1}{arXiv:1105.1160}
+
+\bibitem{adye2} T. Adye, \blockquote{Corrected error calculation for iterative Bayesian unfolding}, 
+\href{http://hepunx.rl.ac.uk/~adye/software/unfold/bayes_errors.pdf}{Personal Website}
 
 \end{thebibliography}
 
