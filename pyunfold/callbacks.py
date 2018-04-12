@@ -62,8 +62,19 @@ class Logger(Callback):
 class SplineRegularizer(Callback, Regularizer):
     """Spline regularization callback
 
-    Fits scipy.interpolate.UnivariateSpline to unfolded distribution at each
-    iteration.
+    Smooths the unfolded distribution at each iterationa using
+    ``UnivariateSpline`` from ``scipy.interpolate``. For more information about
+    ``UnivariateSpline``, see the
+    `UnivariateSpline API documentation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.UnivariateSpline.html>`_.
+
+    Parameters
+    ----------
+    degree : int, optional
+        Degree of the smoothing spline. Must be <= 5 (default is 3, a cubic
+        spline).
+    smooth : float or None, optional
+        Positive smoothing factor used to choose the number of knots. If 0,
+        spline will interpolate through all data points (default is None).
     """
     def __init__(self, degree=3, smooth=None):
         super(SplineRegularizer, self).__init__()

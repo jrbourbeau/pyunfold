@@ -14,14 +14,15 @@ unfolding. A list of Callbacks can be passed to the
 
     import pyunfold
 
-    # Setup Logger Callback
+    # Setup Callbacks
     logger = pyunfold.Logger()
+    regularizer = pyunfold.SplineRegularizer(smooth=0.75)
 
     # Perform iterative unfolding
     unfolded = pyunfold.iterative_unfold(data, data_err,
                                          response, response_err,
                                          efficiencies, efficiencies_err,
-                                         callbacks=[logger])
+                                         callbacks=[logger, regularizer])
 
 Logger
 ------
@@ -35,3 +36,13 @@ Example output:
     Iteration 2: ts = 0.0476, ts_stopping = 0.01
     Iteration 3: ts = 0.0206, ts_stopping = 0.01
     Iteration 4: ts = 0.0083, ts_stopping = 0.01
+
+.. autoclass:: pyunfold.callbacks.Logger
+    :no-undoc-members:
+
+
+SplineRegularizer
+-----------------
+
+.. autoclass:: pyunfold.callbacks.SplineRegularizer
+    :no-undoc-members:
