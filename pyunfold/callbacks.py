@@ -65,7 +65,8 @@ class SplineRegularizer(Callback, Regularizer):
     Smooths the unfolded distribution at each iterationa using
     ``UnivariateSpline`` from ``scipy.interpolate``. For more information about
     ``UnivariateSpline``, see the
-    `UnivariateSpline API documentation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.UnivariateSpline.html>`_.
+    `UnivariateSpline API documentation
+    <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.UnivariateSpline.html>`_.
 
     Parameters
     ----------
