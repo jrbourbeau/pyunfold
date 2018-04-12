@@ -1,20 +1,20 @@
 After each iteration, the resulting posterior distribution, $P(C_{\mu})$, is our new best guess 
 of the (normalized) parent distribution. Using this best estimate as the prior for the next iteration,
 one can induce large fluctuations in neighboring $C_{\mu}$ bins. It is here the equivalence of matrix inversion
-techniques and Bayesian unfolding is seen. After many iterations, wild fluctuations can appear, indicating
+techniques and iterative unfolding is seen. After many iterations, wild fluctuations can appear, indicating
 the granularity in the MC derived $P_{\mu j}$. Furthermore, in using the posterior as the subsequent prior, 
 one is `telling' the unfolding that physical distributions of that nature are allowable priors. Instead, as pointed
 out in \cite{agostini} (section 6.3), for an experimenter interested in a particular model's parameters, 
 fitting all but the last posterior is equivalent to performing a maximum likelihood fit to the data. 
 
-As physics measurements are expected to be smooth (a safe assumption for the cosmic-ray energy 
-spectrum for example), one can regularize the $\phi^{i}_{\mu}$. In principle one can choose any smoothing function. 
-For the cosmic-ray energy spectrum, $\phi^{i}_{\mu}$ can be simply fit to a power law, using the 
-fitted function as the input prior for the next iteration. While this could be seen as a loss of information, 
-it is important to remember that this is a Bayesian method, so \textbf{any} improved prior distribution 
-will enhance our estimation method, along with the \textbf{prior} expectation that our physics is smooth.
+As physical measurements are expected to be smooth (a safe assumption for energy spectra for example), 
+one can regularize the $\phi^{i}_{\mu}$. In principle one can choose any smoothing function. 
+For the cosmic-ray energy spectrum for example, $\phi^{i}_{\mu}$ can be simply fit to a power law or a spline
+as was done in \cite{hawc-cr-spectrum}, using the fitted function as the input prior for the next iteration. 
+While this could be seen as a loss of information, it is important to remember that \textbf{any} improved prior 
+distribution will enhance our estimation method, along with the \textbf{prior} expectation that our distribution is smooth.
 
-The other possibility is to avoid regularization altogether, and instead ensure that $P_{\mu j}$
+The other possibility is to avoid regularization altogether and instead ensure that $P_{\mu j}$
 is smooth enough. The granularity of the cause and effect bins will dictate the degree of smoothness 
 required to ensure non-fluctuating $\phi^{i}$ solutions. The more widely used techniques for smoothing 
 $P_{\mu j}$ include kernel density estimation and penalized spline fitting routines.

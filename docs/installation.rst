@@ -10,7 +10,7 @@ Installation
 Release Version
 ---------------
 
-The latest release version of PyUnfold can be installed with ``pip``:
+The latest release of PyUnfold can be installed with ``pip``:
 
 .. code-block:: bash
 
