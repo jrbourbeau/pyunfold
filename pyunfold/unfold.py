@@ -50,7 +50,7 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
         Whether to return unfolded distributions for each iteration
         (default is False).
     callbacks : list, optional
-        List of ``pyunfold.callbacks.Callback`` instances to be applied during 
+        List of ``pyunfold.callbacks.Callback`` instances to be applied during
         unfolding (default is None, which means no Callbacks are applied).
 
     Returns

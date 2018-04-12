@@ -72,12 +72,12 @@ class CovarianceMatrix(object):
         NE_F_R = self.NEobs * f_inv
         # (ti, ec_j + tk) elements
         for ej, ti, tk in product(range(0, ebins), range(0, cbins), range(0, cbins)):
-            ec_j = ej*cbins
-            dcdP[ti,ec_j+tk] = -NE_F_R[ej] * Mij[ej,ti] * n_c_prev[tk]
+            ec_j = ej * cbins
+            dcdP[ti, ec_j+tk] = -NE_F_R[ej] * Mij[ej, ti] * n_c_prev[tk]
         # (ti, ec_j + ti) elements
         for ej, ti in product(range(0, ebins), range(0, cbins)):
-            ec_j = ej*cbins
-            dcdP[ti,ec_j+ti] += (n_c_prev[ti]*NE_F_R[ej]-n_c[ti])*self.cEff_inv[ti]
+            ec_j = ej * cbins
+            dcdP[ti, ec_j+ti] += (n_c_prev[ti] * NE_F_R[ej] - n_c[ti]) * self.cEff_inv[ti]
 
         # Adye Propagation Corrections
         if self.ErrorPropFlag and self.counter > 0:
@@ -144,8 +144,8 @@ class CovarianceMatrix(object):
         # Poisson Covariance Matrix
         if self.PecCov == 1:
             for ej, ti in product(range(0, ebins), range(0, cbins)):
-                ejc = ej*cbins
-                CovPP[ejc+ti,ejc+ti] = self.pec_err[ej,ti]**2
+                ejc = ej * cbins
+                CovPP[ejc+ti, ejc+ti] = self.pec_err[ej, ti]**2
         # Multinomial Covariance Matrix
         elif self.PecCov == 2:
 
@@ -154,16 +154,16 @@ class CovarianceMatrix(object):
             for ej, ti in product(range(0, ebins), range(0, cbins)):
                 ejc = ej * cbins
                 # Don't go looping if zeros are present :)
-                if (self.pec[ej,ti] > 0 and NC_inv[ti] > 0):
-                    CovPP[ejc+ti,ejc+ti] = NC_inv[ti]*self.pec[ej,ti]*(1-self.pec[ej,ti])
-                    cov1 = -NC_inv[ti]*self.pec[ej,ti]
-                    for ek in range(ej+1,ebins):
-                        ekc = ek*cbins
-                        if (ejc+ti == ekc+ti or ek == ej):
+                if (self.pec[ej, ti] > 0 and NC_inv[ti] > 0):
+                    CovPP[ejc+ti, ejc+ti] = NC_inv[ti] * self.pec[ej, ti] * (1 - self.pec[ej, ti])
+                    cov1 = -NC_inv[ti] * self.pec[ej, ti]
+                    for ek in range(ej+1, ebins):
+                        ekc = ek * cbins
+                        if ejc+ti == ekc+ti or ek == ej:
                             continue
-                        cov = cov1*self.pec[ek,ti]
-                        CovPP[ejc+ti,ekc+ti] = cov
-                        CovPP[ekc+ti,ejc+ti] = cov
+                        cov = cov1 * self.pec[ek, ti]
+                        CovPP[ejc+ti, ekc+ti] = cov
+                        CovPP[ekc+ti, ejc+ti] = cov
 
         return CovPP
 
