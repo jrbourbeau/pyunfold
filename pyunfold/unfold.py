@@ -255,17 +255,9 @@ def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100,
     # Convert unfolding_iters list of dictionaries to a pandas DataFrame
     unfolding_iters = pd.DataFrame.from_records(unfolding_iters)
 
-    # Don't want to regularize final iteration
+    # Replace final folded iteration with un-regularized distribution
     if regularizer:
         last_iteration_index = unfolding_iters.index[-1]
         unfolding_iters.at[last_iteration_index, 'unfolded'] = unfolded_nonregularized
-
-        second_last_iteration_index = unfolding_iters.index[-2]
-        second_last_unfolded = unfolding_iters.at[second_last_iteration_index, 'unfolded']
-        ts_cur, ts_del, ts_prob = ts_func.GetStats(unfolded_nonregularized,
-                                                   second_last_unfolded)
-
-        unfolding_iters.at[last_iteration_index, 'ts_iter'] = ts_cur
-        unfolding_iters.at[last_iteration_index, 'ts_stopping'] = ts_func.tol
 
     return unfolding_iters
