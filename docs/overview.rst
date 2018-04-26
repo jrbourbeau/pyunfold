@@ -53,10 +53,8 @@ The potential audience for PyUnfold includes natural scientists who are in need 
 statistical and programming framework in which to incorporate the uncertainties of 
 their measurement processes to estimate their desired variables.
 PyUnfold already has been successfully implemented to unfold the cosmic-ray energy 
-spectrum using data from the HAWC_ and IceCube_ observatories.
-
-.. HAWC_: https://www.hawc-observatory.org/
-.. IceCube_: https://icecube.wisc.edu/
+spectrum using data from the `HAWC <https://www.hawc-observatory.org/>`_ and 
+`IceCube <https://icecube.wisc.edu/>`_ observatories.
 
 
 -----
