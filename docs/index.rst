@@ -73,6 +73,7 @@ The returned unfolded result is a dictionary containing:
     callbacks
     Examples <examples.ipynb>
     changelog
+    contributing
 
 .. toctree::
    :maxdepth: 1
