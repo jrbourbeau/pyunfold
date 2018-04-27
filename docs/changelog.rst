@@ -12,6 +12,7 @@ Version 0.2.dev0 (TBD)
 **New Features**:
 
 - Added ``Logger`` callback to write test statistic information to stdout. (See `PR #18 <https://github.com/jrbourbeau/pyunfold/pull/18>`_)
+- Added contributing guide to the documentation page. (See `PR #31 <https://github.com/jrbourbeau/pyunfold/pull/31>`_)
 
 **Changes**:
 
