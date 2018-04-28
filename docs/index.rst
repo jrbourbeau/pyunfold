@@ -68,6 +68,7 @@ The returned unfolded result is a dictionary containing:
     :maxdepth: 1
     :caption: User Guide
 
+    overview
     installation
     api
     callbacks
