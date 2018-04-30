@@ -6,7 +6,7 @@
 Mathematical Derivations
 ************************
 
-As introduced in the :ref:`overview`, the conceptually simplest way
+As introduced in the :doc:`overview`, the conceptually simplest way
 to connect true causes :math:`C_{\mu}` and observable effects :math:`E_{j}`
 is via a matrix :math:`R` and conversely by its estimated inverse :math:`M \approx R^{-1}`:
 
@@ -98,8 +98,8 @@ we can then obtain :math:`\phi(C)^{t+1}` at iteration :math:`t+1` via
 .. math::
 
     \begin{align}
-    \phi_{\mu}^{t+1} &= \sum_j M_{\mu j} n_j \\
-    M_{\mu j} &= \frac{P_{\mu j} \, \phi^t_{\mu}}{ \epsilon_{\mu} \sum_{\rho} P_{\rho j} \, \phi^{t}_\rho}
+    \phi_{\mu}^{t+1} &= \sum_j M_{\mu j}^t n_j \\
+    M_{\mu j}^t &= \frac{P_{\mu j} \, \phi^t_{\mu}}{ \epsilon_{\mu} \sum_{\rho} P_{\rho j} \, \phi^{t}_\rho}
     \end{align}
 
 
@@ -116,7 +116,8 @@ The algorithm which PyUnfold employs is illustrated by the following:
 
 
 An exhaustive description and derivation of the propagation of uncertainties can be found in the
-latex documentation provided with PyUnfold.
+`LaTeX documentation <https://github.com/jrbourbeau/pyunfold/blob/master/docs/latex_writeup/main.pdf>`_
+provided with PyUnfold.
 
 
 --------------------
