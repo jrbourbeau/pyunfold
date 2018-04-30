@@ -72,7 +72,7 @@ The returned unfolded result is a dictionary containing:
     installation
     api
     callbacks
-    Examples <examples.ipynb>
+    Tutorial <tutorial.ipynb>
     mathematics
     changelog
     contributing
