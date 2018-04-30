@@ -79,5 +79,6 @@ To use PyUnfold, one needs only to provide the
 - Response matrix
 - Prior distribution
 
+For further mathematical details on the unfolding procedure, see the :doc:`mathematics` section.
 
 .. [1] G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A **362** (1995) 487.
