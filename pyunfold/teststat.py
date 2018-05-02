@@ -11,15 +11,19 @@ from .utils import none_to_empty_list
 class TestStat(object):
     """Common base class for test statistic methods
     """
-    def __init__(self, name="TestStat", tol=None, Xaxis=None, TestRange=None,
-                 verbose=False, **kwargs):
-        Xaxis, TestRange = none_to_empty_list(Xaxis, TestRange)
+    def __init__(self, name="TestStat", tol=None, num_causes=None,
+                 TestRange=None, verbose=False, **kwargs):
+        TestRange = none_to_empty_list(TestRange)
         # TS Name
         self.name = name
         # User Defined TS Tolerance
         self.tol = tol
-        # User Provided Xaxis and Test Range
-        self.Xaxis = Xaxis.copy()
+        if num_causes is None:
+            raise ValueError('Number of causes (num_causes) must be provided.')
+        cause_bin_edges = np.arange(num_causes + 1, dtype=float)
+        # Get bin midpoints
+        cause_axis = (cause_bin_edges[1:] + cause_bin_edges[:-1]) / 2
+        self.Xaxis = cause_axis
         self.TSRange = TestRange
         self.IsRangeTS = False
         self.TSbins = self.SetTestRangeBins()

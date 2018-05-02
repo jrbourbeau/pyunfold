@@ -7,7 +7,7 @@ from six import string_types
 from .loadstats import make_mctables
 from .mix import Mixer
 from .teststat import get_ts
-from .priors import user_prior
+from .priors import setup_prior
 from .utils import assert_same_shape, cast_to_array
 from .callbacks import Callback
 
@@ -105,6 +105,7 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
                                                ts=ts,
                                                ts_stopping=ts_stopping,
                                                max_iter=max_iter)
+
     unfolding_iters = perform_unfolding(n_c=n_c,
                                         mixer=mixer,
                                         ts_func=ts_func,
@@ -135,34 +136,21 @@ def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
                             response=response,
                             response_err=response_err)
 
-    Cedges = np.arange(len(efficiencies) + 1, dtype=float)
-    # Get bin midpoints
-    Caxis = (Cedges[1:] + Cedges[:-1]) / 2
+    num_causes = len(efficiencies)
 
-    # Setup prior
-    if isinstance(priors, string_types) and priors == 'Jeffreys':
-        n_obs = np.sum(data)
-        n_c = user_prior('Jeffreys', Caxis, n_obs)
-        n_c = n_c / np.sum(n_c)
-    elif isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
-        n_c = np.asarray(priors)
-    else:
-        raise TypeError('priors must be either "Jeffreys" or array_like, '
-                        'but got {}'.format(type(priors)))
+    n_c = setup_prior(priors=priors,
+                      num_causes=num_causes,
+                      num_observations=np.sum(data))
 
-    if not np.allclose(np.sum(n_c), 1):
-        raise ValueError('Prior (which is an array of probabilities) does '
-                         'not add to 1. sum(priors) = {}'.format(np.sum(n_c)))
-
-    # Prepare Test Statistic-er
+    # Setup test statistic
     ts_obj = get_ts(ts)
     ts_func = ts_obj(ts,
                      tol=ts_stopping,
-                     Xaxis=Caxis,
+                     num_causes=num_causes,
                      TestRange=[0, 1e2],
                      verbose=False)
 
-    # Prepare Mixer
+    # Setup Mixer
     mixer = Mixer('SrMixALot',
                   ErrorType=cov_error,
                   MCTables=MCStats,
