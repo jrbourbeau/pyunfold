@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from pyunfold.unfold import iterative_unfold
-from pyunfold.callbacks import Callback, Logger, SplineRegularizer, Regularizer
+from pyunfold.callbacks import (Callback, Logger, SplineRegularizer,
+                                Regularizer, validate_callbacks)
 
 
 @pytest.fixture()
@@ -96,3 +97,26 @@ def test_SplineRegularizer_passes(example_dataset):
                      efficiencies_err=example_dataset.efficiencies_err,
                      return_iterations=True,
                      callbacks=[spline_reg])
+
+
+def test_validate_callbacks():
+    callbacks = [Logger(), SplineRegularizer()]
+    assert validate_callbacks(callbacks) == callbacks
+
+
+def test_validate_empty_callbacks():
+    assert validate_callbacks(None) == []
+
+
+@pytest.mark.parametrize('callback', [Logger(), SplineRegularizer()])
+def test_validate_callbacks_single_callback(callback):
+    validate_callbacks(callback) == [callback]
+
+
+def test_validate_callbacks_raises():
+    callbacks = [Logger(), SplineRegularizer(), 'not a callback']
+    with pytest.raises(TypeError) as excinfo:
+        validate_callbacks(callbacks)
+
+    err_msg = 'Found non-callback object in callbacks: {}'.format(['not a callback'])
+    assert err_msg == str(excinfo.value)

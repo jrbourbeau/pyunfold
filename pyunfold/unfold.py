@@ -7,7 +7,7 @@ from .mix import Mixer
 from .teststat import get_ts
 from .priors import setup_prior
 from .utils import cast_to_array
-from .callbacks import Callback, Regularizer
+from .callbacks import validate_callbacks, Regularizer
 
 
 def iterative_unfold(data, data_err, response, response_err, efficiencies,
@@ -109,30 +109,17 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
                      TestRange=[0, 1e2],
                      verbose=False)
 
-    unfolding_iters = perform_unfolding(prior=n_c,
-                                        mixer=mixer,
-                                        ts_func=ts_func,
-                                        max_iter=max_iter,
-                                        callbacks=callbacks)
+    unfolding_iters = _unfold(prior=n_c,
+                              mixer=mixer,
+                              ts_func=ts_func,
+                              max_iter=max_iter,
+                              callbacks=callbacks)
 
     if return_iterations:
         return unfolding_iters
     else:
         unfolded_result = dict(unfolding_iters.iloc[-1])
         return unfolded_result
-
-
-def validate_callbacks(callbacks):
-    if callbacks is None:
-        callbacks = []
-    elif isinstance(callbacks, Callback):
-        callbacks = [callbacks]
-    else:
-        if not all([isinstance(c, Callback) for c in callbacks]):
-            invalid_callbacks = [c for c in callbacks if not isinstance(c, Callback)]
-            raise TypeError('Found non-callback object in callbacks: {}'.format(invalid_callbacks))
-
-    return callbacks
 
 
 def extract_regularizer(callbacks):
@@ -144,8 +131,8 @@ def extract_regularizer(callbacks):
     return regularizer
 
 
-def perform_unfolding(prior=None, mixer=None, ts_func=None, max_iter=100,
-                      callbacks=None):
+def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
+            callbacks=None):
     """Perform iterative unfolding
 
     Parameters
