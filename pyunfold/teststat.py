@@ -226,6 +226,13 @@ class KS(TestStat):
         self.prob = prob
 
 
+TEST_STATISTICS = {"chi2": Chi2,
+                   "pf": PF,
+                   "rmd": RMD,
+                   "ks": KS,
+                   }
+
+
 def get_ts(name='ks'):
     """Convenience function for retrieving TestStat object
 
@@ -239,14 +246,9 @@ def get_ts(name='ks'):
     ts : TestStat
         Test statistics object
     """
-    name_to_ts = {"chi2": Chi2,
-                  "pf": PF,
-                  "rmd": RMD,
-                  "ks": KS,
-                  }
-    if name in name_to_ts:
-        ts = name_to_ts[name]
+    if name in TEST_STATISTICS:
+        ts = TEST_STATISTICS[name]
         return ts
     else:
         raise ValueError('Invalid test statisitc, {}, entered. Must be '
-                         'in {}'.format(name, name_to_ts.keys()))
+                         'in {}'.format(name, TEST_STATISTICS.keys()))

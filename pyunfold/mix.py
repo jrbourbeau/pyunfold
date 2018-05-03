@@ -1,4 +1,5 @@
 
+from __future__ import division, print_function
 from itertools import product
 import numpy as np
 from .utils import safe_inverse

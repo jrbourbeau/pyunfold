@@ -1,4 +1,5 @@
 
+from __future__ import division, print_function
 from collections import namedtuple
 import numpy as np
 import pytest
@@ -135,3 +136,9 @@ def test_extract_regularizer_mutliple_raises():
 def test_extract_regularizer_no_regularizer():
     callbacks = [Logger()]
     assert extract_regularizer(callbacks) is None
+
+
+@pytest.mark.parametrize('callback', [SplineRegularizer()])
+def test_extract_regularizer(callback):
+    callbacks = [Logger(), callback]
+    assert extract_regularizer(callbacks) == callback

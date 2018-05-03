@@ -1,5 +1,5 @@
 
-from __future__ import unicode_literals
+from __future__ import division, print_function, unicode_literals
 import os
 import sys
 import numpy as np
