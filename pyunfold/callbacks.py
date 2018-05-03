@@ -102,3 +102,13 @@ def validate_callbacks(callbacks):
             raise TypeError('Found non-callback object in callbacks: {}'.format(invalid_callbacks))
 
     return callbacks
+
+
+def extract_regularizer(callbacks):
+    callbacks = validate_callbacks(callbacks)
+    regularizers = [c for c in callbacks if isinstance(c, Regularizer)]
+    if len(regularizers) > 1:
+        raise NotImplementedError('Multiple regularizer callbacks where provided.')
+    regularizer = regularizers[0] if len(regularizers) == 1 else None
+
+    return regularizer

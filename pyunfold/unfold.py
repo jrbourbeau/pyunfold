@@ -7,7 +7,7 @@ from .mix import Mixer
 from .teststat import get_ts
 from .priors import setup_prior
 from .utils import cast_to_array
-from .callbacks import validate_callbacks, Regularizer
+from .callbacks import validate_callbacks, extract_regularizer
 
 
 def iterative_unfold(data, data_err, response, response_err, efficiencies,
@@ -122,15 +122,6 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
         return unfolded_result
 
 
-def extract_regularizer(callbacks):
-    regularizers = [c for c in callbacks if isinstance(c, Regularizer)]
-    if len(regularizers) > 1:
-        raise NotImplementedError('Multiple regularizer callbacks where provided.')
-    regularizer = regularizers[0] if len(regularizers) == 1 else None
-
-    return regularizer
-
-
 def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
             callbacks=None):
     """Perform iterative unfolding
@@ -169,7 +160,7 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
                   'stat_err': mixer.get_stat_err(),
                   'sys_err': mixer.get_MC_err()}
 
-        if regularizer:
+        if regularizer is not None:
             # Will want the nonregularized distribution for the final iteration
             unfolded_nonregularized = unfolded_n_c.copy()
             unfolded_n_c = regularizer.on_iteration_end(iteration=iteration,

@@ -5,7 +5,8 @@ import pytest
 
 from pyunfold.unfold import iterative_unfold
 from pyunfold.callbacks import (Callback, Logger, SplineRegularizer,
-                                Regularizer, validate_callbacks)
+                                Regularizer, validate_callbacks,
+                                extract_regularizer)
 
 
 @pytest.fixture()
@@ -120,3 +121,17 @@ def test_validate_callbacks_raises():
 
     err_msg = 'Found non-callback object in callbacks: {}'.format(['not a callback'])
     assert err_msg == str(excinfo.value)
+
+
+def test_extract_regularizer_mutliple_raises():
+    callbacks = [SplineRegularizer(), SplineRegularizer()]
+    with pytest.raises(NotImplementedError) as excinfo:
+        extract_regularizer(callbacks)
+
+    err_msg = 'Multiple regularizer callbacks where provided.'
+    assert err_msg == str(excinfo.value)
+
+
+def test_extract_regularizer_no_regularizer():
+    callbacks = [Logger()]
+    assert extract_regularizer(callbacks) is None
