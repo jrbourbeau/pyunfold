@@ -3,6 +3,7 @@ from __future__ import division, print_function
 from collections import namedtuple
 import numpy as np
 import pytest
+from scipy.interpolate import UnivariateSpline
 
 from pyunfold.unfold import iterative_unfold
 from pyunfold.callbacks import (Callback, Logger, SplineRegularizer,
@@ -47,6 +48,14 @@ def example_dataset():
     return example
 
 
+@pytest.mark.parametrize('attr', ['on_unfolding_begin',
+                                  'on_unfolding_end',
+                                  'on_iteration_begin',
+                                  'on_iteration_end'])
+def test_callback_attributes(attr):
+    assert hasattr(Callback(), attr)
+
+
 @pytest.mark.parametrize('callbacks', [[Logger()], Logger()])
 def test_logger(capsys, callbacks, example_dataset):
 
@@ -87,18 +96,35 @@ def test_SplineRegularizer_isinstance_Regularizer():
     assert isinstance(spline_reg, Regularizer)
 
 
-def test_SplineRegularizer_passes(example_dataset):
+def test_SplineRegularizer(example_dataset):
+    degree = 3
+    smooth = 20
+    spline_reg = SplineRegularizer(degree=degree, smooth=smooth)
 
-    spline_reg = SplineRegularizer(degree=3)
-    # Perform iterative unfolding
-    iterative_unfold(data=example_dataset.data,
-                     data_err=example_dataset.data_err,
-                     response=example_dataset.response,
-                     response_err=example_dataset.response_err,
-                     efficiencies=example_dataset.efficiencies,
-                     efficiencies_err=example_dataset.efficiencies_err,
-                     return_iterations=True,
-                     callbacks=[spline_reg])
+    unfolded_with_reg = iterative_unfold(data=example_dataset.data,
+                                         data_err=example_dataset.data_err,
+                                         response=example_dataset.response,
+                                         response_err=example_dataset.response_err,
+                                         efficiencies=example_dataset.efficiencies,
+                                         efficiencies_err=example_dataset.efficiencies_err,
+                                         return_iterations=True,
+                                         callbacks=[spline_reg])
+
+    unfolded_no_reg = iterative_unfold(data=example_dataset.data,
+                                       data_err=example_dataset.data_err,
+                                       response=example_dataset.response,
+                                       response_err=example_dataset.response_err,
+                                       efficiencies=example_dataset.efficiencies,
+                                       efficiencies_err=example_dataset.efficiencies_err,
+                                       return_iterations=True)
+
+    no_reg = unfolded_no_reg.iloc[0]['unfolded']
+    x = np.arange(len(no_reg), dtype=float)
+    spline = UnivariateSpline(x, no_reg, k=degree, s=smooth)
+    fitted_unfolded = spline(x)
+
+    np.testing.assert_allclose(unfolded_with_reg.iloc[0]['unfolded'],
+                               fitted_unfolded)
 
 
 def test_validate_callbacks():
