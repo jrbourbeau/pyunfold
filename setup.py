@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import io
 import os
 import sys
 from shutil import rmtree
@@ -15,16 +16,16 @@ LICENSE = 'MIT'
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-with open(os.path.join(here, 'README.md'), 'r', encoding='utf-8') as f:
+with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     LONG_DESCRIPTION = f.read()
 
 # Want to read in package version number from __version__.py
 about = {}
-with open(os.path.join(here, 'pyunfold', '__version__.py'), 'r', encoding='utf-8') as f:
+with io.open(os.path.join(here, 'pyunfold', '__version__.py'), encoding='utf-8') as f:
     exec(f.read(), about)
     VERSION = about['__version__']
 
-with open(os.path.join(here, 'requirements', 'default.txt'), 'r', encoding='utf-8') as f:
+with io.open(os.path.join(here, 'requirements', 'default.txt'), encoding='utf-8') as f:
     INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
 
 class UploadCommand(Command):
