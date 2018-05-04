@@ -8,7 +8,7 @@ from shutil import rmtree
 from setuptools import setup, find_packages, Command
 
 NAME = 'PyUnfold'
-DESCRIPTION = 'Python package for iterative unfolding'
+DESCRIPTION = 'PyUnfold: A Python package for iterative unfolding'
 MAINTAINER = 'James Bourbeau'
 MAINTAINER_EMAIL = 'james@jamesbourbeau.com'
 URL = 'https://github.com/jrbourbeau/pyunfold'
@@ -36,8 +36,8 @@ with io.open(os.path.join(here, 'pyunfold', '__version__.py'), encoding='utf-8')
     exec(f.read(), about)
     VERSION = about['__version__']
 
-INSTALL_REQUIRES = get_install_requirements(os.path.join(here, 'requirements', 'default.txt'))
-DEV_REQUIRES = get_install_requirements(os.path.join(here, 'requirements', 'development.txt'))
+INSTALL_REQUIRES = get_install_requirements(os.path.join(here, 'requirements.txt'))
+DEV_REQUIRES = get_install_requirements(os.path.join(here, 'requirements_dev.txt'))
 EXTRAS_REQUIRE = {
     'dev': DEV_REQUIRES,
 }
