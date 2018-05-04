@@ -11,15 +11,19 @@ from .utils import none_to_empty_list
 class TestStat(object):
     """Common base class for test statistic methods
     """
-    def __init__(self, name="TestStat", tol=None, Xaxis=None, TestRange=None,
-                 verbose=False, **kwargs):
-        Xaxis, TestRange = none_to_empty_list(Xaxis, TestRange)
+    def __init__(self, name="TestStat", tol=None, num_causes=None,
+                 TestRange=None, verbose=False, **kwargs):
+        TestRange = none_to_empty_list(TestRange)
         # TS Name
         self.name = name
         # User Defined TS Tolerance
         self.tol = tol
-        # User Provided Xaxis and Test Range
-        self.Xaxis = Xaxis.copy()
+        if num_causes is None:
+            raise ValueError('Number of causes (num_causes) must be provided.')
+        cause_bin_edges = np.arange(num_causes + 1, dtype=float)
+        # Get bin midpoints
+        cause_axis = (cause_bin_edges[1:] + cause_bin_edges[:-1]) / 2
+        self.Xaxis = cause_axis
         self.TSRange = TestRange
         self.IsRangeTS = False
         self.TSbins = self.SetTestRangeBins()
@@ -222,6 +226,13 @@ class KS(TestStat):
         self.prob = prob
 
 
+TEST_STATISTICS = {"chi2": Chi2,
+                   "pf": PF,
+                   "rmd": RMD,
+                   "ks": KS,
+                   }
+
+
 def get_ts(name='ks'):
     """Convenience function for retrieving TestStat object
 
@@ -235,14 +246,9 @@ def get_ts(name='ks'):
     ts : TestStat
         Test statistics object
     """
-    name_to_ts = {"chi2": Chi2,
-                  "pf": PF,
-                  "rmd": RMD,
-                  "ks": KS,
-                  }
-    if name in name_to_ts:
-        ts = name_to_ts[name]
+    if name in TEST_STATISTICS:
+        ts = TEST_STATISTICS[name]
         return ts
     else:
         raise ValueError('Invalid test statisitc, {}, entered. Must be '
-                         'in {}'.format(name, name_to_ts.keys()))
+                         'in {}'.format(name, TEST_STATISTICS.keys()))

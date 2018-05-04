@@ -50,6 +50,11 @@ extensions = [
     'sphinx.ext.mathjax',
 ]
 
+numpydoc_show_inherited_class_members = False
+# this is needed for some reason...
+# see https://github.com/numpy/numpydoc/issues/69
+numpydoc_class_members_toctree = False
+
 autosummary_generate = ['api.rst']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -94,7 +99,7 @@ html_show_sphinx = False
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-html_logo = "_static/logo-light.png"
+html_logo = "_static/simple@2x.png"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -110,6 +115,9 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+def setup(app):
+    app.add_stylesheet('custom.css')
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

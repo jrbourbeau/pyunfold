@@ -84,7 +84,7 @@ The returned unfolded result is a dictionary containing:
 
    PyUnfold @ GitHub <https://github.com/jrbourbeau/pyunfold>
    PyUnfold @ PyPI <https://pypi.org/project/pyunfold/>
-   Issue tracker <https://github.com/jrbourbeau/pyunfold/issues>
+   Issue Tracker <https://github.com/jrbourbeau/pyunfold/issues>
 
 
 .. [1] G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A **362** (1995) 487.
