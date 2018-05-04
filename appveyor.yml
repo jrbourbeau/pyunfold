@@ -1,0 +1,26 @@
+build: false
+
+environment:
+  matrix:
+    - PYTHON_VERSION: 3.6
+      MINICONDA: C:/Miniconda36-x64
+    - PYTHON_VERSION: 2.7
+      MINICONDA: C:/Miniconda-x64
+
+init:
+  - ECHO %PYTHON_VERSION% %MINICONDA%
+  - ECHO conda --version
+
+install:
+  - set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create -q --name test-environment python=%PYTHON_VERSION%
+  - conda env update --name=test-environment --file=environment.yml
+  - activate test-environment
+  - pip install .
+  - pip install -r requirements\\development.txt
+
+test_script:
+  - pytest --cov=pyunfold pyunfold
