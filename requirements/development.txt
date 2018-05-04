@@ -1,4 +1,15 @@
--r default.txt
--r docs.txt
--r test.txt
+# Documentation
+sphinx
+numpydoc
+sphinx_rtd_theme
+nbsphinx
+pandoc
+jupyter
+matplotlib
+seaborn
+# Testing
+pytest
+pytest-cov
+flake8
+tables
 twine

@@ -14,10 +14,21 @@ MAINTAINER_EMAIL = 'james@jamesbourbeau.com'
 URL = 'https://github.com/jrbourbeau/pyunfold'
 LICENSE = 'MIT'
 
+
 here = os.path.abspath(os.path.dirname(__file__))
 
-with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-    LONG_DESCRIPTION = f.read()
+def read(path, encoding='utf-8'):
+    with io.open(path, encoding=encoding) as f:
+        content = f.read()
+    return content
+
+def get_install_requirements(path):
+    content = read(path)
+    requirements = [req for req in content.split("\n")
+                    if req != '' and not req.startswith('#')]
+    return requirements
+
+LONG_DESCRIPTION = read(os.path.join(here,'README.md'))
 
 # Want to read in package version number from __version__.py
 about = {}
@@ -25,8 +36,11 @@ with io.open(os.path.join(here, 'pyunfold', '__version__.py'), encoding='utf-8')
     exec(f.read(), about)
     VERSION = about['__version__']
 
-with io.open(os.path.join(here, 'requirements', 'default.txt'), encoding='utf-8') as f:
-    INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
+INSTALL_REQUIRES = get_install_requirements(os.path.join(here, 'requirements', 'default.txt'))
+DEV_REQUIRES = get_install_requirements(os.path.join(here, 'requirements', 'development.txt'))
+EXTRAS_REQUIRE = {
+    'dev': DEV_REQUIRES,
+}
 
 class UploadCommand(Command):
     """Support setup.py upload."""
@@ -90,6 +104,7 @@ setup(
     ],
     packages=find_packages(),
     install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
     setup_requires=['setuptools>=38.6.0'],
     # $ setup.py publish support.
     cmdclass={

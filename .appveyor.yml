@@ -19,8 +19,7 @@ install:
   - conda create -q --name test-environment python=%PYTHON_VERSION%
   - conda env update --name=test-environment --file=environment.yml
   - activate test-environment
-  - pip install .
-  - pip install -r requirements\\development.txt
+  - pip install .[dev]
 
 test_script:
   - pytest --cov=pyunfold pyunfold
