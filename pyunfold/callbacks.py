@@ -89,3 +89,26 @@ class SplineRegularizer(Callback, Regularizer):
         fitted_unfolded = spline(x)
 
         return fitted_unfolded
+
+
+def validate_callbacks(callbacks):
+    if callbacks is None:
+        callbacks = []
+    elif isinstance(callbacks, Callback):
+        callbacks = [callbacks]
+    else:
+        if not all([isinstance(c, Callback) for c in callbacks]):
+            invalid_callbacks = [c for c in callbacks if not isinstance(c, Callback)]
+            raise TypeError('Found non-callback object in callbacks: {}'.format(invalid_callbacks))
+
+    return callbacks
+
+
+def extract_regularizer(callbacks):
+    callbacks = validate_callbacks(callbacks)
+    regularizers = [c for c in callbacks if isinstance(c, Regularizer)]
+    if len(regularizers) > 1:
+        raise NotImplementedError('Multiple regularizer callbacks where provided.')
+    regularizer = regularizers[0] if len(regularizers) == 1 else None
+
+    return regularizer

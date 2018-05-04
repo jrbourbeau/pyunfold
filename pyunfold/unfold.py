@@ -2,14 +2,12 @@
 from __future__ import division, print_function
 import numpy as np
 import pandas as pd
-from six import string_types
 
-from .loadstats import make_mctables
 from .mix import Mixer
 from .teststat import get_ts
 from .priors import setup_prior
-from .utils import assert_same_shape, cast_to_array
-from .callbacks import Callback, Regularizer
+from .utils import cast_to_array
+from .callbacks import validate_callbacks, extract_regularizer
 
 
 def iterative_unfold(data, data_err, response, response_err, efficiencies,
@@ -87,60 +85,21 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     efficiencies, efficiencies_err = cast_to_array(efficiencies,
                                                    efficiencies_err)
 
-    assert_same_shape(data, data_err)
-    assert_same_shape(efficiencies, efficiencies_err)
-    assert_same_shape(response, response_err)
-    assert len(data) == response.shape[0]
-    assert len(efficiencies) == response.shape[1]
-    if not isinstance(priors, string_types):
-        assert_same_shape(efficiencies, priors)
-
-    mixer, ts_func, n_c = setup_mixer_ts_prior(data=data,
-                                               data_err=data_err,
-                                               priors=priors,
-                                               efficiencies=efficiencies,
-                                               efficiencies_err=efficiencies_err,
-                                               response=response,
-                                               response_err=response_err,
-                                               ts=ts,
-                                               ts_stopping=ts_stopping,
-                                               max_iter=max_iter)
-
-    unfolding_iters = perform_unfolding(n_c=n_c,
-                                        mixer=mixer,
-                                        ts_func=ts_func,
-                                        max_iter=max_iter,
-                                        callbacks=callbacks)
-
-    if return_iterations:
-        return unfolding_iters
-    else:
-        unfolded_result = dict(unfolding_iters.iloc[-1])
-        return unfolded_result
-
-
-def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
-                         efficiencies=None, efficiencies_err=None,
-                         response=None, response_err=None,
-                         ts='ks', ts_stopping=0.01,
-                         max_iter=100, cov_error='ACM'):
-
-    if cov_error not in ['ACM', 'DCM']:
-        raise ValueError('Invalid cov_error entered ({}). Must be in '
-                         'either "ACM" or "DCM"'.format(cov_error))
-
-    # Setup the Observed and MC Data Arrays
-    # Load MC Stats (NCmc), Cause Efficiency (Eff) and Migration Matrix P(E|C)
-    MCStats = make_mctables(efficiencies=efficiencies,
-                            efficiencies_err=efficiencies_err,
-                            response=response,
-                            response_err=response_err)
-
     num_causes = len(efficiencies)
 
+    # Setup prior
     n_c = setup_prior(priors=priors,
                       num_causes=num_causes,
                       num_observations=np.sum(data))
+
+    # Setup Mixer
+    mixer = Mixer(error_type='ACM',
+                  data=data,
+                  data_err=data_err,
+                  efficiencies=efficiencies,
+                  efficiencies_err=efficiencies_err,
+                  response=response,
+                  response_err=response_err)
 
     # Setup test statistic
     ts_obj = get_ts(ts)
@@ -150,46 +109,27 @@ def setup_mixer_ts_prior(data=None, data_err=None, priors='Jeffreys',
                      TestRange=[0, 1e2],
                      verbose=False)
 
-    # Setup Mixer
-    mixer = Mixer('SrMixALot',
-                  ErrorType=cov_error,
-                  MCTables=MCStats,
-                  data=data,
-                  data_err=data_err)
+    unfolding_iters = _unfold(prior=n_c,
+                              mixer=mixer,
+                              ts_func=ts_func,
+                              max_iter=max_iter,
+                              callbacks=callbacks)
 
-    return mixer, ts_func, n_c
-
-
-def validate_callbacks(callbacks):
-    if callbacks is None:
-        callbacks = []
-    elif isinstance(callbacks, Callback):
-        callbacks = [callbacks]
+    if return_iterations:
+        return unfolding_iters
     else:
-        if not all([isinstance(c, Callback) for c in callbacks]):
-            invalid_callbacks = [c for c in callbacks if not isinstance(c, Callback)]
-            raise TypeError('Found non-callback object in callbacks: {}'.format(invalid_callbacks))
-
-    return callbacks
+        unfolded_result = dict(unfolding_iters.iloc[-1])
+        return unfolded_result
 
 
-def extract_regularizer(callbacks):
-    regularizers = [c for c in callbacks if isinstance(c, Regularizer)]
-    if len(regularizers) > 1:
-        raise NotImplementedError('Multiple regularizer callbacks where provided.')
-    regularizer = regularizers[0] if len(regularizers) == 1 else None
-
-    return regularizer
-
-
-def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100,
-                      callbacks=None):
+def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
+            callbacks=None):
     """Perform iterative unfolding
 
     Parameters
     ----------
-    n_c : array_like
-        Cause distribution array.
+    prior : array_like
+        Initial cause distribution.
     mixer : pyunfold.Mix.Mixer
         Mixer to perform the unfolding.
     ts_func : pyunfold.Utils.TestStat
@@ -203,13 +143,12 @@ def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100,
         DataFrame containing the unfolded result for each iteration.
         Each row in unfolding_result corresponds to an iteration.
     """
-
     callbacks = validate_callbacks(callbacks)
     regularizer = extract_regularizer(callbacks)
     # Will treat regularizer Callback separately
     callbacks = [c for c in callbacks if c is not regularizer]
 
-    current_n_c = n_c.copy()
+    current_n_c = prior.copy()
     iteration = 0
     unfolding_iters = []
     while (not ts_func.pass_tol() and iteration < max_iter):
@@ -221,7 +160,7 @@ def perform_unfolding(n_c=None, mixer=None, ts_func=None, max_iter=100,
                   'stat_err': mixer.get_stat_err(),
                   'sys_err': mixer.get_MC_err()}
 
-        if regularizer:
+        if regularizer is not None:
             # Will want the nonregularized distribution for the final iteration
             unfolded_nonregularized = unfolded_n_c.copy()
             unfolded_n_c = regularizer.on_iteration_end(iteration=iteration,
