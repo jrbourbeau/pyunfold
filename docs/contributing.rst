@@ -143,6 +143,12 @@ Next, you'll want to make sure that Python imports your local version of PyUnfol
 
     $ pip install -e .
 
+To install additional development dependencies for running tests and building the documentation, instead run
+
+.. code-block:: bash
+
+    $ pip install -e .[dev]
+
 Note that if you previously had PyUnfold installed in your environment to ``pip uninstall pyunfold`` before executing the previous command.
 
 
@@ -157,14 +163,7 @@ Now add your feature, bug fix, typo fix, etc.
 Step 8: Running tests with the new code
 =======================================
 
-Once your contributions have been added, you'll want to run the tests for this project to ensure that none of the new code breaks any existing tests. If you haven't already, make sure you have the necessary software installed for running the tests (``pytest``) via
-
-.. code-block:: bash
-
-    pip install -r requirements/test.txt
-
-
-Now the tests can be run by going to the root directory of your pyunfold repository and executing
+Once your contributions have been added, you'll want to run the tests for this project to ensure that none of the new code breaks any existing tests. Tests can be run by going to the root directory of your pyunfold repository and executing
 
 .. code-block:: bash
 
@@ -176,13 +175,7 @@ To run with code coverage use ``pytest --cov pyunfold``
 Step 9: Documentation
 =====================
 
-If necessary for your contribution, add the appropriate documentation to the files in the ``docs/`` directory. The dependencies needed to build the documentation can be installed by running
-
-.. code-block:: bash
-
-    pip install -r requirements/docs.txt
-
-The documentation can be build via
+If necessary for your contribution, add the appropriate documentation to the files in the ``docs/`` directory. The documentation can then be build via
 
 .. code-block:: bash
 

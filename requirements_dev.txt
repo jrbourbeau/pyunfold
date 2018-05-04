@@ -1,3 +1,4 @@
+# Documentation
 sphinx
 numpydoc
 sphinx_rtd_theme
@@ -6,3 +7,9 @@ pandoc
 jupyter
 matplotlib
 seaborn
+# Testing
+pytest
+pytest-cov
+flake8
+tables
+twine

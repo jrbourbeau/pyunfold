@@ -1,4 +1,0 @@
--r default.txt
--r docs.txt
--r test.txt
-twine

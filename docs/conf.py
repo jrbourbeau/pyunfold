@@ -26,9 +26,9 @@ copyright = u'2018, James Bourbeau, Zigfried Hampel-Arias'
 author = u'James Bourbeau, Zigfried Hampel-Arias'
 
 # The short X.Y version
-version = pyunfold.__version__
+version = ''
 # The full version, including alpha/beta/rc tags
-release = pyunfold.__version__
+release = ''
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,1 +1,4 @@
--r requirements/default.txt
+numpy
+scipy
+pandas
+six
