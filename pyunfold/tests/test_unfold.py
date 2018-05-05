@@ -76,6 +76,7 @@ def test_iterative_unfold_max_iter():
 
 
 def test_example():
+    pytest.importorskip('tables')
     here = os.path.abspath(os.path.dirname(__file__))
     test_file = os.path.join(here,
                              'test_data',
@@ -102,6 +103,7 @@ def test_example():
 
 
 def test_example_2():
+    pytest.importorskip('tables')
     here = os.path.abspath(os.path.dirname(__file__))
     test_file = os.path.join(here,
                              'test_data',
@@ -130,6 +132,7 @@ def test_example_2():
 
 
 def test_example_non_square_response():
+    pytest.importorskip('tables')
     here = os.path.abspath(os.path.dirname(__file__))
     test_file = os.path.join(here,
                              'test_data',
