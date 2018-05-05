@@ -6,12 +6,20 @@
 Release Notes
 *************
 
+Version 0.2.2 (2018-05-04)
+--------------------------
+
+**Changes**:
+
+- Adds checks for optional PyTables testing dependency. (See `PR #43 <https://github.com/jrbourbeau/pyunfold/pull/43>`_)
+
+
 Version 0.2.1 (2018-05-04)
 --------------------------
 
 **Changes**:
 
-- Adds `MANIFEST.in` file to package additional files with source distribution.
+- Adds ``MANIFEST.in`` file to package additional files with source distribution.
 
 
 Version 0.2 (2018-05-04)
