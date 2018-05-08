@@ -10,8 +10,9 @@ from .utils import cast_to_array
 from .callbacks import validate_callbacks, extract_regularizer
 
 
-def iterative_unfold(data, data_err, response, response_err, efficiencies,
-                     efficiencies_err, priors='Jeffreys', ts='ks',
+def iterative_unfold(data=None, data_err=None, response=None,
+                     response_err=None, efficiencies=None,
+                     efficiencies_err=None, priors='Jeffreys', ts='ks',
                      ts_stopping=0.01, max_iter=100, return_iterations=False,
                      callbacks=None):
     """Performs iterative Bayesian unfolding
@@ -21,20 +22,22 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     data : array_like
         Input observed data distribution.
     data_err : array_like
-        Uncertainties associated with the input observed data distribution.
-        Must be the same shape as data.
+        Uncertainties of the input observed data distribution. Must be the
+        same shape as ``data``.
     response : array_like
         Response matrix.
     response_err : array_like
-        Response matrix errors.
+        Uncertainties of response matrix. Must be the same shape as
+        ``response``.
     efficiencies : array_like
-        Detection efficiencies for the observed data distribution.
+        Detection efficiencies for the cause distribution.
     efficiencies_err : array_like
-        Uncertainty in detection efficiencies.
+        Uncertainties of detection efficiencies. Must be the same shape as
+        ``efficiencies``.
     priors : str or array_like, optional
         Prior distribution to use in unfolding. If 'Jeffreys', then the
         Jeffreys (flat) prior is used. Otherwise, must be array_like with
-        same shape as data (default is 'Jeffreys').
+        same shape as ``efficiencies`` (default is 'Jeffreys').
     ts : {'ks', 'chi2', 'pf', 'rmd'}
         Name of test statistic to use for stopping condition (default is 'ks').
     ts_stopping : float, optional
@@ -54,10 +57,10 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     Returns
     -------
     unfolded_result : dict
-        Returned if return_iterations is False (default). Final unfolded
+        Returned if ``return_iterations`` is False (default). Final unfolded
         distribution and associated uncertainties.
     unfolding_iters : pandas.DataFrame
-        Returned if return_iterations is True. DataFrame containing the
+        Returned if ``return_iterations`` is True. DataFrame containing the
         unfolded distribution and associated uncertainties at each iteration.
 
     Examples
@@ -71,15 +74,29 @@ def iterative_unfold(data, data_err, response, response_err, efficiencies,
     ...                 [0.01, 0.01]]
     >>> efficiencies = [1, 1]
     >>> efficiencies_err = [0.01, 0.01]
-    >>> unfolded = iterative_unfold(data, data_err,
-    ...                             response, response_err,
-    ...                             efficiencies, efficiencies_err)
+    >>> unfolded = iterative_unfold(data=data,
+    ...                             data_err=data_err,
+    ...                             response=response,
+    ...                             response_err=response_err,
+    ...                             efficiencies=efficiencies,
+    ...                             efficiencies_err=efficiencies_err)
     >>> unfolded
     {'unfolded': array([ 94.48002622, 155.51997378]),
     'sys_err': array([0.66204237, 0.6620424 ]),
     'stat_err': array([11.2351567 , 13.75617997])}
     """
     # Validate user input
+    inputs = {'data': data,
+              'data_err': data_err,
+              'response': response,
+              'response_err': response_err,
+              'efficiencies': efficiencies,
+              'efficiencies_err': efficiencies_err
+              }
+    for name in inputs:
+        if inputs[name] is None:
+            raise ValueError('The input for "{}" must not be None.'.format(name))
+
     data, data_err = cast_to_array(data, data_err)
     response, response_err = cast_to_array(response, response_err)
     efficiencies, efficiencies_err = cast_to_array(efficiencies,

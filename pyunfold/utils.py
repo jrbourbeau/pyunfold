@@ -1,43 +1,6 @@
 
 from __future__ import division, print_function
-from functools import wraps
-import inspect
 import numpy as np
-
-
-def assert_kwargs_not_none(*inputs):
-    """Decorator to wrap functions that require non-None kwargs
-
-    Parameters
-    ----------
-    inputs : str
-        Name of keyword arguments to check for non-None values.
-
-    Raises
-    ------
-    ValueError
-        If one of the ``inputs`` keyword arguments is None.
-    """
-    def real_decorator(func):
-        # Want to build list of keyword arguments from the func signature
-        argspec = inspect.getargspec(func)
-        sig_kwarg_keys = argspec.args[-len(argspec.defaults):]
-        sig_kwarg_values = argspec.defaults
-        sig_kwargs = dict(zip(sig_kwarg_keys, sig_kwarg_values))
-
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            for input_ in inputs:
-                err_msg = 'Input keyword argument "{}" must not be None'.format(input_)
-                try:
-                    if kwargs[input_] is None:
-                        raise ValueError(err_msg)
-                except KeyError:
-                    if sig_kwargs[input_] is None:
-                        raise ValueError(err_msg)
-            return func(*args, **kwargs)
-        return wrapper
-    return real_decorator
 
 
 def assert_same_shape(*arrays):

@@ -158,3 +158,33 @@ def test_example_non_square_response():
     unfolded = unfolded[columns]
 
     pd.testing.assert_frame_equal(unfolded, expected)
+
+
+inputs = ['data', 'data_err', 'response', 'response_err', 'efficiencies', 'efficiencies_err']
+
+
+@pytest.mark.parametrize('none_input', inputs)
+def test_iterative_unfold_none_input_raises(none_input):
+    # Load test counts distribution and diagonal response matrix
+    np.random.seed(2)
+    samples = np.random.normal(loc=0, scale=1, size=int(1e5))
+
+    bins = np.linspace(-1, 1, 10)
+    data, _ = np.histogram(samples, bins=bins)
+    data_err = np.sqrt(data)
+    response, response_err = diagonal_response(len(data))
+    efficiencies = np.ones_like(data, dtype=float)
+    efficiencies_err = np.full_like(efficiencies, 0.001)
+
+    inputs = {'data': data,
+              'data_err': data_err,
+              'response': response,
+              'response_err': response_err,
+              'efficiencies': efficiencies,
+              'efficiencies_err': efficiencies_err
+              }
+    inputs[none_input] = None
+    with pytest.raises(ValueError) as excinfo:
+        iterative_unfold(**inputs)
+    expected_msg = 'The input for "{}" must not be None.'.format(none_input)
+    assert expected_msg == str(excinfo.value)
