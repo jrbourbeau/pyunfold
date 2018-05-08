@@ -11,7 +11,8 @@ Version 0.3.dev0 (TBD)
 
 **New Features**:
 
--
+- Adds cause bin group support to ``SplineRegularizer`` for independent
+  regularization. (See `PR #47 <https://github.com/jrbourbeau/pyunfold/pull/47>`_)
 
 **Changes**:
 
