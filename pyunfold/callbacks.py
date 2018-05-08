@@ -112,6 +112,12 @@ class SplineRegularizer(Callback, Regularizer):
             spline = UnivariateSpline(x, y, k=self.degree, s=self.smooth)
             fitted_unfolded = spline(x)
         else:
+            # Check that a group is specified for each cause bin
+            if len(self.groups) != len(y):
+                err_msg = ('Invalid groups array. There should be an entry '
+                           'for each cause bin. However, got len(groups)={} '
+                           'while there are {} cause bins.'.format(len(self.groups), len(y)))
+                raise ValueError(err_msg)
             fitted_unfolded = np.empty(len(y))
             group_ids = np.unique(self.groups)
             for group in group_ids:

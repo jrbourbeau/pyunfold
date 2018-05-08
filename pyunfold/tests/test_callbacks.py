@@ -131,8 +131,8 @@ def test_SplineRegularizer_groups(example_dataset):
     degree = 3
     smooth = 20
     groups = np.empty_like(example_dataset.data)
-    groups[:len(example_dataset.data) // 2] = 0
-    groups[len(example_dataset.data) // 2:] = 1
+    groups[:len(groups) // 2] = 0
+    groups[len(groups) // 2:] = 1
     spline_reg = SplineRegularizer(degree=degree, smooth=smooth, groups=groups)
     unfolded_with_reg = iterative_unfold(data=example_dataset.data,
                                          data_err=example_dataset.data_err,
@@ -165,6 +165,30 @@ def test_SplineRegularizer_groups(example_dataset):
 
     np.testing.assert_allclose(unfolded_with_reg.iloc[0]['unfolded'],
                                fitted_unfolded_no_reg)
+
+
+def test_SplineRegularizer_groups_raises(example_dataset):
+    degree = 3
+    smooth = 20
+    groups = np.empty(len(example_dataset.data) - 1)
+    groups[:len(groups) // 2] = 0
+    groups[len(groups) // 2:] = 1
+    spline_reg = SplineRegularizer(degree=degree, smooth=smooth, groups=groups)
+    with pytest.raises(ValueError) as excinfo:
+        iterative_unfold(data=example_dataset.data,
+                         data_err=example_dataset.data_err,
+                         response=example_dataset.response,
+                         response_err=example_dataset.response_err,
+                         efficiencies=example_dataset.efficiencies,
+                         efficiencies_err=example_dataset.efficiencies_err,
+                         return_iterations=True,
+                         callbacks=[spline_reg])
+
+    err_msg = ('Invalid groups array. There should be an entry '
+               'for each cause bin. However, got len(groups)={} '
+               'while there are {} cause bins.'.format(len(groups),
+                                                       len(example_dataset.data)))
+    assert err_msg == str(excinfo.value)
 
 
 def test_validate_callbacks():
