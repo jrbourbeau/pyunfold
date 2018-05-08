@@ -127,6 +127,46 @@ def test_SplineRegularizer(example_dataset):
                                fitted_unfolded)
 
 
+def test_SplineRegularizer_groups(example_dataset):
+    degree = 3
+    smooth = 20
+    groups = np.empty_like(example_dataset.data)
+    groups[:len(example_dataset.data) // 2] = 0
+    groups[len(example_dataset.data) // 2:] = 1
+    spline_reg = SplineRegularizer(degree=degree, smooth=smooth, groups=groups)
+    unfolded_with_reg = iterative_unfold(data=example_dataset.data,
+                                         data_err=example_dataset.data_err,
+                                         response=example_dataset.response,
+                                         response_err=example_dataset.response_err,
+                                         efficiencies=example_dataset.efficiencies,
+                                         efficiencies_err=example_dataset.efficiencies_err,
+                                         return_iterations=True,
+                                         callbacks=[spline_reg])
+
+    unfolded_no_reg = iterative_unfold(data=example_dataset.data,
+                                       data_err=example_dataset.data_err,
+                                       response=example_dataset.response,
+                                       response_err=example_dataset.response_err,
+                                       efficiencies=example_dataset.efficiencies,
+                                       efficiencies_err=example_dataset.efficiencies_err,
+                                       return_iterations=True)
+    # Manually regularize each group independently
+    y_no_reg = unfolded_no_reg.iloc[0]['unfolded']
+    x = np.arange(len(y_no_reg), dtype=float)
+    fitted_unfolded_no_reg = np.empty(len(y_no_reg))
+    group_ids = np.unique(groups)
+    for group in group_ids:
+        group_mask = groups == group
+        x_group = x[group_mask]
+        y_group = y_no_reg[group_mask]
+        spline_group = UnivariateSpline(x_group, y_group, k=degree, s=smooth)
+        fitted_unfolded_group = spline_group(x_group)
+        fitted_unfolded_no_reg[group_mask] = fitted_unfolded_group
+
+    np.testing.assert_allclose(unfolded_with_reg.iloc[0]['unfolded'],
+                               fitted_unfolded_no_reg)
+
+
 def test_validate_callbacks():
     callbacks = [Logger(), SplineRegularizer()]
     assert validate_callbacks(callbacks) == callbacks
