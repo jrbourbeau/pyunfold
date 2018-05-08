@@ -6,6 +6,24 @@
 Release Notes
 *************
 
+Version 0.3.dev0 (TBD)
+----------------------
+
+**New Features**:
+
+-
+
+**Changes**:
+
+- Makes ``data``, ``response``, ``efficiencies``, and associated uncertainties
+  parameters in ``iterative_unfold`` keyword arguments. Now they can be input
+  in any order. (See `PR #46 <https://github.com/jrbourbeau/pyunfold/pull/46>`_)
+
+**Bug Fixes**:
+
+-
+
+
 Version 0.2.2 (2018-05-04)
 --------------------------
 

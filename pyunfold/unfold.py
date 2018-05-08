@@ -35,11 +35,11 @@ def iterative_unfold(data=None, data_err=None, response=None,
         Uncertainties of detection efficiencies. Must be the same shape as
         ``efficiencies``.
     priors : str or array_like, optional
-        Prior distribution to use in unfolding. If ``'Jeffreys'``, then the
+        Prior distribution to use in unfolding. If 'Jeffreys', then the
         Jeffreys (flat) prior is used. Otherwise, must be array_like with
         same shape as ``efficiencies`` (default is 'Jeffreys').
     ts : {'ks', 'chi2', 'pf', 'rmd'}
-        Name of test statistic to use for stopping condition (default is ``'ks'``).
+        Name of test statistic to use for stopping condition (default is 'ks').
     ts_stopping : float, optional
         Test statistic stopping condition. At each unfolding iteration, the
         test statistic is computed between the current and previous iteration.
@@ -74,9 +74,12 @@ def iterative_unfold(data=None, data_err=None, response=None,
     ...                 [0.01, 0.01]]
     >>> efficiencies = [1, 1]
     >>> efficiencies_err = [0.01, 0.01]
-    >>> unfolded = iterative_unfold(data, data_err,
-    ...                             response, response_err,
-    ...                             efficiencies, efficiencies_err)
+    >>> unfolded = iterative_unfold(data=data,
+    ...                             data_err=data_err,
+    ...                             response=response,
+    ...                             response_err=response_err,
+    ...                             efficiencies=efficiencies,
+    ...                             efficiencies_err=efficiencies_err)
     >>> unfolded
     {'unfolded': array([ 94.48002622, 155.51997378]),
     'sys_err': array([0.66204237, 0.6620424 ]),
