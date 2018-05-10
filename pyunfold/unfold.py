@@ -13,8 +13,8 @@ from .callbacks import validate_callbacks, extract_regularizer
 def iterative_unfold(data=None, data_err=None, response=None,
                      response_err=None, efficiencies=None,
                      efficiencies_err=None, priors='Jeffreys', ts='ks',
-                     ts_stopping=0.01, max_iter=100, return_iterations=False,
-                     callbacks=None):
+                     ts_stopping=0.01, max_iter=100, cov_type='multinomial',
+                     return_iterations=False, callbacks=None):
     """Performs iterative Bayesian unfolding
 
     Parameters
@@ -47,6 +47,9 @@ def iterative_unfold(data=None, data_err=None, response=None,
         procedure is stopped (default is 0.01).
     max_iter : int, optional
         Maximum number of iterations to allow (default is 100).
+    cov_type : {'multinomial', 'poisson'}
+        Whether to use the Multinomial or Poisson form for the covariance
+        matrix (default is 'multinomial').
     return_iterations : bool, optional
         Whether to return unfolded distributions for each iteration
         (default is False).
@@ -110,13 +113,14 @@ def iterative_unfold(data=None, data_err=None, response=None,
                       num_observations=np.sum(data))
 
     # Setup Mixer
-    mixer = Mixer(error_type='ACM',
-                  data=data,
+    mixer = Mixer(data=data,
                   data_err=data_err,
                   efficiencies=efficiencies,
                   efficiencies_err=efficiencies_err,
                   response=response,
-                  response_err=response_err)
+                  response_err=response_err,
+                  cov_type=cov_type,
+                  error_type='ACM')
 
     # Setup test statistic
     ts_obj = get_ts(ts)
