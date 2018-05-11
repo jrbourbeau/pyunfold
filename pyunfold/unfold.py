@@ -115,10 +115,11 @@ def iterative_unfold(data=None, data_err=None, response=None,
     if causes is not None:
         causes = cast_to_array(causes)
 
-    n_c = setup_prior(priors=priors,
+    prior = setup_prior(priors=priors,
                       num_causes=num_causes,
-                      num_observations=np.sum(data),
                       cause_axis=causes)
+
+    n_c = np.sum(data) * prior
 
     # Setup Mixer
     mixer = Mixer(data=data,

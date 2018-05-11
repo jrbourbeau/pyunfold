@@ -28,7 +28,7 @@ def jeffreys_prior(xarray):
     return prior
 
 
-def setup_prior(priors='Jeffreys', num_causes=None, num_observations=None, cause_axis=None):
+def setup_prior(priors='Jeffreys', num_causes=None, cause_axis=None):
     """Setup for prior array
 
     Parameters
@@ -38,9 +38,6 @@ def setup_prior(priors='Jeffreys', num_causes=None, num_observations=None, cause
         prior).
     num_causes : int, optional
         Number of cause bins. Only needed if priors='Jeffreys' (default is None).
-    num_observations : int, optional
-        Number of total effect observations. Only needed if priors='Jeffreys'
-        (default is None).
 
     Returns
     -------
@@ -49,10 +46,8 @@ def setup_prior(priors='Jeffreys', num_causes=None, num_observations=None, cause
     """
     if isinstance(priors, string_types) and priors.lower() == 'uniform':
         assert num_causes is not None, 'num_causes must be specified for uniform prior'
-        assert num_observations is not None, 'num_observations must be specified for uniform prior'
         prior = uniform_prior(num_causes=num_causes)
     elif isinstance(priors, string_types) and priors.lower() == 'jeffreys':
-        assert num_observations is not None, 'num_observations must be specified for Jeffreys prior'
         assert cause_axis is not None, 'cause_axis must be specified for Jeffreys prior'
         prior = jeffreys_prior(xarray=cause_axis)
     elif isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
@@ -64,10 +59,5 @@ def setup_prior(priors='Jeffreys', num_causes=None, num_observations=None, cause
     if not np.allclose(np.sum(prior), 1):
         raise ValueError('Prior (which is an array of probabilities) does '
                          'not add to 1. sum(prior) = {}'.format(np.sum(prior)))
-
-    assert num_observations is not None, 'num_observations must be specified for any prior'
-
-    # The prior is scaled to the total counts observed
-    prior = num_observations * prior
 
     return prior
