@@ -179,8 +179,10 @@ def test_iterative_unfold_none_input_raises(none_input, example_dataset):
     assert expected_msg == str(excinfo.value)
 
 
-@pytest.mark.parametrize('cov_type', ['multinomial', 'Multinomial', 'poisson', 'Poisson'])
-def test_iterative_unfold_cov_type_passes(cov_type, example_dataset):
+@pytest.mark.parametrize('cov_type_1,cov_type_2', [('multinomial', 'Multinomial'),
+                                                   ('poisson', 'Poisson')])
+def test_iterative_unfold_cov_type_case_insensitive(cov_type_1, cov_type_2, example_dataset):
+    # Test that cov_type is case insensitive
     inputs = {'data': example_dataset.data,
               'data_err': example_dataset.data_err,
               'response': example_dataset.response,
@@ -188,7 +190,15 @@ def test_iterative_unfold_cov_type_passes(cov_type, example_dataset):
               'efficiencies': example_dataset.efficiencies,
               'efficiencies_err': example_dataset.efficiencies_err
               }
-    iterative_unfold(cov_type=cov_type, **inputs)
+    result_1 = iterative_unfold(cov_type=cov_type_1, **inputs)
+    result_2 = iterative_unfold(cov_type=cov_type_2, **inputs)
+
+    assert result_1.keys() == result_2.keys()
+    for key in result_1.keys():
+        if isinstance(result_1[key], np.ndarray):
+            np.testing.assert_array_equal(result_1[key], result_2[key])
+        else:
+            assert result_1[key] == result_2[key]
 
 
 def test_iterative_unfold_cov_type_raises(example_dataset):
