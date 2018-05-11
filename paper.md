@@ -61,9 +61,9 @@ unfolded distribution, allowing users to seamlessly test the robustness of resul
 
 One such option is the initial prior probability distribution, which by default is the 
 uniform prior that assigns equal probability to all possible causes.
-Another option is the non-informative Jeffreys'' prior, requiring the user to provide
-the explicit definition of the cause axis.
-One may also provide a custom prior distribution defined as a ``Numpy`` array.
+Additionally, the user may provide a custom prior distribution as a ``Numpy`` array.
+The authors have also included a utility function to calculate the non-informative 
+Jeffreys'' prior.
 
 
 The stopping criteria is based on a test statistic calculated by comparing unfolded 
