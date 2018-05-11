@@ -13,16 +13,23 @@ Version 0.3.dev0 (TBD)
 
 - Adds cause bin group support to ``SplineRegularizer`` for independent
   regularization. (See `PR #47 <https://github.com/jrbourbeau/pyunfold/pull/47>`_)
+- Adds ``cov_type`` parameter to the ``iterative_unfold`` function. This adds
+  the option to choose between using the Multinomial or Poisson form of the
+  covariance matrix.
+  (See `PR #50 <https://github.com/jrbourbeau/pyunfold/pull/50>`_)
 
 **Changes**:
 
 - Makes ``data``, ``response``, ``efficiencies``, and associated uncertainties
   parameters in ``iterative_unfold`` keyword arguments. Now they can be input
   in any order. (See `PR #46 <https://github.com/jrbourbeau/pyunfold/pull/46>`_)
+- Changes default prior in ``iterative_unfold`` from Jeffreys prior to a
+  uniform prior. (See `PR #52 <https://github.com/jrbourbeau/pyunfold/pull/52>`_)
 
 **Bug Fixes**:
 
--
+- Fixes bug in calculation of Jeffreys prior.
+  (See `PR #52 <https://github.com/jrbourbeau/pyunfold/pull/52>`_)
 
 
 Version 0.2.2 (2018-05-04)
