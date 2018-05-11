@@ -28,32 +28,28 @@ def jeffreys_prior(xarray):
     return prior
 
 
-def setup_prior(priors='Jeffreys', num_causes=None, cause_axis=None):
+def setup_prior(priors=None, num_causes=None):
     """Setup for prior array
 
     Parameters
     ----------
-    priors : str or array_like, optional
-        Prior distribution to use (default is 'Uniform', will use Uniform
-        prior).
+    priors : array_like, optional
+        Prior distribution to use (default is None, will use Uniform prior).
     num_causes : int, optional
-        Number of cause bins. Only needed if priors='Jeffreys' (default is None).
+        Number of cause bins. Only needed if priors='Uniform' (default is None).
 
     Returns
     -------
     prior : numpy.ndarray
         Normalized prior distribution.
     """
-    if isinstance(priors, string_types) and priors.lower() == 'uniform':
+    if isinstance(priors, None):
         assert num_causes is not None, 'num_causes must be specified for uniform prior'
         prior = uniform_prior(num_causes=num_causes)
-    elif isinstance(priors, string_types) and priors.lower() == 'jeffreys':
-        assert cause_axis is not None, 'cause_axis must be specified for Jeffreys prior'
-        prior = jeffreys_prior(xarray=cause_axis)
     elif isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
         prior = np.asarray(priors)
     else:
-        raise TypeError('priors must be either "Jeffreys" or array_like, '
+        raise TypeError('priors must be either None or array_like, '
                         'but got {}'.format(type(priors)))
 
     if not np.allclose(np.sum(prior), 1):

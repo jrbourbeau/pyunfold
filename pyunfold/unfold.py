@@ -12,8 +12,8 @@ from .callbacks import validate_callbacks, extract_regularizer
 
 def iterative_unfold(data=None, data_err=None, response=None,
                      response_err=None, efficiencies=None,
-                     efficiencies_err=None, priors='Uniform', causes=None,
-                     ts='ks', ts_stopping=0.01, max_iter=100, cov_type='multinomial',
+                     efficiencies_err=None, priors=None, ts='ks', 
+                     ts_stopping=0.01, max_iter=100, cov_type='multinomial',
                      return_iterations=False, callbacks=None):
     """Performs iterative Bayesian unfolding
 
@@ -35,13 +35,10 @@ def iterative_unfold(data=None, data_err=None, response=None,
         Uncertainties of detection efficiencies. Must be the same shape as
         ``efficiencies``.
     priors : str or array_like, optional
-        Prior distribution to use in unfolding. If 'Uniform', then the
-        Uniform (flat) prior is used. If 'Jeffreys', then the non-informative
-        Jeffreys' prior is used, requiring ``causes`` input. 
+        Prior distribution to use in unfolding. If None, then the Uniform 
+        (flat) prior is used. 
         Otherwise, must be array_like with same shape as ``efficiencies`` 
-        (default is 'Uniform').
-    causes : array_like, optional
-        Cause bin center values for use in defining Jeffreys' prior.
+        (default is None).
     ts : {'ks', 'chi2', 'pf', 'rmd'}
         Name of test statistic to use for stopping condition (default is 'ks').
     ts_stopping : float, optional
@@ -112,12 +109,8 @@ def iterative_unfold(data=None, data_err=None, response=None,
     num_causes = len(efficiencies)
 
     # Setup prior
-    if causes is not None:
-        causes = cast_to_array(causes)
-
     prior = setup_prior(priors=priors,
-                      num_causes=num_causes,
-                      cause_axis=causes)
+                        num_causes=num_causes)
 
     # Define first prior counts distribution
     n_c = np.sum(data) * prior
