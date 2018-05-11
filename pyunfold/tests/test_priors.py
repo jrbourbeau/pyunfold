@@ -6,13 +6,13 @@ import numpy as np
 from pyunfold.priors import jeffreys_prior, setup_prior, uniform_prior
 
 
-@pytest.mark.parametrize('prior', ['not jeffreys',
+@pytest.mark.parametrize('prior', ['uniform',
                                    123,
                                    123.0])
 def test_setup_prior_invalid_prior(prior):
     with pytest.raises(TypeError) as excinfo:
         setup_prior(prior)
-    expected_msg = ('priors must be either "Jeffreys" or array_like, '
+    expected_msg = ('prior must be either None or array_like, '
                     'but got {}'.format(type(prior)))
     assert expected_msg == str(excinfo.value)
 
@@ -26,25 +26,21 @@ def test_setup_prior_non_normalized_raises():
     assert expected_msg == str(excinfo.value)
 
 
-@pytest.mark.parametrize('prior', ['jeffreys',
-                                   'Jeffreys',
-                                   'JEFFREYS'])
-def test_setup_prior_jeffreys_prior_spelling(prior):
-    setup_prior(prior, num_causes=10, num_observations=10)
+def test_jeffreys_prior():
 
+    causes = np.linspace(5, 10, 4)
 
-@pytest.mark.parametrize('num_causes,num_observations', [(10, None),
-                                                         (None, 10)])
-def test_setup_prior_jeffreys_prior_extra_raises(num_causes, num_observations):
-    with pytest.raises(AssertionError):
-        setup_prior('jeffreys',
-                    num_causes=num_causes,
-                    num_observations=num_observations)
+    # Calculate expected prior
+    ln_factor = np.log(causes.max() / causes.min())
+    prior = 1 / (ln_factor * causes)
+    prior = prior / np.sum(prior)
+
+    np.testing.assert_allclose(prior, jeffreys_prior(causes=causes))
 
 
 def test_jeffreys_prior_normalized():
-    xarray = np.array([0.5, 1.5])
-    prior = jeffreys_prior(norm=10, xarray=xarray)
+    causes = np.array([0.5, 1.5])
+    prior = jeffreys_prior(causes=causes)
 
     np.testing.assert_allclose(prior.sum(), 1)
 

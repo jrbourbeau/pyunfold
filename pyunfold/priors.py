@@ -19,10 +19,10 @@ def jeffreys_prior(causes):
     """
     # All cause bins are given equal probability mass.
     # Best prior for x-ranges spanning decades.
-    ln_factor = np.log(causes[-1] / causes[0])
+    ln_factor = np.log(causes.max() / causes.min())
     prior = 1 / (ln_factor * causes)
     # Want to make sure prior is normalized (i.e. prior.sum() == 1)
-    prior = prior / prior.sum()
+    prior = prior / np.sum(prior)
 
     return prior
 
