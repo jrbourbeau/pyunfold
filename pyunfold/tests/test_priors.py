@@ -3,7 +3,7 @@ from __future__ import division, print_function
 import pytest
 import numpy as np
 
-from pyunfold.priors import jeffreys_prior, setup_prior
+from pyunfold.priors import jeffreys_prior, setup_prior, uniform_prior
 
 
 @pytest.mark.parametrize('prior', ['not jeffreys',
@@ -47,3 +47,14 @@ def test_jeffreys_prior_normalized():
     prior = jeffreys_prior(norm=10, xarray=xarray)
 
     np.testing.assert_allclose(prior.sum(), 1)
+
+
+@pytest.mark.parametrize('num_causes', [1, 7, 100])
+def test_uniform_prior(num_causes):
+    prior = uniform_prior(num_causes)
+    # Correct number of cause bins
+    assert len(prior) == num_causes
+    # Every bin has same probability
+    assert len(np.unique(prior))
+    # Sum of probabilities add to one
+    np.testing.assert_allclose(np.sum(prior), 1)
