@@ -12,8 +12,8 @@ from .callbacks import validate_callbacks, extract_regularizer
 
 def iterative_unfold(data=None, data_err=None, response=None,
                      response_err=None, efficiencies=None,
-                     efficiencies_err=None, priors='Jeffreys', ts='ks',
-                     ts_stopping=0.01, max_iter=100, cov_type='multinomial',
+                     efficiencies_err=None, priors='Uniform', causes=None,
+                     ts='ks', ts_stopping=0.01, max_iter=100, cov_type='multinomial',
                      return_iterations=False, callbacks=None):
     """Performs iterative Bayesian unfolding
 
@@ -35,9 +35,13 @@ def iterative_unfold(data=None, data_err=None, response=None,
         Uncertainties of detection efficiencies. Must be the same shape as
         ``efficiencies``.
     priors : str or array_like, optional
-        Prior distribution to use in unfolding. If 'Jeffreys', then the
-        Jeffreys (flat) prior is used. Otherwise, must be array_like with
-        same shape as ``efficiencies`` (default is 'Jeffreys').
+        Prior distribution to use in unfolding. If 'Uniform', then the
+        Uniform (flat) prior is used. If 'Jeffreys', then the non-informative
+        Jeffreys' prior is used, requiring ``causes`` input. 
+        Otherwise, must be array_like with same shape as ``efficiencies`` 
+        (default is 'Uniform').
+    causes : array_like, optional
+        Cause bin center values for use in defining Jeffreys' prior.
     ts : {'ks', 'chi2', 'pf', 'rmd'}
         Name of test statistic to use for stopping condition (default is 'ks').
     ts_stopping : float, optional
@@ -108,9 +112,13 @@ def iterative_unfold(data=None, data_err=None, response=None,
     num_causes = len(efficiencies)
 
     # Setup prior
+    if causes not None:
+        causes = cast_to_array(causes)
+
     n_c = setup_prior(priors=priors,
                       num_causes=num_causes,
-                      num_observations=np.sum(data))
+                      num_observations=np.sum(data),
+                      cause_axis=causes)
 
     # Setup Mixer
     mixer = Mixer(data=data,
