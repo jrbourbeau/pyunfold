@@ -238,8 +238,6 @@ class CovarianceMatrix(object):
                     cov1 = -nc_inv[ti] * self.pec[ej, ti]
                     for ek in range(ej+1, ebins):
                         ekc = ek * cbins
-                        if ejc+ti == ekc+ti or ek == ej:
-                            continue
                         cov = cov1 * self.pec[ek, ti]
                         CovPP[ejc+ti, ekc+ti] = cov
                         CovPP[ekc+ti, ejc+ti] = cov
