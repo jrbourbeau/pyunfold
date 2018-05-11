@@ -51,24 +51,37 @@ So long as it is possible to encode estimable resolutions and biases connecting 
 effects in a binned response matrix, one can perform a deconvolution with ``PyUnfold``. 
 
 
-``PyUnfold`` has been designed for being both easy to use for first-time users as well as 
+``PyUnfold`` has been designed to be both easy to use for first-time users as well as 
 flexible enough for fine-tuning an analysis.
 Its main strength is its simplicity, requiring a single line to run via the ``iterative_unfold`` 
-method, taking as input the user provided distributions and other optional parameters described here.
+method, taking as input the user provided distributions and other runtime parameters.
+This also facilitates examining the effects of varying optional parameters on the final 
+unfolded distribution, allowing users to seamlessly test the robustness of results.
 
-Another is basing the stopping criteria on a test statistic calculated by comparing unfolded 
+
+One such option is the initial prior probability distribution, which by default is the 
+uniform prior that assigns equal probability to all possible causes.
+Another option is the non-informative Jeffreys'' prior, requiring the user to provide
+the explicit definition of the cause axis.
+One may also provide a custom prior distribution defined as a ``Numpy`` array.
+
+
+The stopping criteria is based on a test statistic calculated by comparing unfolded 
 distributions from one iteration to the next.
-The user can define the strength of this criterion, as well as choose from several test
-statistic calculations (K-S, $\Chi^2$, relative difference, Bayes factor).
+The user can define the strength of this criterion, as well as choose from the 
+following test statistic calculations: Kolmogorov-Smirnov[@kolmogorov, @smirnov],
+$\Chi^2$, relative difference, Bayes factor [@pfendner]).
+
 
 Univariate spline regularization is also implemented as a means of ensuring that unfolded 
-distribution does not suffer from growing fluctuations potentially arising from the finite 
+distributions do not suffer from growing fluctuations potentially arising from the finite 
 binning of the response matrix.
 The degree and strength of the spline can be changed from the defaults by the user.
 The user can also define independent subsets of causes, which are regularized in their 
 respective groups or blocks, making possible the generalization to multivariate unfolding.
 Special care must be taken when performing a block unfolding, which is demonstrated in 
 one of the usage examples.
+
 
 Finally, for those with special data needs, the form of the covariance matrices for both
 the data and response uncertainties can be changed from the defaults, with choices
