@@ -112,7 +112,7 @@ def iterative_unfold(data=None, data_err=None, response=None,
     num_causes = len(efficiencies)
 
     # Setup prior
-    if causes not None:
+    if causes is not None:
         causes = cast_to_array(causes)
 
     n_c = setup_prior(priors=priors,
