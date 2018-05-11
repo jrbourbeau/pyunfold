@@ -12,7 +12,7 @@ from .callbacks import validate_callbacks, extract_regularizer
 
 def iterative_unfold(data=None, data_err=None, response=None,
                      response_err=None, efficiencies=None,
-                     efficiencies_err=None, priors='Jeffreys', ts='ks',
+                     efficiencies_err=None, prior=None, ts='ks',
                      ts_stopping=0.01, max_iter=100, cov_type='multinomial',
                      return_iterations=False, callbacks=None):
     """Performs iterative Bayesian unfolding
@@ -34,10 +34,10 @@ def iterative_unfold(data=None, data_err=None, response=None,
     efficiencies_err : array_like
         Uncertainties of detection efficiencies. Must be the same shape as
         ``efficiencies``.
-    priors : str or array_like, optional
-        Prior distribution to use in unfolding. If 'Jeffreys', then the
-        Jeffreys (flat) prior is used. Otherwise, must be array_like with
-        same shape as ``efficiencies`` (default is 'Jeffreys').
+    prior : array_like, optional
+        Prior distribution to use in unfolding. If None, then a uniform
+        (or flat) prior will be used. If array_like, then must have the same
+        shape as ``efficiencies`` (default is None).
     ts : {'ks', 'chi2', 'pf', 'rmd'}
         Name of test statistic to use for stopping condition (default is 'ks').
     ts_stopping : float, optional
@@ -108,9 +108,10 @@ def iterative_unfold(data=None, data_err=None, response=None,
     num_causes = len(efficiencies)
 
     # Setup prior
-    n_c = setup_prior(priors=priors,
-                      num_causes=num_causes,
-                      num_observations=np.sum(data))
+    prior = setup_prior(prior=prior, num_causes=num_causes)
+
+    # Define first prior counts distribution
+    n_c = np.sum(data) * prior
 
     # Setup Mixer
     mixer = Mixer(data=data,
