@@ -120,8 +120,7 @@ def iterative_unfold(data=None, data_err=None, response=None,
                   efficiencies_err=efficiencies_err,
                   response=response,
                   response_err=response_err,
-                  cov_type=cov_type,
-                  error_type='ACM')
+                  cov_type=cov_type)
 
     # Setup test statistic
     ts_obj = get_ts(ts)
