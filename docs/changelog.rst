@@ -11,7 +11,10 @@ Version 0.3.dev0 (TBD)
 
 **New Features**:
 
--
+- Adds ``cov_type`` parameter to the ``iterative_unfold`` function. This adds
+  the option to choose between using the Multinomial or Poisson form of the
+  covariance matrix.
+  (See `PR #50 <https://github.com/jrbourbeau/pyunfold/pull/50>`_)
 
 **Changes**:
 
