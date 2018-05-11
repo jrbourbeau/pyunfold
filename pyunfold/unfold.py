@@ -119,6 +119,7 @@ def iterative_unfold(data=None, data_err=None, response=None,
                       num_causes=num_causes,
                       cause_axis=causes)
 
+    # Define first prior counts distribution
     n_c = np.sum(data) * prior
 
     # Setup Mixer
