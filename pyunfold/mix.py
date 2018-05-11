@@ -9,9 +9,9 @@ from .utils import safe_inverse
 class Mixer(object):
     """DAgostini Bayesian Mixer Class
     """
-    def __init__(self, error_type='ACM', MCTables=None, data=None,
-                 data_err=None, efficiencies=None, efficiencies_err=None,
-                 response=None, response_err=None):
+    def __init__(self, data=None, data_err=None, efficiencies=None,
+                 efficiencies_err=None, response=None, response_err=None,
+                 cov_type='multinomial', error_type='ACM'):
         # Input validation
         if len(data) != response.shape[0]:
             err_msg = ('Inconsistent number of effect bins. Observed data '
@@ -39,7 +39,8 @@ class Mixer(object):
                                     efficiencies=efficiencies,
                                     efficiencies_err=efficiencies_err,
                                     response=response,
-                                    response_err=response_err)
+                                    response_err=response_err,
+                                    cov_type=cov_type)
 
     def get_cov(self):
         """Covariance Matrix
@@ -103,18 +104,19 @@ class CovarianceMatrix(object):
     (http://hepunx.rl.ac.uk/~adye/software/unfold/RooUnfold.html#dev),
     or based on derivations presented in Unfolding reference section 'Unfolding Uncertainties'
     """
-    def __init__(self, error_type='ACM', MCTables=None, data=None, data_err=None,
-                 efficiencies=None, efficiencies_err=None, response=None,
-                 response_err=None):
+    def __init__(self, data=None, data_err=None, efficiencies=None,
+                 efficiencies_err=None, response=None, response_err=None,
+                 cov_type='multinomial', error_type='ACM'):
 
         self.error_type = error_type
         # Normalized P(E|C)
         self.pec = response
         self.pec_err = response_err
         # Errors on P(E|C), for Vc1
-        self.pec_cov_type = "Multinomial"
-        # self.pec_cov_type = "Poisson"
-        self.PecCov = self.SetPecCovType(self.pec_cov_type)
+        if cov_type.lower() not in ['multinomial', 'poisson']:
+            raise ValueError('Invalid pec_cov_type entered: {}. Must be '
+                             'either "multinomial" or "poisson".'.format(cov_type))
+        self.pec_cov_type = cov_type.lower()
         self.cEff = efficiencies
         self.cEff_inv = safe_inverse(self.cEff)
         # Effective number of sim events
@@ -226,19 +228,19 @@ class CovarianceMatrix(object):
         CovPP = np.zeros((cbins * ebins, cbins * ebins))
 
         # Poisson covariance matrix
-        if self.PecCov == 1:
+        if self.pec_cov_type == 'poisson':
             for ej, ti in product(range(0, ebins), range(0, cbins)):
                 ejc = ej * cbins
                 CovPP[ejc+ti, ejc+ti] = self.pec_err[ej, ti]**2
         # Multinomial covariance matrix
-        elif self.PecCov == 2:
-            NC_inv = safe_inverse(self.NCmc)
+        elif self.pec_cov_type == 'multinomial':
+            nc_inv = safe_inverse(self.NCmc)
             for ej, ti in product(range(0, ebins), range(0, cbins)):
                 ejc = ej * cbins
                 # Don't go looping if zeros are present :)
-                if (self.pec[ej, ti] > 0 and NC_inv[ti] > 0):
-                    CovPP[ejc+ti, ejc+ti] = NC_inv[ti] * self.pec[ej, ti] * (1 - self.pec[ej, ti])
-                    cov1 = -NC_inv[ti] * self.pec[ej, ti]
+                if (self.pec[ej, ti] > 0 and nc_inv[ti] > 0):
+                    CovPP[ejc+ti, ejc+ti] = nc_inv[ti] * self.pec[ej, ti] * (1 - self.pec[ej, ti])
+                    cov1 = -nc_inv[ti] * self.pec[ej, ti]
                     for ek in range(ej+1, ebins):
                         ekc = ek * cbins
                         if ejc+ti == ekc+ti or ek == ej:
@@ -284,18 +286,4 @@ class CovarianceMatrix(object):
         else:
             err_msg = ('Invalid error propagation type entered, {}, must '
                        'be in {}'.format(func, ErrorPropOptionsKey.keys()))
-            raise ValueError(err_msg)
-
-    def SetPecCovType(self, func):
-        """Key for Selecting PEC Covariance Matrix Type
-        """
-        PecCovOptionsKey = {
-            "Poisson": 1,
-            "Multinomial": 2
-            }
-        if func in PecCovOptionsKey:
-            return PecCovOptionsKey[func]
-        else:
-            err_msg = ('Invalid covariance calculation type entered, {}, must '
-                       'be in {}'.format(func, PecCovOptionsKey.keys()))
             raise ValueError(err_msg)
