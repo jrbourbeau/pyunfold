@@ -17,13 +17,13 @@ np.random.seed(2)
 response = 1 + np.random.rand(num_effects, num_causes)
 response_err = np.sqrt(response)
 
-mixer = Mixer(error_type='ACM',
-              data=data,
+mixer = Mixer(data=data,
               data_err=data_err,
               efficiencies=efficiencies,
               efficiencies_err=efficiencies_err,
               response=response,
-              response_err=response_err)
+              response_err=response_err,
+              cov_type='multinomial')
 
 
 def test_mixer_invalid_effects_bins_raises():
@@ -32,8 +32,7 @@ def test_mixer_invalid_effects_bins_raises():
     data_err = np.sqrt(data)
 
     with pytest.raises(ValueError) as excinfo:
-        Mixer(error_type='ACM',
-              data=data,
+        Mixer(data=data,
               data_err=data_err,
               efficiencies=efficiencies,
               efficiencies_err=efficiencies_err,
@@ -50,8 +49,7 @@ def test_mixer_smear_invalid_cause_bins_raises():
     # Add extra cause bin
     prior = np.arange(num_causes + 1)
 
-    mixer = Mixer(error_type='ACM',
-                  data=data,
+    mixer = Mixer(data=data,
                   data_err=data_err,
                   efficiencies=efficiencies,
                   efficiencies_err=efficiencies_err,

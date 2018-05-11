@@ -11,7 +11,7 @@ class Mixer(object):
     """
     def __init__(self, data=None, data_err=None, efficiencies=None,
                  efficiencies_err=None, response=None, response_err=None,
-                 cov_type='multinomial', error_type='ACM'):
+                 cov_type='multinomial'):
         # Input validation
         if len(data) != response.shape[0]:
             err_msg = ('Inconsistent number of effect bins. Observed data '
@@ -23,7 +23,6 @@ class Mixer(object):
         self.pec = response
         self.cEff = efficiencies
         self.NEobs = data
-        self.error_type = error_type
 
         # Number of Cause and Effect Bins
         dims = self.pec.shape
@@ -33,8 +32,7 @@ class Mixer(object):
         # Mixing Matrix
         self.Mij = np.zeros(dims)
 
-        self.cov = CovarianceMatrix(error_type=error_type,
-                                    data=data,
+        self.cov = CovarianceMatrix(data=data,
                                     data_err=data_err,
                                     efficiencies=efficiencies,
                                     efficiencies_err=efficiencies_err,
@@ -106,9 +104,8 @@ class CovarianceMatrix(object):
     """
     def __init__(self, data=None, data_err=None, efficiencies=None,
                  efficiencies_err=None, response=None, response_err=None,
-                 cov_type='multinomial', error_type='ACM'):
+                 cov_type='multinomial'):
 
-        self.error_type = error_type
         # Normalized P(E|C)
         self.pec = response
         self.pec_err = response_err
@@ -134,8 +131,6 @@ class CovarianceMatrix(object):
         self.ebins = dims[0]
         # Mixing matrix
         self.Mij = np.zeros(dims)
-        # Flag to propagate derivative
-        self.ErrorPropFlag = self.SetErrorPropFlag(self.error_type)
         # Adye propagating derivative
         self.dcdn = np.zeros(dims)
         self.dcdP = np.zeros((self.cbins, self.cbins * self.ebins))
@@ -168,7 +163,7 @@ class CovarianceMatrix(object):
             dcdP[ti, ec_j+ti] += (n_c_prev[ti] * NE_F_R[ej] - n_c[ti]) * self.cEff_inv[ti]
 
         # Adye propagation corrections
-        if self.ErrorPropFlag and self.counter > 0:
+        if self.counter > 0:
             # Get previous derivatives
             dcdn_prev = self.dcdn.copy()
             dcdP_prev = self.dcdP.copy()
@@ -271,19 +266,3 @@ class CovarianceMatrix(object):
         # Full Covariance Matrix
         Vc = Vc0 + Vc1
         return Vc
-
-    def SetErrorPropFlag(self, func):
-        """Key to choose whether to propagate errors at each iteration
-        """
-        # ACM propagate errors as Adye
-        # DCM propagate errors as DAgostini
-        ErrorPropOptionsKey = {
-            "ACM": True,
-            "DCM": False,
-            }
-        if func in ErrorPropOptionsKey:
-            return ErrorPropOptionsKey[func]
-        else:
-            err_msg = ('Invalid error propagation type entered, {}, must '
-                       'be in {}'.format(func, ErrorPropOptionsKey.keys()))
-            raise ValueError(err_msg)
