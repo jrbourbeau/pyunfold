@@ -5,25 +5,23 @@ from six import string_types
 import pandas as pd
 
 
-def uniform_prior(norm, num_causes):
+def uniform_prior(num_causes):
     """Uniform Prior
     """
     # All bins are given equal probability.
-    # Most generic prior.
-    prior = norm * np.ones(num_causes) / num_causes
-    # Want to make sure prior is normalized (i.e. prior.sum() == 1)
-    prior = prior / prior.sum()
+    # Most generic normalized prior.
+    prior = np.ones(num_causes) / num_causes
 
     return prior
 
 
-def jeffreys_prior(norm, xarray):
+def jeffreys_prior(xarray):
     """Jeffreys Prior
     """
     # All cause bins are given equal probability mass.
     # Best prior for x-ranges spanning decades.
     ln_factor = np.log(xarray[-1] / xarray[0])
-    prior = norm / (ln_factor * xarray)
+    prior = 1 / (ln_factor * xarray)
     # Want to make sure prior is normalized (i.e. prior.sum() == 1)
     prior = prior / prior.sum()
 
@@ -52,11 +50,11 @@ def setup_prior(priors='Jeffreys', num_causes=None, num_observations=None, cause
     if isinstance(priors, string_types) and priors.lower() == 'uniform':
         assert num_causes is not None, 'num_causes must be specified for uniform prior'
         assert num_observations is not None, 'num_observations must be specified for uniform prior'
-        prior = uniform_prior(norm=num_observations, num_causes=num_causes)
+        prior = uniform_prior(num_causes=num_causes)
     elif isinstance(priors, string_types) and priors.lower() == 'jeffreys':
         assert num_observations is not None, 'num_observations must be specified for Jeffreys prior'
         assert cause_axis is not None, 'cause_axis must be specified for Jeffreys prior'
-        prior = jeffreys_prior(norm=num_observations, xarray=cause_axis)
+        prior = jeffreys_prior(xarray=cause_axis)
     elif isinstance(priors, (list, tuple, np.ndarray, pd.Series)):
         prior = np.asarray(priors)
     else:
@@ -66,5 +64,10 @@ def setup_prior(priors='Jeffreys', num_causes=None, num_observations=None, cause
     if not np.allclose(np.sum(prior), 1):
         raise ValueError('Prior (which is an array of probabilities) does '
                          'not add to 1. sum(prior) = {}'.format(np.sum(prior)))
+
+    assert num_observations is not None, 'num_observations must be specified for any prior'
+
+    # The prior is scaled to the total counts observed
+    prior = num_observations * prior
 
     return prior
