@@ -80,6 +80,10 @@ class SplineRegularizer(Callback, Regularizer):
         Group labels for each cause bin. If groups are specified, then each
         cause group will be regularized independently (default is None).
 
+    Notes
+    -----
+    The number of causes must be larger than the spline ``degree``.
+
     Examples
     --------
     Specify the spline degree and smoothing factor:
