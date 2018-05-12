@@ -11,6 +11,8 @@ Version 0.3.dev0 (TBD)
 
 **New Features**:
 
+- Adds cause bin group support to ``SplineRegularizer`` for independent
+  regularization. (See `PR #47 <https://github.com/jrbourbeau/pyunfold/pull/47>`_)
 - Adds ``cov_type`` parameter to the ``iterative_unfold`` function. This adds
   the option to choose between using the Multinomial or Poisson form of the
   covariance matrix.
