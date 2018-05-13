@@ -6,11 +6,16 @@
 Contributing
 ************
 
-PyUnfold is an open source project and contributions are always welcome!
+PyUnfold is an open-source project and contributions are always welcome from anyone. Feel free to open a pull request on `GitHub <https://github.com/jrbourbeau/pyunfold>`_ or file a new feature request or bug report on our `issue tracker <https://github.com/jrbourbeau/pyunfold/issues>`_.
+
+
+==================
+Contributing guide
+==================
 
 If you are new to working with forks, check out `GitHub's working with forks article <https://help.github.com/articles/working-with-forks/>`_.
 
-============================
+
 Step 1: Creating a new issue
 ============================
 
@@ -21,7 +26,7 @@ Step 1: Creating a new issue
 
 .. image:: _static/new-issue-button.png
 
-==============================
+
 Step 2: Forking the repository
 ==============================
 
@@ -37,7 +42,7 @@ Step 2: Forking the repository
 
     $ git clone https://github.com/<your_username>/pyunfold.git
 
-=======================================
+
 Step 3: Configuring a remote for a fork
 =======================================
 
@@ -74,7 +79,6 @@ Now when you execute ``git remote -v``, the newly added upstream remote should b
     upstream        https://github.com/jrbourbeau/pyunfold.git (push)
 
 
-================================
 Step 4: Syncing an existing fork
 ================================
 
@@ -115,7 +119,7 @@ Now you can merge the upstream/master branch into your master branch with
 
 Now the master branch of your local copy of PyUnfold should be up-to-date with the original PyUnfold master branch!
 
-===================================
+
 Step 5: Create a new feature branch
 ===================================
 
@@ -133,7 +137,7 @@ The output should be
     Switched to branch '<new_feature_branch_name>'
 
 
-======================================
+
 Step 6: Install local copy of PyUnfold
 ======================================
 
@@ -152,14 +156,14 @@ To install additional development dependencies for running tests and building th
 Note that if you previously had PyUnfold installed in your environment to ``pip uninstall pyunfold`` before executing the previous command.
 
 
-=========================
+
 Step 7: Develop new code!
 =========================
 
 Now add your feature, bug fix, typo fix, etc.
 
 
-=======================================
+
 Step 8: Running tests with the new code
 =======================================
 
@@ -171,7 +175,7 @@ Once your contributions have been added, you'll want to run the tests for this p
 
 To run with code coverage use ``pytest --cov pyunfold``
 
-=====================
+
 Step 9: Documentation
 =====================
 
@@ -184,7 +188,7 @@ If necessary for your contribution, add the appropriate documentation to the fil
 
 The built documentation will be placed in the ``_build/html`` directory.
 
-=========================================
+
 Step 10: Committing and uploading changes
 =========================================
 
@@ -209,7 +213,7 @@ Now you can push this commit from your local repository to your copy on GitHub
     $ git push origin <new_feature_branch_name>
 
 
-==================================
+
 Step 11: Submitting a pull request
 ==================================
 
