@@ -15,7 +15,7 @@ authors:
 affiliations:
  - name: University of Wisconsin - Madison, Wisconsin, USA
    index: 1
- - name: IIHE, Universite Libre de Bruxelles, Bruxelles, Belgium
+ - name: IIHE, Université Libre de Bruxelles, Bruxelles, Belgium
    index: 2
 date: 05 May 2018
 bibliography: paper.bib
