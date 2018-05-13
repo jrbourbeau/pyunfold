@@ -36,6 +36,15 @@ Given that measured data comprise a finite sample, PyUnfold also implements the 
 contributions stated in [@adye2].
 
 
+The unfolding method itself is data-agnostic, referring to the measurement process
+as the smearing of a set of true causes into a set of detectable effects.
+For example one could define as causes the true energy of a particle and the effects
+the measured energy of that particle in a detector.
+Another example might be a set of diseases (causes) and possible clinical symptoms (effects).
+So long as it is possible to encode estimable resolutions and biases connecting causes to 
+effects in a binned response matrix, one can perform a deconvolution with PyUnfold. 
+
+
 The primary purpose of PyUnfold is to provide an unfolding toolkit for members of all 
 scientific disciplines in an easy-to-use package.
 For example, unfolding methods are commonly used in the analysis pipeline of the 
@@ -46,23 +55,9 @@ Instead, PyUnfold is built on top of the Python scientific computing stack (i.e.
 SciPy, and pandas), thus broadening its scope to a general scientific audience.
 
 
-Indeed, the method itself is data-agnostic, referring to the measurement process
-as the smearing of a set of true causes into a set of detectable effects.
-For example one could define as causes the true energy of a particle and the effects
-the measured energy of that particle in a detector.
-Another example might be a set of diseases (causes) and possible clinical symptoms (effects).
-So long as it is possible to encode estimable resolutions and biases connecting causes to 
-effects in a binned response matrix, one can perform a deconvolution with PyUnfold. 
-
-
 PyUnfold has been designed to be both easy to use for first-time users as well as 
-flexible enough for fine-tuning an analysis.
-Its main strength is its simplicity, requiring a single line to run via the ``iterative_unfold`` 
-method, taking as input the user provided distributions and other runtime parameters.
-This also facilitates examining the effects of varying optional parameters on the final 
-unfolded distribution, allowing users to seamlessly test the robustness of results.
-
-PyUnfold provides support for the following:
+flexible enough for fine-tuning an analysis and seamlessly testing the robustness
+of results. It provides support for the following:
 
 - Custom, user defined initial prior probability distributions, the default being 
 the uniform prior. The non-informative Jeffreys' prior [@jeffreys] is accessible 
@@ -70,7 +65,7 @@ as a utility function.
 
 - Unfolding stopping criteria based on test statistic calculations comparing unfolded
 distributions from one iteration to the next. These include 
-Kolmogorov-Smirnov[@kolmogorov][@smirnov], $\chi^2$, relative difference, 
+Kolmogorov-Smirnov [@kolmogorov][@smirnov], $\chi^2$, relative difference, 
 and Bayes factor [@pfendner] tests.
 
 - Tunable spline regularization as a means of ensuring that unfolded distributions do not 
@@ -86,7 +81,7 @@ in their respective blocks or groups.
 
 Further mathematical details regarding the iterative unfolding procedure, including complete 
 derivations of the statistical and systematic uncertainty propagation can be found in the 
-\LaTeX \ documentation.
+online documentation.
 
 
 PyUnfold has been applied successfully for the measurement of the cosmic-ray energy spectrum
