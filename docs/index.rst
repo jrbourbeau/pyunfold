@@ -79,6 +79,7 @@ The returned unfolded result is a dictionary containing:
     api
     callbacks
     Tutorial <tutorial.ipynb>
+    Advanced Usage <advanced_usage.ipynb>
     mathematics
     changelog
     contributing
