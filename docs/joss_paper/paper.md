@@ -21,7 +21,7 @@ affiliations:
    index: 1
  - name: IIHE, Université Libre de Bruxelles, Bruxelles, Belgium
    index: 2
-date: 05 May 2018
+date: 15 May 2018
 bibliography: paper.bib
 ---
 
@@ -92,8 +92,8 @@ members of the IceCube Neutrino Observatory.
 # Acknowledgements
 
 The authors acknowledge support from the Wisconsin IceCube Particle Astrophysics Center
-at the UW-Madison, and especially for the guidance of Stefan Westerhoff.
-We also ackowledge the financial support provided by the Belgian American Educational 
+at the UW-Madison, and especially for the guidance of Professor Stefan Westerhoff.
+We also acknowledge the financial support provided by the Belgian American Educational 
 Foundational Fellowship, and Wallonie-Bruxelles International.
 
 # References
