@@ -225,3 +225,25 @@ def test_iterative_unfold_cov_type_raises(example_dataset):
     expected_msg = ('Invalid pec_cov_type entered: {}. Must be '
                     'either "multinomial" or "poisson".'.format(cov_type))
     assert expected_msg == str(excinfo.value)
+
+
+@pytest.mark.parametrize('return_iterations', [True, False])
+def test_iterative_unfold_keys(example_dataset, return_iterations):
+    inputs = {'data': example_dataset.data,
+              'data_err': example_dataset.data_err,
+              'response': example_dataset.response,
+              'response_err': example_dataset.response_err,
+              'efficiencies': example_dataset.efficiencies,
+              'efficiencies_err': example_dataset.efficiencies_err
+              }
+    unfolded_result = iterative_unfold(return_iterations=return_iterations,
+                                       **inputs)
+    keys = ['unfolded',
+            'stat_err',
+            'sys_err',
+            'num_iterations',
+            'ts_stopping',
+            'ts_iter',
+            ]
+    for key in keys:
+        assert key in unfolded_result
