@@ -72,14 +72,19 @@ The returned unfolded result is a dictionary containing:
 
 .. toctree::
     :maxdepth: 1
-    :caption: User Guide
+    :caption: Getting Started
 
     overview
     installation
-    api
-    callbacks
     Tutorial <tutorial.ipynb>
-    Advanced Usage <advanced_usage.ipynb>
+
+.. toctree::
+    :maxdepth: 1
+    :caption: User Guide
+
+    callbacks
+    api
+    advanced
     mathematics
     changelog
     contributing
