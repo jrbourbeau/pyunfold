@@ -62,7 +62,7 @@ class Logger(Callback):
 class SplineRegularizer(Callback, Regularizer):
     """Spline regularization callback
 
-    Smooths the unfolded distribution at each iterationa using
+    Smooths the unfolded distribution at each iteration using
     ``UnivariateSpline`` from ``scipy.interpolate``. For more information about
     ``UnivariateSpline``, see the
     `UnivariateSpline API documentation

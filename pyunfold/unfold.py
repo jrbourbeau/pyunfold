@@ -15,7 +15,7 @@ def iterative_unfold(data=None, data_err=None, response=None,
                      efficiencies_err=None, prior=None, ts='ks',
                      ts_stopping=0.01, max_iter=100, cov_type='multinomial',
                      return_iterations=False, callbacks=None):
-    """Performs iterative Bayesian unfolding
+    """Performs iterative unfolding
 
     Parameters
     ----------
@@ -60,11 +60,30 @@ def iterative_unfold(data=None, data_err=None, response=None,
     Returns
     -------
     unfolded_result : dict
-        Returned if ``return_iterations`` is False (default). Final unfolded
-        distribution and associated uncertainties.
+        Returned if ``return_iterations`` is False (default). Dictionary
+        containing the final unfolded distribution, associated uncertainties,
+        and test statistic information.
+
+        The returned ``dict`` has the following keys:
+
+            unfolded
+                Final unfolded cause distribution
+            stat_err
+                Statistical uncertainties on the unfolded cause distribution
+            sys_err
+                Systematic uncertainties on the unfolded cause distribution
+                associated with limited statistics in the response matrix
+            ts_iter
+                Final test statistic value
+            ts_stopping
+                Test statistic stopping criterion
+            num_iterations
+                Number of unfolding iterations
+
     unfolding_iters : pandas.DataFrame
         Returned if ``return_iterations`` is True. DataFrame containing the
-        unfolded distribution and associated uncertainties at each iteration.
+        unfolded distribution, associated uncertainties, and test statistic
+        information at each iteration.
 
     Examples
     --------
@@ -84,9 +103,12 @@ def iterative_unfold(data=None, data_err=None, response=None,
     ...                             efficiencies=efficiencies,
     ...                             efficiencies_err=efficiencies_err)
     >>> unfolded
-    {'unfolded': array([ 94.48002622, 155.51997378]),
-    'sys_err': array([0.66204237, 0.6620424 ]),
-    'stat_err': array([11.2351567 , 13.75617997])}
+    {'num_iterations': 4,
+     'stat_err': array([11.16853268, 13.65488168]),
+     'sys_err': array([0.65570621, 0.65570621]),
+     'ts_iter': 0.0038300087456445975,
+     'ts_stopping': 0.01,
+     'unfolded': array([ 94.32086967, 155.67913033])}
     """
     # Validate user input
     inputs = {'data': data,
@@ -179,7 +201,8 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
         iteration += 1
         status = {'unfolded': unfolded_n_c,
                   'stat_err': mixer.get_stat_err(),
-                  'sys_err': mixer.get_MC_err()}
+                  'sys_err': mixer.get_MC_err(),
+                  'num_iterations': iteration}
 
         if regularizer is not None:
             # Will want the nonregularized distribution for the final iteration
