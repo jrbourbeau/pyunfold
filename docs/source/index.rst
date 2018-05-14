@@ -26,18 +26,15 @@ PyUnfold
 .. image:: https://img.shields.io/pypi/l/pyunfold.svg
     :target: https://pypi.org/project/PyUnfold/
 
-PyUnfold is a Python package for implementing the D'Agostini iterative unfolding algorithm [1]_.
+**PyUnfold is a Python package for implementing iterative unfolding** [1]_
 
-Quickstart
-----------
-
-Implementing iterative unfolding with PyUnfold only takes a few lines of code.
+PyUnfold provides an unfolding toolkit for members of all scientific disciplines with a simple, user-friendly API. Implementing an unfolding with PyUnfold only takes a few lines of code.
 
 .. code-block:: python
 
     from pyunfold import iterative_unfold
 
-    # Counts distributions
+    # Observed distributions
     data = [100, 150]
     data_err = [10, 12.2]
 
@@ -52,23 +49,12 @@ Implementing iterative unfolding with PyUnfold only takes a few lines of code.
     efficiencies_err = [0.01, 0.01]
 
     # Perform iterative unfolding
-    unfolded_result = iterative_unfold(data, data_err,
-                                       response, response_err,
-                                       efficiencies, efficiencies_err)
-
-The returned unfolded result is a dictionary containing:
-
-- ``unfolded``: Unfolded cause distribution
-- ``stat_err``: Statistical (Poisson) errors
-- ``sys_err``: Systematic errors associated with limited statistics in the response matrix
-
-.. code-block:: python
-
-    {'unfolded': array([ 94.48002622, 155.51997378]),
-     'sys_err': array([0.66204237, 0.6620424]),
-     'stat_err': array([11.2351567, 13.75617997])}
-
-
+    unfolded_result = iterative_unfold(data=data,
+                                       data_err=data_err,
+                                       response=response,
+                                       response_err=response_err,
+                                       efficiencies=efficiencies,
+                                       efficiencies_err=efficiencies_err)
 
 .. toctree::
     :maxdepth: 1
@@ -97,6 +83,12 @@ The returned unfolded result is a dictionary containing:
    PyUnfold @ GitHub <https://github.com/jrbourbeau/pyunfold>
    PyUnfold @ PyPI <https://pypi.org/project/pyunfold/>
    Issue Tracker <https://github.com/jrbourbeau/pyunfold/issues>
+
+
+Questions & Bug Reports
+-----------------------
+
+PyUnfold is an open-source project and contributions are always welcome from anyone. If you have a question, would like to propose a new feature, or submit a bug report, feel free to open up an issue on our `issue tracker on GitHub <https://github.com/jrbourbeau/pyunfold/issues>`_.
 
 
 .. [1] G. D'Agostini, “A Multidimensional unfolding method based on Bayes' theorem”, Nucl. Instrum. Meth. A **362** (1995) 487.
