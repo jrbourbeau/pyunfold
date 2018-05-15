@@ -26,6 +26,16 @@ def test_setup_prior_non_normalized_raises():
     assert expected_msg == str(excinfo.value)
 
 
+def test_setup_prior_negative_raises():
+    prior = [2, 0 -1]
+    with pytest.raises(ValueError) as excinfo:
+        setup_prior(prior)
+    expected_msg = ('Input prior has negative values. Since the values '
+                    'of prior are interpreted as probabilities, they '
+                    'cannot be negative.')
+    assert expected_msg == str(excinfo.value)
+
+
 def test_jeffreys_prior():
 
     causes = np.linspace(5, 10, 4)
