@@ -58,13 +58,19 @@ PyUnfold provides an unfolding toolkit for members of all scientific disciplines
 
 .. toctree::
     :maxdepth: 1
-    :caption: User Guide
+    :caption: Getting Started
 
     overview
     installation
-    api
+    Tutorial <notebooks/tutorial.ipynb>
+
+.. toctree::
+    :maxdepth: 1
+    :caption: User Guide
+
     callbacks
-    Tutorial <tutorial.ipynb>
+    api
+    advanced
     mathematics
     changelog
     contributing
