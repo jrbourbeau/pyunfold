@@ -48,6 +48,8 @@ extensions = [
     'numpydoc',
     'nbsphinx',
     'sphinx.ext.mathjax',
+    'matplotlib.sphinxext.only_directives',
+    'matplotlib.sphinxext.plot_directive',
 ]
 
 numpydoc_show_inherited_class_members = False

@@ -11,7 +11,9 @@ There are several advanced unfolding techniques that PyUnfold supports. Most not
 .. toctree::
     :maxdepth: 1
 
-    Implementing a user-defined prior <regularization.ipynb>
+    Implementing a user-defined prior <user_prior.ipynb>
     Smoothing via spline regularization <regularization.ipynb>
-    Demonstrating the multivariate capabilities using cause groups <regularization.ipynb>
-    Potential pitfalls in using advanced tools <regularization.ipynb>
+    Multivariate unfolding via cause groups <multivariate.ipynb>
+
+
+The above links lead to example notebooks that walk through each of these techniques.
