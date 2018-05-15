@@ -125,11 +125,21 @@ The Initial Prior
 --------------------
 
 Since one apparently has freedom as to the form of :math:`P(C_{\mu})`, it is typical 
-to avoid introducing bias by setting the initial prior to the Jeffreys' Prior:
+to avoid introducing bias by setting the initial prior to either the uniform prior,
+where all cause bins have equal probability, or the non-informative Jeffreys' Prior [1]_
+which is especially appropriate when the range of causes spans several orders of magnitude.
+These take the form
 
 .. math::
 
-    \phi^0_{\mu} = \frac{1}{\log \left( C_{\text{max}} / C_{\text{min}}\right) \, C_{\mu}}
+    \begin{align}
+      P(C_{\mu})^{\text{uniform}}  &= \frac{1}{n_{C}} \\
+      P(C_{\mu})^{\text{Jeffreys}} &= \frac{1}{\log \left( C_{\text{max}} / C_{\text{min}}\right) \, C_{\mu}}
+    \end{align}
 
-effectively saying that all causes are equally probable.
-While users can define an initial prior, the Jeffreys' Prior is the default in PyUnfold.
+
+While users can provide a custom initial prior, the uniform prior is the default in PyUnfold.
+Provided the minimum and maximum values of causes, the Jeffreys' prior is provided as a utility function.
+
+
+.. [1] H. Jeffreys, “An Invariant Form for the Prior Probability in Estimation Problems”, Proc. of the Royal Society of London A **186** (1946) 453.
