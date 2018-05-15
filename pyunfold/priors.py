@@ -56,5 +56,9 @@ def setup_prior(prior=None, num_causes=None):
     if not np.allclose(np.sum(prior), 1):
         raise ValueError('Prior (which is an array of probabilities) does '
                          'not add to 1. sum(prior) = {}'.format(np.sum(prior)))
+    if np.amin(prior) < 0:
+        raise ValueError('Input prior has negative values. Since the values '
+                         'of prior are interpreted as probabilities, they '
+                         'cannot be negative.')
 
     return prior

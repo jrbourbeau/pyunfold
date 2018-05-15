@@ -17,6 +17,8 @@ Version 0.3.dev0 (TBD)
   the option to choose between using the Multinomial or Poisson form of the
   covariance matrix.
   (See `PR #50 <https://github.com/jrbourbeau/pyunfold/pull/50>`_)
+- Adds check for negative values in ``prior`` input to ``iterative_unfold``.
+  (See `PR #63 <https://github.com/jrbourbeau/pyunfold/pull/63>`_)
 
 **Changes**:
 
