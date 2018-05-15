@@ -27,7 +27,7 @@ def test_setup_prior_non_normalized_raises():
 
 
 def test_setup_prior_negative_raises():
-    prior = [2, 0 -1]
+    prior = [2, 0, -1]
     with pytest.raises(ValueError) as excinfo:
         setup_prior(prior)
     expected_msg = ('Input prior has negative values. Since the values '
