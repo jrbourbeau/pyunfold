@@ -179,7 +179,7 @@ To run with code coverage use ``pytest --cov pyunfold``
 Step 9: Documentation
 =====================
 
-If necessary for your contribution, add the appropriate documentation to the files in the ``docs/`` directory. The documentation can then be build via
+If necessary for your contribution, add the appropriate documentation to the files in the ``docs/source/`` directory. The documentation can then be build via
 
 .. code-block:: bash
 
