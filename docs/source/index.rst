@@ -62,7 +62,7 @@ PyUnfold provides an unfolding toolkit for members of all scientific disciplines
 
     overview
     installation
-    Tutorial <tutorial.ipynb>
+    Tutorial <notebooks/tutorial.ipynb>
 
 .. toctree::
     :maxdepth: 1
