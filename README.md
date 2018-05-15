@@ -24,6 +24,12 @@ PyUnfold can be installed using `pip`
 pip install pyunfold
 ```
 
+or `conda`
+
+```
+conda install -c conda-forge pyunfold
+```
+
 For more information see the [installation instructions](https://jrbourbeau.github.io/pyunfold/installation.html) in the [documentation](https://jrbourbeau.github.io/pyunfold/).
 
 

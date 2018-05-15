@@ -6,15 +6,29 @@
 Installation
 ************
 
----------------
-Release Version
----------------
+----
+PyPI
+----
 
 The latest release of PyUnfold can be installed with ``pip``:
 
 .. code-block:: bash
 
     pip install pyunfold
+
+This installs PyUnfold, along with all the necessary dependencies such as NumPy and SciPy.
+
+-----
+Conda
+-----
+
+PyUnfold is available on `conda-forge <https://anaconda.org/conda-forge/pyunfold>`_ and can be installed with ``conda``:
+
+.. code-block:: bash
+
+    conda install -c conda-forge pyunfold
+
+This installs PyUnfold, along with all the necessary dependencies such as NumPy and SciPy.
 
 
 -------------------
