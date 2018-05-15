@@ -1,6 +1,7 @@
 
 .wy-nav-side p.caption {
   color: #F5F5F5;
+  font-size: 85%;
 }
 
 .wy-nav-side, div.wy-side-nav-search {
@@ -8,8 +9,14 @@
 }
 
 /* Sidebar link click color */
-.wy-menu-vertical a:active {
+.toctree-l1 > a:active {
   background-color: #70c162 !important;
+  color: rgb(252, 252, 252) !important;
+}
+
+.toctree-l1 > a:hover {
+  background-color: #70c162;
+  color: rgb(252, 252, 252);
 }
 
 .wy-side-nav-search input[type="text"] {
