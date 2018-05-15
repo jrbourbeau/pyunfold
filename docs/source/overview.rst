@@ -8,7 +8,7 @@ Overview
 
 
 PyUnfold is a Python package for incorporating imperfections
-of the measurement process into a data analysis pipeline. 
+of the measurement process into a data analysis pipeline.
 
 
 ------------------
@@ -25,19 +25,19 @@ However, in real life, detectors have:
 - Statistical uncertainties
 
 By building a matrix that encodes a detector's smearing of the desired true quantity
-into the measured observable(s), a deconvolution can be performed that provides 
-an estimate of the true variable. This deconvolution process is known as unfolding. 
+into the measured observable(s), a deconvolution can be performed that provides
+an estimate of the true variable. This deconvolution process is known as unfolding.
 
 
-----------------------------
-Iterative Bayesian unfolding
-----------------------------
+-------------------
+Iterative unfolding
+-------------------
 
 The unfolding method implemented in PyUnfold accomplishes this deconvolution
 by harnessing the power of Bayes' Theorem in an iterative procedure, providing results
 based on physical expectations of the desired quantity [1]_.
 Furthermore, tedious book-keeping for both statistical and systematic errors
-produces precise final uncertainty estimates. 
+produces precise final uncertainty estimates.
 
 
 -----
@@ -50,8 +50,8 @@ PyUnfold provides users:
 - A straightforward API that's suitable for many experimental applications
 - The ability to easily incorporate both statistical and systematic uncertainties
 
-PyUnfold has been successfully used in astroparticle physics measurements by both 
-the `HAWC <https://www.hawc-observatory.org/>`_ and `IceCube <https://icecube.wisc.edu/>`_ 
+PyUnfold has been successfully used in astroparticle physics measurements by both
+the `HAWC <https://www.hawc-observatory.org/>`_ and `IceCube <https://icecube.wisc.edu/>`_
 observatories.
 
 
@@ -66,11 +66,11 @@ apparatus having a characteristic **response function**, or matrix, which produc
 The act of unfolding approximates the inverse of the response function by convolving it with
 a **prior** distribution which encodes a guess at the form of the true cause distribution.
 Including the measured effects distribution, we obtain an updated, better guess of the cause
-distribution. This updated, better guess can be used as a prior for another unfolding, 
+distribution. This updated, better guess can be used as a prior for another unfolding,
 making this an iterative procedure.
 
-These unfolding iterations continue until some stopping condition (usually a test statistic 
-comparing the unfolded cause distribution between subsequent iterations) satisties some 
+These unfolding iterations continue until some stopping condition (usually a test statistic
+comparing the unfolded cause distribution between subsequent iterations) satisties some
 pre-defined threshold, typically taking just a few iterations.
 
 To use PyUnfold, one needs only to provide the
