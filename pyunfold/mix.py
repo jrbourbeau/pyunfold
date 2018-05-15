@@ -97,10 +97,6 @@ class Mixer(object):
 
 class CovarianceMatrix(object):
     """Covariance Base Class
-
-    All Covariance Matrix Code either transcribed from Adye's RooUnfoldBayes.cxx
-    (http://hepunx.rl.ac.uk/~adye/software/unfold/RooUnfold.html#dev),
-    or based on derivations presented in Unfolding reference section 'Unfolding Uncertainties'
     """
     def __init__(self, data=None, data_err=None, efficiencies=None,
                  efficiencies_err=None, response=None, response_err=None,
