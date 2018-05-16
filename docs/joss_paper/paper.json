@@ -1,0 +1,30 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "0000-0003-2164-7789",
+      "@type": "Person",
+      "email": "james.bourbeau@icecube.wisc.edu",
+      "name": "James Bourbeau",
+      "affiliation": "University of Wisconsin - Madison, Wisconsin, USA"
+    },
+    {
+      "@id": "0000-0003-0253-9117",
+      "@type": "Person",
+      "email": "zhampel@wipac.wisc.edu",
+      "name": "Zigfried Hampel-Arias",
+      "affiliation": "University of Wisconsin - Madison, Wisconsin, USA; IIHE, Université Libre de Bruxelles, Bruxelles, Belgium"
+    }
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/jrbourbeau/pyunfold",
+  "datePublished": "2018-05-15",
+  "dateModified": "2018-05-15",
+  "dateCreated": "2018-05-15",
+  "description": "PyUnfold is an extensible framework for the deconvolution of discrete probability distributions via an iterative unfolding method.",
+  "keywords": "Python, unfolding, estimation, statistics, deconvolution, inverse problems",
+  "license": "MIT",
+  "title": "PyUnfold",
+  "version": "v0.3.0"
+}
