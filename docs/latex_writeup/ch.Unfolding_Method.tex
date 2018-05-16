@@ -1,6 +1,8 @@
 As discussed in the Section \ref{introduction_section}, the conceptually simplest way to connect
-true (causes, $C_{\mu}$) and observable (effects, $E_{j}$) variables is via a 
-matrix, $R$, and it's inverse $M$\footnote{\label{fnote1} Except for C and E, all variables and subscripts related to causes are Greek letters, while Latin letters are used for effects. The only superscript is the iteration number, i.}:
+true causes $C_{\mu}$ and observable effects $E_{j}$ is via their respective count distributions,
+$n$ and $\phi$, a reponse matrix, $R$, and it's inverse 
+$M$\footnote{\label{fnote1} Except for C and E, all variables and subscripts related to causes are Greek letters, 
+while Latin letters are used for effects. The only superscript is the iteration number, i.}:
 \begin{equation}
  \begin{split}
   n(E)=R \, \phi(C), \\
@@ -49,20 +51,30 @@ where
 	M_{\mu j}= \frac{P(E_{i}|C_{\mu}) \, P(C_{\mu})}{[\sum_{k}^{n_{E}} \, P(E_{k}|C_{\mu})][\sum_{\nu}^{n_{C}} \, P(E_{i}|C_{\nu}) \, P(C_{\nu})]} \, .
 \end{equation}
 The response matrix $P(E_{i}|C_{\mu})$ is generated via simulation, and the $n(E_{i})$ provided through measurement, 
-apparently bestowing the freedom to choose the form of $P(C_{\mu})$. Again, $P(C_{\mu})$ represents the total of our prior knowledge 
-of the parent distribution. Typically an experimenter refrains from introducing bias in the prior
-so an appropriate choice is the Jeffreys Prior \cite{jeffreys}:
-\begin{equation*} \label{eq:JeffPrior}
-  P_{Jeffrey}(C_{\mu}) = \frac{1}{log(C_{max}/C_{min}) \, C_{\mu}} \, ,
+apparently bestowing the freedom to choose the form of $P(C_{\mu})$. 
+Again, $P(C_{\mu})$ represents the total of our prior knowledge of the parent distribution. 
+Typically an experimenter refrains from introducing bias in the prior, and two such
+appropriate choices are the uniform and non-informative Jeffreys' \cite{jeffreys} priors:
+\begin{equation*} \label{eq:Priors}
+ \begin{aligned}
+  P_{\mathrm{Uniform}}(C_{\mu}) &= \frac{1}{n_C}\\ 
+  P_{\mathrm{Jeffrey}}(C_{\mu}) &= \frac{1}{\log(C_{max}/C_{min}) \, C_{\mu}} \, ,
+ \end{aligned}
 \end{equation*}
-keeping in mind that the this prior dictates that all cause bins are of equal probability, not that all parent distributions are of equal probability.
+keeping in mind that the these priors place the causes on equal footing,
+not that all parent cause distributions are equally probable.
 
-We now possess all the necessary machinery to perform an unfolding. Having started with the conservative Jeffreys Prior,
-the unfolded result is a Bayesian best estimate of the true distribution. There is nothing stopping us from using this result as 
-the best knowledge estimate of $P(C_{\mu})$ in eq. \ref{eq:fullM} for a subsequent unfolding. We can take this any number of steps further, 
-making the process an iterative unfolding. Thus, after calculating $\phi(C_{\mu})$ via eq. \ref{eq:fullUnf}, 
-we recalculate $M_{\mu j}$ per eq. \ref{eq:fullM}, returning again to eq. \ref{eq:fullUnf} for an updated $\phi(C_{\mu})\textprime$.
-Since $P(C_{\mu}) = \frac{\phi_{\mu}}{\sum_{\nu}{\phi_{\nu}}} = \frac{\phi_{\mu}}{N_{True}}$, where $N_{True}$ is the estimated true number of 
+We now possess all the necessary machinery to perform an unfolding.
+Having started with a conservative initial prior, the unfolded result is a Bayesian best estimate 
+of the true distribution. 
+There is nothing stopping us from using this result as the best knowledge estimate of $P(C_{\mu})$ 
+in eq. \ref{eq:fullM} for a subsequent unfolding.
+We can take this any number of steps further, making the process an iterative unfolding. 
+Thus, after calculating $\phi(C_{\mu})$ via eq. \ref{eq:fullUnf}, 
+we recalculate $M_{\mu j}$ per eq. \ref{eq:fullM}, returning again to eq. \ref{eq:fullUnf} 
+for an updated $\phi(C_{\mu})\textprime$.
+Since $P(C_{\mu}) = \frac{\phi_{\mu}}{\sum_{\nu}{\phi_{\nu}}} = \frac{\phi_{\mu}}{N_{\mathrm{True}}}$, 
+where $N_{\mathrm{True}}$ is the estimated true number of 
 cause events, we can make the change $P(C_{\mu}) \rightarrow \phi_{\mu}$ in eq. \ref{eq:fullM}. 
 Adding the iteration superscript and shortening the notation\footref{fnote1}, this equates to
 
