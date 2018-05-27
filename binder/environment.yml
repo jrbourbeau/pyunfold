@@ -1,0 +1,7 @@
+name: binder_env
+channels:
+  - conda-forge
+dependencies:
+  - matplotlib
+  - pip:
+      - git+https://github.com/jrbourbeau/pyunfold.git
