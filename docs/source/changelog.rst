@@ -19,7 +19,8 @@ Version 0.4.dev0 (TBD)
 
 **Bug Fixes**:
 
--
+- Fixes environment used for running the "Tutorial" and "Advanced Techniques"
+  example notebooks on binder. (See `PR #68 <https://github.com/jrbourbeau/pyunfold/pull/68>`_)
 
 
 Version 0.3 (2018-05-15)
