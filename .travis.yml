@@ -1,5 +1,4 @@
 language: generic
-
 os: linux
 
 jobs:
@@ -7,18 +6,19 @@ jobs:
   include:
     - env:
       - PYTHON=2.7
-
+      - COVERAGE='false'
     - env:
       - PYTHON=3.4
-
+      - COVERAGE='false'
     - env:
       - PYTHON=3.5
-
+      - COVERAGE='false'
     - env:
       - PYTHON=3.6
-
+      - COVERAGE='true'
     - env:
       - PYTHON=3.6
+      - COVERAGE='false'
       os: osx
 
 install:
@@ -27,14 +27,10 @@ install:
 script:
     - pytest --cov=pyunfold pyunfold
     - flake8 pyunfold
-    # Only test that documentation builds on Python 3.6
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
-        bash ci/build_docs.sh;
-      fi
+    - if [[ $PYTHON == 3.6 ]]; then bash ci/build_docs.sh; fi
 
 after_success:
-    - pip install codecov
-    - codecov
+    - source ci/after_success.sh
 
 deploy:
     provider: pages

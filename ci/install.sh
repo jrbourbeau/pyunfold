@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo apt-get update
-
 # Install conda
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
     MINICONDA_FILENAME="Miniconda3-latest-MacOSX-x86_64.sh"
@@ -17,8 +15,8 @@ conda config --set always_yes yes --set changeps1 no
 conda info -a
 
 # Create conda environment
-conda create -q --name test-environment python=$PYTHON
-conda env update --name=test-environment --file=environment.yml
+conda create --quiet --name test-environment python=$PYTHON
+conda env update --quiet --name=test-environment --file=environment.yml
 source activate test-environment
 
 # Install pyunfold + dev dependencies
