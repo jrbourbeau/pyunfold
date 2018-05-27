@@ -1,9 +1,6 @@
-#!/usr/bin/env bash
-
-set -e
+#!/bin/bash
 
 echo "Building documentation..."
-pip install -r requirements_dev.txt
 cd docs
 make clean
 make html
