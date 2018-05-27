@@ -46,4 +46,4 @@ deploy:
     email: "github-pages-deploy@travis-ci.org"
     on:
         branch: master
-        condition: $DOCS == 'true'
+        condition: $DOCS = 'true'
