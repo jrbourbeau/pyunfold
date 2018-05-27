@@ -7,18 +7,23 @@ jobs:
     - env:
       - PYTHON=2.7
       - COVERAGE='false'
+      - DOCS='false'
     - env:
       - PYTHON=3.4
       - COVERAGE='false'
+      - DOCS='false'
     - env:
       - PYTHON=3.5
       - COVERAGE='false'
+      - DOCS='false'
     - env:
       - PYTHON=3.6
       - COVERAGE='true'
+      - DOCS='true'
     - env:
       - PYTHON=3.6
       - COVERAGE='false'
+      - DOCS='false'
       os: osx
 
 install:
@@ -27,7 +32,7 @@ install:
 script:
     - pytest --cov=pyunfold pyunfold
     - flake8 pyunfold
-    - if [[ $PYTHON == 3.6 ]]; then bash ci/build_docs.sh; fi
+    - if [[ $DOCS == 'true' ]]; then source ci/build_docs.sh; fi
 
 after_success:
     - source ci/after_success.sh
@@ -41,4 +46,4 @@ deploy:
     email: "github-pages-deploy@travis-ci.org"
     on:
         branch: master
-        condition: $PYTHON = 3.6 && $TRAVIS_OS_NAME = linux
+        condition: $DOCS == 'true'
