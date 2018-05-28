@@ -5,7 +5,23 @@ import pandas as pd
 
 
 def uniform_prior(num_causes):
-    """Uniform Prior
+    """Convenience function to calculate uniform prior distribution
+
+    Parameters
+    ----------
+    num_causes : int
+        Number of cause bins.
+
+    Returns
+    -------
+    prior : numpy.ndarray
+        Normalized uniform prior distribution.
+
+    Examples
+    --------
+    >>> from pyunfold.priors import uniform_prior
+    >>> uniform_prior(num_causes=4)
+    array([0.25, 0.25, 0.25, 0.25])
     """
     # All bins are given equal probability.
     # Most generic normalized prior.
@@ -15,8 +31,27 @@ def uniform_prior(num_causes):
 
 
 def jeffreys_prior(causes):
-    """Jeffreys Prior
+    """Convenience function to calculate Jeffreys prior distribution
+
+    Parameters
+    ----------
+    causes : array_like
+        Midpoint value of cause bins. For instance if cause bin edges are
+        given by [0, 2, 4], then ``causes`` is [1, 3].
+
+    Returns
+    -------
+    prior : numpy.ndarray
+        Normalized Jeffreys prior distribution.
+
+    Examples
+    --------
+    >>> from pyunfold.priors import jeffreys_prior
+    >>> causes = [1, 2, 3, 4]
+    >>> jeffreys_prior(causes=causes)
+    array([0.48, 0.24, 0.16, 0.12])
     """
+    causes = np.asarray(causes)
     # All cause bins are given equal probability mass.
     # Best prior for x-ranges spanning decades.
     ln_factor = np.log(causes.max() / causes.min())
