@@ -9,8 +9,8 @@ Why PyUnfold?
 PyUnfold was built out of a need to facilitate statistical deconvolution in a concise
 and convenient, yet extensible package.
 Born within the realm of experimental high-energy physics (HEP), PyUnfold removes
-dependencies on HEP-specific software, instead having its foundation rest on the 
-structure of the Python scientific computing stack.
+dependencies on HEP-specific software, instead having its structure rest on the 
+the Python scientific computing stack.
 This not only simplifies unfolding for the wide range of physics analyses, but also
 permits its implementation beyond the scope of the HEP community.
 
@@ -36,10 +36,13 @@ The features unique to PyUnfold are the following:
 
 - Dependency on Python scientific computing stack (NumPy, SciPy, Pandas)
 
-- Flexibility to test results based on user provided input: 
+- Flexibility to test results based on user provided input:
+
   - Custom, user defined initial prior distributions
-  - Adjustable test statistic convergence criterion comparing unfolded distributions between iterations
+
   - Optional regularization via tunable univariate splines
+
+  - Adjustable test statistic convergence criterion comparing distributions between iterations
 
 - Multidimensional unfolding in cause subsets, which are regularized in their respective groups
 
