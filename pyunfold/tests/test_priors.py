@@ -55,6 +55,12 @@ def test_jeffreys_prior_normalized():
     np.testing.assert_allclose(prior.sum(), 1)
 
 
+@pytest.mark.parametrize('type_', [list, tuple, np.array])
+def test_jeffreys_prior_array_like(type_):
+    causes = type_([1, 2, 3, 4, 5])
+    jeffreys_prior(causes=causes)
+
+
 @pytest.mark.parametrize('num_causes', [1, 7, 100])
 def test_uniform_prior(num_causes):
     prior = uniform_prior(num_causes)

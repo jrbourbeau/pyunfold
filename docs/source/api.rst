@@ -20,3 +20,11 @@ Callbacks
 
 .. autoclass:: pyunfold.callbacks.SplineRegularizer
     :no-undoc-members:
+
+
+Priors
+------
+
+.. autofunction:: pyunfold.priors.uniform_prior
+
+.. autofunction:: pyunfold.priors.jeffreys_prior
