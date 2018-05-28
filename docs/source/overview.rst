@@ -40,21 +40,6 @@ Furthermore, tedious book-keeping for both statistical and systematic errors
 produces precise final uncertainty estimates.
 
 
------
-Goals
------
-
-PyUnfold provides users:
-
-- A tool for the analysis of measurement effects on physical distributions
-- A straightforward API that's suitable for many experimental applications
-- The ability to easily incorporate both statistical and systematic uncertainties
-
-PyUnfold has been successfully used in astroparticle physics measurements by both
-the `HAWC <https://www.hawc-observatory.org/>`_ and `IceCube <https://icecube.wisc.edu/>`_
-observatories.
-
-
 -----------
 Terminology
 -----------
