@@ -94,6 +94,6 @@ members of the IceCube Neutrino Observatory.
 The authors acknowledge support from the Wisconsin IceCube Particle Astrophysics Center
 at the UW-Madison, and especially for the guidance of Professor Stefan Westerhoff.
 We also acknowledge the financial support provided by the National Science Foundation,
-Belgian American Educational Foundational Fellowship, and Wallonie-Bruxelles International.
+the Belgian American Educational Foundational Fellowship, and Wallonie-Bruxelles International.
 
 # References
