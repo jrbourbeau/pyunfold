@@ -121,6 +121,8 @@ def iterative_unfold(data=None, data_err=None, response=None,
     for name in inputs:
         if inputs[name] is None:
             raise ValueError('The input for "{}" must not be None.'.format(name))
+        if np.any(inputs[name] < 0):
+            raise ValueError('The elements of "{}" must be non-negative.'.format(name))
 
     data, data_err = cast_to_array(data, data_err)
     response, response_err = cast_to_array(response, response_err)
