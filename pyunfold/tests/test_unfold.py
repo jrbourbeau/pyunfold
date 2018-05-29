@@ -189,6 +189,22 @@ def test_iterative_unfold_none_input_raises(none_input, example_dataset):
     assert expected_msg == str(excinfo.value)
 
 
+@pytest.mark.parametrize('negative_input', inputs)
+def test_iterative_unfold_negative_input_raises(negative_input, example_dataset):
+    inputs = {'data': example_dataset.data,
+              'data_err': example_dataset.data_err,
+              'response': example_dataset.response,
+              'response_err': example_dataset.response_err,
+              'efficiencies': example_dataset.efficiencies,
+              'efficiencies_err': example_dataset.efficiencies_err
+              }
+    inputs[negative_input][0] *= -1
+    with pytest.raises(ValueError) as excinfo:
+        iterative_unfold(**inputs)
+    expected_msg = 'The elements of "{}" must be non-negative.'.format(negative_input)
+    assert expected_msg == str(excinfo.value)
+
+
 @pytest.mark.parametrize('cov_type_1,cov_type_2', [('multinomial', 'Multinomial'),
                                                    ('poisson', 'Poisson')])
 def test_iterative_unfold_cov_type_case_insensitive(cov_type_1, cov_type_2, example_dataset):
