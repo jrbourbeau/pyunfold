@@ -39,7 +39,6 @@ PyUnfold provides users:
 - The ability to easily incorporate both statistical and systematic uncertainties
 
 
-
 -------------
 Main Features
 -------------
