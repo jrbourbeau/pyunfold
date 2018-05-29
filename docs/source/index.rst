@@ -61,7 +61,7 @@ PyUnfold provides an unfolding toolkit for members of all scientific disciplines
     :caption: Getting Started
 
     overview
-    features
+    why
     installation
     Tutorial <notebooks/tutorial.ipynb>
 
