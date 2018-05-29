@@ -3,9 +3,9 @@
 [![Build Status](https://travis-ci.org/jrbourbeau/pyunfold.svg?branch=master)](https://travis-ci.org/jrbourbeau/pyunfold)
 [![Build status](https://ci.appveyor.com/api/projects/status/wphmmposuctye5ye/branch/master?svg=true)](https://ci.appveyor.com/project/jrbourbeau/pyunfold/branch/master)
 [![codecov](https://codecov.io/gh/jrbourbeau/pyunfold/branch/master/graph/badge.svg)](https://codecov.io/gh/jrbourbeau/pyunfold)
-![pypi version](https://img.shields.io/pypi/v/pyunfold.svg 'pypi version')
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyunfold.svg)
-![license](https://img.shields.io/pypi/l/pyunfold.svg 'license')
+[![pypi version](https://img.shields.io/pypi/v/pyunfold.svg 'pypi version')](https://pypi.org/project/PyUnfold/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyunfold.svg)](https://pypi.org/project/PyUnfold/)
+[![license](https://img.shields.io/pypi/l/pyunfold.svg 'license')](https://github.com/jrbourbeau/pyunfold/blob/master/LICENSE)
 
 
 PyUnfold is a Python package for implementing iterative unfolding.
