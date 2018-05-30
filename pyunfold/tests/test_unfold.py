@@ -185,7 +185,23 @@ def test_iterative_unfold_none_input_raises(none_input, example_dataset):
     inputs[none_input] = None
     with pytest.raises(ValueError) as excinfo:
         iterative_unfold(**inputs)
-    expected_msg = 'The input for "{}" must not be None.'.format(none_input)
+    expected_msg = 'The input for {} must not be None.'.format(none_input)
+    assert expected_msg == str(excinfo.value)
+
+
+@pytest.mark.parametrize('negative_input', inputs)
+def test_iterative_unfold_negative_input_raises(negative_input, example_dataset):
+    inputs = {'data': example_dataset.data,
+              'data_err': example_dataset.data_err,
+              'response': example_dataset.response,
+              'response_err': example_dataset.response_err,
+              'efficiencies': example_dataset.efficiencies,
+              'efficiencies_err': example_dataset.efficiencies_err
+              }
+    inputs[negative_input][0] *= -1
+    with pytest.raises(ValueError) as excinfo:
+        iterative_unfold(**inputs)
+    expected_msg = 'The items in {} must be non-negative.'.format(negative_input)
     assert expected_msg == str(excinfo.value)
 
 
