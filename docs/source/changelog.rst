@@ -15,7 +15,10 @@ Version 0.4.dev0 (TBD)
 
 **Changes**:
 
--
+- Adds check to ``iterative_unfold`` for negative values in input
+  distributions. An error is raised if negative efficiencies, responses, or
+  observed data distributions are input.
+  (See `PR #73 <https://github.com/jrbourbeau/pyunfold/pull/73>`_)
 
 **Bug Fixes**:
 
