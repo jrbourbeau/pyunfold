@@ -44,12 +44,31 @@ def jeffreys_prior(causes):
     prior : numpy.ndarray
         Normalized Jeffreys prior distribution.
 
+    Notes
+    -----
+    The Jeffreys prior is defined as
+
+    .. math::
+
+        P(C_{\mu})^{\\text{Jeffreys}} = \\frac{1}{\log(C_{\\text{max}}/C_\\text{min})C_{\mu}}
+
+    for cause bin values :math:`C_{\mu}` and maximum/minimum cause values
+    :math:`C_{\\text{max}}`/:math:`C_{\\text{min}}`. For more details regarding
+    Jeffreys prior see [1]_.
+
+    References
+    ----------
+    .. [1] Jeffreys, H. "An Invariant Form for the Prior Probability in Estimation Problems".
+        *Proc. of the Royal Society of London A: Mathematical, Physical and Engineering Sciences*
+        186 (1007). London, England:453-61. `<https://doi.org/10.1098/rspa.1946.0056>`_.
+
     Examples
     --------
     >>> from pyunfold.priors import jeffreys_prior
     >>> causes = [1, 2, 3, 4]
     >>> jeffreys_prior(causes=causes)
     array([0.48, 0.24, 0.16, 0.12])
+
     """
     causes = np.asarray(causes)
     # All cause bins are given equal probability mass.

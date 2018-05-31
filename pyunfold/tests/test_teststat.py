@@ -6,7 +6,7 @@ from pyunfold.teststat import get_ts, TEST_STATISTICS
 
 @pytest.mark.parametrize('name', ['ks',
                                   'chi2',
-                                  'pf',
+                                  'bf',
                                   'rmd'])
 def test_get_ts(name):
     assert name in TEST_STATISTICS.keys()

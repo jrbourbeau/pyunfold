@@ -148,8 +148,7 @@ def iterative_unfold(data=None, data_err=None, response=None,
 
     # Setup test statistic
     ts_obj = get_ts(ts)
-    ts_func = ts_obj(ts,
-                     tol=ts_stopping,
+    ts_func = ts_obj(tol=ts_stopping,
                      num_causes=num_causes,
                      TestRange=[0, 1e2],
                      verbose=False)
@@ -213,8 +212,8 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
                                                         params=status)
             status['unfolded'] = unfolded_n_c
 
-        ts_cur, ts_del, ts_prob = ts_func.GetStats(unfolded_n_c, current_n_c)
-        status['ts_iter'] = ts_cur
+        ts_iter = ts_func.calc(unfolded_n_c, current_n_c)
+        status['ts_iter'] = ts_iter
         status['ts_stopping'] = ts_func.tol
 
         for callback in callbacks:

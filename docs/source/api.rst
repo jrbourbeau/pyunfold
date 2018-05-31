@@ -28,3 +28,21 @@ Priors
 .. autofunction:: pyunfold.priors.uniform_prior
 
 .. autofunction:: pyunfold.priors.jeffreys_prior
+
+
+Test Statistics
+---------------
+
+.. autofunction:: pyunfold.teststat.get_ts
+
+.. autoclass:: pyunfold.teststat.KS
+    :members:
+
+.. autoclass:: pyunfold.teststat.Chi2
+    :members:
+
+.. autoclass:: pyunfold.teststat.RMD
+    :members:
+
+.. autoclass:: pyunfold.teststat.BF
+    :members:
