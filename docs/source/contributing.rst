@@ -217,6 +217,11 @@ Now you can push this commit from your local repository to your copy on GitHub
 Step 11: Submitting a pull request
 ==================================
 
-Finally, you can go to your copy of PyUnfold on GitHub and submit a pull request by clicking the "Compare & pull request" button!
+Finally, you can go to your copy of PyUnfold on GitHub and submit a pull
+request by clicking the "Compare & pull request" button!
+
+If you're new to writing pull requests, see GitHub's `How to write the perfect
+pull request <https://blog.github.com/2015-01-21-how-to-write-the-perfect-pull-request/>`_
+article for a list of some best practices.
 
 .. image:: _static/pull-request-button.png
