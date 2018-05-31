@@ -129,7 +129,7 @@ class BF(TestStat):
     ----------
     .. [1] S. Y. BenZvi and B. M. Connolly and C. G. Pfendner and S. Westerhoff.
         "A Bayesian Approach to Comparing Cosmic Ray Energy Spectra".
-        The Astrophysical Journal 738 (1):82.
+        *The Astrophysical Journal* 738 (1):82.
         `<https://doi.org/10.1088/0004-637X/738/1/82>`_.
     """
     def calc(self, dist1, dist2):
