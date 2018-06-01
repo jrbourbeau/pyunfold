@@ -39,7 +39,9 @@ def iterative_unfold(data=None, data_err=None, response=None,
         (or flat) prior will be used. If array_like, then must have the same
         shape as ``efficiencies`` (default is None).
     ts : {'ks', 'chi2', 'pf', 'rmd'}
-        Name of test statistic to use for stopping condition (default is 'ks').
+        Test statistic to use for stopping condition (default is 'ks').
+        For more information about the available test statistics, see the
+        `Test Statistics API documentation <api.rst#test-statistics>`__.
     ts_stopping : float, optional
         Test statistic stopping condition. At each unfolding iteration, the
         test statistic is computed between the current and previous iteration.
