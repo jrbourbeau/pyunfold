@@ -27,7 +27,25 @@ bibliography: paper.bib
 
 # Summary
 
-PyUnfold is an extensible framework for the deconvolution of discrete probability
+In an ideal world, experimentalists would have access to the perfect detector:
+an apparatus that makes no error in measuring a desired quantity. However,
+in real life scenarios, detectors have:
+
+- Finite resolutions
+
+- Characteristic biases that cannot be eliminated
+
+- Less than 100% detection efficiencies
+
+- Statistical uncertainties
+
+By building a matrix that encodes a detector’s smearing of the desired true
+quantity into the measured observable(s), a deconvolution can be performed
+that provides an estimate of the true variable. This deconvolution process is
+known as unfolding.
+
+
+PyUnfold is an extensible framework for the unfolding of discrete probability
 distributions via the iterative unfolding method described in [@agostini].
 This method falls into the general class of inverse problems, and is especially powerful
 when no analytic form of the inverse function is explicitly available, instead requiring
