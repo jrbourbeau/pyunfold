@@ -9,16 +9,22 @@ Release Notes
 Version 0.4.dev0 (TBD)
 ----------------------
 
-**New Features**:
-
--
-
 **Changes**:
 
 - Adds check to ``iterative_unfold`` for negative values in input
   distributions. An error is raised if negative efficiencies, responses, or
   observed data distributions are input.
   (See `PR #73 <https://github.com/jrbourbeau/pyunfold/pull/73>`_)
+- Adds several documentation updates in response to JOSS reviewer comments 
+  (See
+  `PR #83 <https://github.com/jrbourbeau/pyunfold/pull/83>`_,
+  `PR #82 <https://github.com/jrbourbeau/pyunfold/pull/82>`_,
+  `PR #77 <https://github.com/jrbourbeau/pyunfold/pull/77>`_,
+  `PR #76 <https://github.com/jrbourbeau/pyunfold/pull/76>`_,
+  `PR #71 <https://github.com/jrbourbeau/pyunfold/pull/71>`_,
+  `PR #70 <https://github.com/jrbourbeau/pyunfold/pull/70>`_, and
+  `PR #69 <https://github.com/jrbourbeau/pyunfold/pull/69>`_)
+
 
 **Bug Fixes**:
 
