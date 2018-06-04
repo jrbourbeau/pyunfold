@@ -8,24 +8,6 @@
 PyUnfold
 ========
 
-.. image:: https://travis-ci.org/jrbourbeau/pyunfold.svg?branch=master
-    :target: https://travis-ci.org/jrbourbeau/pyunfold
-
-.. image:: https://ci.appveyor.com/api/projects/status/wphmmposuctye5ye/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/jrbourbeau/pyunfold/branch/master
-
-.. image:: https://codecov.io/gh/jrbourbeau/pyunfold/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/jrbourbeau/pyunfold
-
-.. image:: https://img.shields.io/pypi/v/pyunfold.svg
-    :target: https://pypi.org/project/PyUnfold/
-
-.. image:: https://img.shields.io/pypi/pyversions/pyunfold.svg
-    :target: https://pypi.org/project/PyUnfold/
-
-.. image:: https://img.shields.io/pypi/l/pyunfold.svg
-    :target: https://pypi.org/project/PyUnfold/
-
 **PyUnfold is a Python package for implementing iterative unfolding** [1]_
 
 PyUnfold provides an unfolding toolkit for members of all scientific disciplines with a simple, user-friendly API. Implementing an unfolding with PyUnfold only takes a few lines of code.
@@ -75,14 +57,15 @@ PyUnfold provides an unfolding toolkit for members of all scientific disciplines
     mathematics
     changelog
     contributing
+    citing
 
 .. toctree::
    :maxdepth: 1
    :caption: Useful links
-   :hidden:
 
    PyUnfold @ GitHub <https://github.com/jrbourbeau/pyunfold>
    PyUnfold @ PyPI <https://pypi.org/project/pyunfold/>
+   PyUnfold @ conda-forge <https://anaconda.org/conda-forge/pyunfold>
    Issue Tracker <https://github.com/jrbourbeau/pyunfold/issues>
 
 
