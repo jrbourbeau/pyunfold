@@ -35,7 +35,7 @@ This installs PyUnfold, along with all the necessary dependencies such as NumPy 
 Development Version
 -------------------
 
-The latest development version of PyUnfold can be install directly from GitHub
+The latest development version of PyUnfold can be installed directly from GitHub
 
 .. code-block:: bash
 
