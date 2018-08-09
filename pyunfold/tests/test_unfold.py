@@ -260,6 +260,21 @@ def test_iterative_unfold_keys(example_dataset, return_iterations):
             'num_iterations',
             'ts_stopping',
             'ts_iter',
+            'unfolding_matrix',
             ]
     for key in keys:
         assert key in unfolded_result
+
+
+def test_unfolding_matrix(example_dataset):
+    inputs = {'data': example_dataset.data,
+              'data_err': example_dataset.data_err,
+              'response': example_dataset.response,
+              'response_err': example_dataset.response_err,
+              'efficiencies': example_dataset.efficiencies,
+              'efficiencies_err': example_dataset.efficiencies_err
+              }
+    unfolded_result = iterative_unfold(return_iterations=True, **inputs)
+    for _, row in unfolded_result.iterrows():
+        np.testing.assert_array_equal(row['unfolded'],
+                                      np.dot(inputs['data'], row['unfolding_matrix']))

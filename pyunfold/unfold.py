@@ -205,7 +205,8 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
         status = {'unfolded': unfolded_n_c,
                   'stat_err': mixer.get_stat_err(),
                   'sys_err': mixer.get_MC_err(),
-                  'num_iterations': iteration}
+                  'num_iterations': iteration,
+                  'unfolding_matrix': mixer.Mij}
 
         if regularizer is not None:
             # Will want the nonregularized distribution for the final iteration
