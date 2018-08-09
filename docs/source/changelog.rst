@@ -11,7 +11,7 @@ Version 0.5.dev0 (TBD)
 
 **New Features**:
 
--
+- Adds unfolding matrix to output of ``iterative_unfold`` (See `PR #88 <https://github.com/jrbourbeau/pyunfold/pull/88>`_).
 
 
 **Changes**:
