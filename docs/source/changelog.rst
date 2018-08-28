@@ -21,7 +21,7 @@ Version 0.5.dev0 (TBD)
 
 **Bug Fixes**:
 
--
+- Fixed bug in Bayes factor test statistic ``calc`` method (See `PR #93 <https://github.com/jrbourbeau/pyunfold/pull/93>`_).
 
 
 Version 0.4 (2018-06-03)
