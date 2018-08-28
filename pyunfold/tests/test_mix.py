@@ -70,17 +70,19 @@ def test_mixer_zeros_prior():
 
 
 def test_mixer_2d_response_check():
-    response = 1 + np.random.rand(num_effects, num_causes, num_effects)
-    response_err = np.sqrt(response)
+    # Tests that a non-2D response matrix raises an error
+    # Construct a response matrix that is 3-dimensional
+    response_bad = 1 + np.random.rand(num_effects, num_causes, 1)
+    response_bad_err = np.sqrt(response_bad)
 
     with pytest.raises(ValueError) as excinfo:
         Mixer(data=data,
               data_err=data_err,
               efficiencies=efficiencies,
               efficiencies_err=efficiencies_err,
-              response=response,
-              response_err=response_err)
+              response=response_bad,
+              response_err=response_bad_err)
 
     raised_msg = str(excinfo.value)
     assert 'Response matrix must be 2-dimensional' in raised_msg
-    assert '{}-dimensional response'.format(response.ndim) in raised_msg
+    assert '{}-dimensional response'.format(response_bad.ndim) in raised_msg
