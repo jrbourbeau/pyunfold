@@ -38,7 +38,7 @@ def iterative_unfold(data=None, data_err=None, response=None,
         Prior distribution to use in unfolding. If None, then a uniform
         (or flat) prior will be used. If array_like, then must have the same
         shape as ``efficiencies`` (default is None).
-    ts : {'ks', 'chi2', 'pf', 'rmd'}
+    ts : {'ks', 'chi2', 'bf', 'rmd'}
         Test statistic to use for stopping condition (default is 'ks').
         For more information about the available test statistics, see the
         `Test Statistics API documentation <api.rst#test-statistics>`__.
