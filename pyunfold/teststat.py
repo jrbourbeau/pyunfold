@@ -158,7 +158,6 @@ class BF(TestStat):
         for i in range(0, len(dist1)):
             lnB += lgamma(dist1[i]+1) + lgamma(dist2[i]+1) - lgamma(dist1[i]+dist2[i]+2)
 
-        self.SetStat(lnB)
         self.stat = lnB
 
         return lnB
@@ -253,5 +252,5 @@ def get_ts(name='ks'):
         ts = TEST_STATISTICS[name]
         return ts
     else:
-        raise ValueError('Invalid test statisitc, {}, entered. Must be '
+        raise ValueError('Invalid test statistic, {}, entered. Must be '
                          'in {}'.format(name, TEST_STATISTICS.keys()))
