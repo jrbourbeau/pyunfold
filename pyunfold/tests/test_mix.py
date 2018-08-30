@@ -67,3 +67,22 @@ def test_mixer_smear_invalid_cause_bins_raises():
 def test_mixer_zeros_prior():
     np.testing.assert_array_equal(mixer.smear(np.zeros(num_causes)),
                                   np.zeros(num_causes))
+
+
+def test_mixer_2d_response_check():
+    # Tests that a non-2D response matrix raises an error
+    # Construct a response matrix that is 3-dimensional
+    response_bad = 1 + np.random.rand(num_effects, num_causes, 1)
+    response_bad_err = np.sqrt(response_bad)
+
+    with pytest.raises(ValueError) as excinfo:
+        Mixer(data=data,
+              data_err=data_err,
+              efficiencies=efficiencies,
+              efficiencies_err=efficiencies_err,
+              response=response_bad,
+              response_err=response_bad_err)
+
+    raised_msg = str(excinfo.value)
+    assert 'Response matrix must be 2-dimensional' in raised_msg
+    assert '{}-dimensional response'.format(response_bad.ndim) in raised_msg

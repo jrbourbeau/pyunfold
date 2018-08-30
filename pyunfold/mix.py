@@ -19,6 +19,11 @@ class Mixer(object):
                        'effect bins.'.format(len(data), response.shape[0]))
             raise ValueError(err_msg)
 
+        if response.ndim != 2:
+            raise ValueError('Response matrix must be 2-dimensional, but got '
+                             'a {}-dimensional response matrix '
+                             'instead'.format(response.ndim))
+
         # Normalized P(E|C)
         self.pec = response
         self.cEff = efficiencies
