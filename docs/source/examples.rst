@@ -2,9 +2,9 @@
 
 :github_url: https://github.com/jrbourbeau/pyunfold
 
-*******************
-Advanced Techniques
-*******************
+********
+Examples
+********
 
 There are several advanced unfolding techniques that PyUnfold supports. Most notably these include:
 
