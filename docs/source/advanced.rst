@@ -1,4 +1,4 @@
-.. _advanced:
+.. _examples:
 
 :github_url: https://github.com/jrbourbeau/pyunfold
 
@@ -11,6 +11,7 @@ There are several advanced unfolding techniques that PyUnfold supports. Most not
 .. toctree::
     :maxdepth: 1
 
+    Basic API Tutorial <notebooks/tutorial.ipynb>
     Implementing a user-defined prior <notebooks/user_prior.ipynb>
     Smoothing via spline regularization <notebooks/regularization.ipynb>
     Multivariate unfolding via cause groups <notebooks/multivariate.ipynb>
