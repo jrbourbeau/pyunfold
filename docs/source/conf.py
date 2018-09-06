@@ -26,9 +26,9 @@ copyright = u'2018, James Bourbeau, Zigfried Hampel-Arias'
 author = u'James Bourbeau, Zigfried Hampel-Arias'
 
 # The short X.Y version
-version = ''
+# version = ''
 # The full version, including alpha/beta/rc tags
-release = ''
+release = pyunfold.__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -54,6 +54,28 @@ numpydoc_show_inherited_class_members = False
 # this is needed for some reason...
 # see https://github.com/numpy/numpydoc/issues/69
 numpydoc_class_members_toctree = False
+
+# This is processed by Jinja2 and inserted before each notebook
+nbsphinx_prolog = """
+{% set docname = env.doc2path(env.docname, base='docs/source') %}
+
+.. only:: html
+
+    .. role:: raw-html(raw)
+        :format: html
+
+    .. note::
+
+        This page was generated from `{{ docname }}`__.
+        An interactive version of this notebook can be run using `Binder <https://mybinder.org/>`_ by clicking
+        :raw-html:`<a href="https://mybinder.org/v2/gh/jrbourbeau/pyunfold/master?filepath={{ docname }}"><img alt="Binder badge" src="https://mybinder.org/badge.svg" style="vertical-align:text-bottom"></a>`
+
+        Note that if you wish to run this notebook on your own, you'll need to have `matplotlib <https://matplotlib.org/>`_ and `seaborn <https://seaborn.pydata.org/>`_ installed.
+
+
+    __ https://github.com/jrbourbeau/pyunfold/blob/master/{{ docname }}
+
+"""
 
 autosummary_generate = ['api.rst']
 

@@ -43,9 +43,9 @@ PyUnfold provides an unfolding toolkit for members of all scientific disciplines
     :caption: Getting Started
 
     overview
-    why
     installation
     examples
+    why
 
 .. toctree::
     :maxdepth: 1
