@@ -18,10 +18,14 @@ jobs:
       - DOCS='false'
     - env:
       - PYTHON=3.6
+      - COVERAGE='false'
+      - DOCS='false'
+    - env:
+      - PYTHON=3.7
       - COVERAGE='true'
       - DOCS='true'
     - env:
-      - PYTHON=3.6
+      - PYTHON=3.7
       - COVERAGE='false'
       - DOCS='false'
       os: osx
