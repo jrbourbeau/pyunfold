@@ -94,7 +94,7 @@ class Mixer(object):
         n_c_update = np.dot(self.NEobs, Mij)
 
         # The status quo
-        self.Mij = Mij.copy()
+        self.Mij = Mij
         self.cov.set_current_state(self.Mij, f_norm, n_c_update, n_c)
 
         return n_c_update
@@ -130,8 +130,6 @@ class CovarianceMatrix(object):
         dims = self.pec.shape
         self.cbins = dims[1]
         self.ebins = dims[0]
-        # Mixing matrix
-        self.Mij = np.zeros(dims)
         # Adye propagating derivative
         self.dcdn = np.zeros(dims)
         self.dcdP = np.zeros((self.cbins, self.cbins * self.ebins))
@@ -144,9 +142,6 @@ class CovarianceMatrix(object):
         # For ease of typing
         ebins = self.ebins
         cbins = self.cbins
-
-        # First set Mij
-        self.Mij = Mij.copy()
 
         # D'Agostini Form (and/or First Term of Adye)
         dcdn = Mij.copy()
@@ -166,8 +161,8 @@ class CovarianceMatrix(object):
         # Adye propagation corrections
         if self.counter > 0:
             # Get previous derivatives
-            dcdn_prev = self.dcdn.copy()
-            dcdP_prev = self.dcdP.copy()
+            dcdn_prev = self.dcdn
+            dcdP_prev = self.dcdP
 
             n_c_prev_inv = safe_inverse(n_c_prev)
             # Ratio of updated n_c to n_c_prev
@@ -192,8 +187,8 @@ class CovarianceMatrix(object):
             dcdP += (dcdP_prev.T * nc_r).T - dcdP_Upd
 
         # Set current derivative matrices
-        self.dcdn = dcdn.copy()
-        self.dcdP = dcdP.copy()
+        self.dcdn = dcdn
+        self.dcdP = dcdP
         # On to next iteration
         self.counter += 1
 
@@ -207,7 +202,7 @@ class CovarianceMatrix(object):
         """Get full Vc0 (data) contribution to cov matrix
         """
         # Get derivative
-        dcdn = self.dcdn.copy()
+        dcdn = self.dcdn
         # Get NObs covariance
         Vcd = self.getVcd()
         # Set data covariance
