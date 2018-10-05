@@ -19,5 +19,6 @@ dependencies:
   - nbsphinx
   - pandoc
   - jupyter
+  - testpath<0.4
   - matplotlib
   - seaborn
