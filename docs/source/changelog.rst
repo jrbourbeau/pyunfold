@@ -17,6 +17,7 @@ Version 0.5.dev0 (TBD)
 **Changes**:
 
 - Adds a check to ``Mixer`` to ensure response matrices are two-dimensional. An error is raised if a non-2D response matrix is input (See `PR #90 <https://github.com/jrbourbeau/pyunfold/pull/90>`_).
+- Removes unnecessary NumPy array copies in ``Mixer`` and  ``CovarianceMatrix`` object (See `PR #99 <https://github.com/jrbourbeau/pyunfold/pull/99>`_).
 
 
 **Bug Fixes**:
