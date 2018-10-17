@@ -5,18 +5,23 @@
 }
 
 .wy-nav-side, div.wy-side-nav-search {
-  background: #343131;
+  background-color: #343131;
 }
 
 /* Sidebar link click color */
-.toctree-l1 > a:active {
-  background-color: #70c162 !important;
-  color: rgb(252, 252, 252) !important;
-}
-
-.toctree-l1 > a:hover {
+.wy-menu-vertical .toctree-l1 > a:active {
   background-color: #70c162;
   color: rgb(252, 252, 252);
+}
+
+.wy-menu-vertical .toctree-l1 > a:hover {
+  background-color: #70c162;
+  color: rgb(252, 252, 252);
+}
+
+.wy-menu-vertical li.current > a:hover, .wy-menu-vertical li.current > a:active {
+  color: #404040;
+  background-color: #F5F5F5;
 }
 
 .wy-side-nav-search input[type="text"] {
