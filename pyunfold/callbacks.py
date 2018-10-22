@@ -10,17 +10,43 @@ class Callback(object):
     def __init__(self):
         pass
 
-    def on_unfolding_begin(self):
+    def on_unfolding_begin(self, status=None):
         pass
 
-    def on_unfolding_end(self):
+    def on_unfolding_end(self, status=None):
         pass
 
-    def on_iteration_begin(self, iteration, params):
+    def on_iteration_begin(self, iteration, status=None):
         pass
 
-    def on_iteration_end(self, iteration, params):
+    def on_iteration_end(self, iteration, status=None):
         pass
+
+
+class CallbackList(object):
+    """Container for Callback objects
+    """
+    def __init__(self, callbacks=None):
+        self.callbacks = validate_callbacks(callbacks)
+
+    def __iter__(self):
+        return iter(self.callbacks)
+
+    def on_unfolding_begin(self, status=None):
+        for callback in self.callbacks:
+            callback.on_unfolding_begin(status=status)
+
+    def on_unfolding_end(self, status=None):
+        for callback in self.callbacks:
+            callback.on_unfolding_end(status=status)
+
+    def on_iteration_begin(self, iteration, status=None):
+        for callback in self.callbacks:
+            callback.on_iteration_begin(iteration=iteration, status=status)
+
+    def on_iteration_end(self, iteration, status=None):
+        for callback in self.callbacks:
+            callback.on_iteration_end(iteration=iteration, status=status)
 
 
 class Regularizer(object):
@@ -39,7 +65,7 @@ class Logger(Callback):
         super(Callback, self).__init__()
         pass
 
-    def on_iteration_end(self, iteration, params):
+    def on_iteration_end(self, iteration, status):
         """Writes to sys.stdout
 
         Parameters
@@ -47,15 +73,15 @@ class Logger(Callback):
         iteration : int
             Unfolding iteration (i.e. iteration=1 after first unfolding
             iteration, etc.).
-        params : dict
+        status : dict
             Dictionary containing key value pairs for the current test
             statistic value (``'ts_iter'``) and the final test statistic stopping
             condition (``'ts_stopping'``).
         """
         output = ('Iteration {}: ts = {:0.4f}, ts_stopping ='
                   ' {}\n'.format(iteration,
-                                 params['ts_iter'],
-                                 params['ts_stopping']))
+                                 status['ts_iter'],
+                                 status['ts_stopping']))
         sys.stdout.write(output)
 
 
@@ -109,8 +135,8 @@ class SplineRegularizer(Callback, Regularizer):
         self.smooth = smooth
         self.groups = np.asarray(groups) if groups is not None else None
 
-    def on_iteration_end(self, iteration, params):
-        y = params['unfolded']
+    def on_iteration_end(self, iteration, status=None):
+        y = status['unfolded']
         x = np.arange(len(y), dtype=float)
         if self.groups is None:
             spline = UnivariateSpline(x, y, k=self.degree, s=self.smooth)
@@ -132,7 +158,7 @@ class SplineRegularizer(Callback, Regularizer):
                 fitted_unfolded_group = spline_group(x_group)
                 fitted_unfolded[group_mask] = fitted_unfolded_group
 
-        return fitted_unfolded
+        status['unfolded'] = fitted_unfolded
 
 
 def validate_callbacks(callbacks):
@@ -156,3 +182,11 @@ def extract_regularizer(callbacks):
     regularizer = regularizers[0] if len(regularizers) == 1 else None
 
     return regularizer
+
+
+def setup_callbacks_regularizer(callbacks):
+    callbacks = validate_callbacks(callbacks)
+    regularizer = extract_regularizer(callbacks)
+    callbacks = CallbackList([c for c in callbacks if c is not regularizer])
+
+    return callbacks, regularizer

@@ -7,7 +7,7 @@ from .mix import Mixer
 from .teststat import get_ts
 from .priors import setup_prior
 from .utils import cast_to_array
-from .callbacks import validate_callbacks, extract_regularizer
+from .callbacks import setup_callbacks_regularizer
 
 
 def iterative_unfold(data=None, data_err=None, response=None,
@@ -182,6 +182,9 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
         Test statistic object.
     max_iter : int, optional
         Maximum allowed number of iterations to perform.
+    callbacks : list, optional
+        List of ``pyunfold.callbacks.Callback`` instances to be applied during
+        unfolding (default is None, which means no Callbacks are applied).
 
     Returns
     -------
@@ -189,15 +192,15 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
         DataFrame containing the unfolded result for each iteration.
         Each row in unfolding_result corresponds to an iteration.
     """
-    callbacks = validate_callbacks(callbacks)
-    regularizer = extract_regularizer(callbacks)
-    # Will treat regularizer Callback separately
-    callbacks = [c for c in callbacks if c is not regularizer]
+    # Set up callbacks, regularizer Callbacks are treated separately
+    callbacks, regularizer = setup_callbacks_regularizer(callbacks)
+    callbacks.on_unfolding_begin()
 
     current_n_c = prior.copy()
     iteration = 0
     unfolding_iters = []
-    while (not ts_func.pass_tol() and iteration < max_iter):
+    while not ts_func.pass_tol() and iteration < max_iter:
+        callbacks.on_iteration_begin(iteration=iteration)
 
         # Perform unfolding for this iteration
         unfolded_n_c = mixer.smear(current_n_c)
@@ -208,24 +211,20 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
                   'num_iterations': iteration,
                   'unfolding_matrix': mixer.Mij}
 
-        if regularizer is not None:
+        if regularizer:
             # Will want the nonregularized distribution for the final iteration
-            unfolded_nonregularized = unfolded_n_c.copy()
-            unfolded_n_c = regularizer.on_iteration_end(iteration=iteration,
-                                                        params=status)
-            status['unfolded'] = unfolded_n_c
+            unfolded_nonregularized = status['unfolded'].copy()
+            regularizer.on_iteration_end(iteration=iteration, status=status)
 
-        ts_iter = ts_func.calc(unfolded_n_c, current_n_c)
+        ts_iter = ts_func.calc(status['unfolded'], current_n_c)
         status['ts_iter'] = ts_iter
         status['ts_stopping'] = ts_func.tol
 
-        for callback in callbacks:
-            callback.on_iteration_end(iteration=iteration,
-                                      params=status)
-
+        callbacks.on_iteration_end(iteration=iteration, status=status)
         unfolding_iters.append(status)
+
         # Updated current distribution for next iteration of unfolding
-        current_n_c = unfolded_n_c.copy()
+        current_n_c = status['unfolded'].copy()
 
     # Convert unfolding_iters list of dictionaries to a pandas DataFrame
     unfolding_iters = pd.DataFrame.from_records(unfolding_iters)
@@ -234,5 +233,7 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
     if regularizer:
         last_iteration_index = unfolding_iters.index[-1]
         unfolding_iters.at[last_iteration_index, 'unfolded'] = unfolded_nonregularized
+
+    callbacks.on_unfolding_end(status=status)
 
     return unfolding_iters
