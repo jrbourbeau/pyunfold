@@ -5,9 +5,10 @@ import pytest
 from scipy.interpolate import UnivariateSpline
 
 from pyunfold.unfold import iterative_unfold
-from pyunfold.callbacks import (Callback, Logger, SplineRegularizer,
-                                Regularizer, validate_callbacks,
-                                extract_regularizer)
+from pyunfold.callbacks import (Callback, CallbackList, Logger,
+                                Regularizer, SplineRegularizer,
+                                validate_callbacks, extract_regularizer,
+                                setup_callbacks_regularizer)
 
 
 @pytest.mark.parametrize('attr', ['on_unfolding_begin',
@@ -194,3 +195,13 @@ def test_extract_regularizer_no_regularizer():
 def test_extract_regularizer(callback):
     callbacks = [Logger(), callback]
     assert extract_regularizer(callbacks) == callback
+
+
+def test_setup_callbacks_regularizer():
+
+    callbacks = [Logger(), SplineRegularizer()]
+    c, r = setup_callbacks_regularizer(callbacks)
+    assert isinstance(c, CallbackList)
+    assert len(c) == 1
+    assert c.callbacks[0] is callbacks[0]
+    assert r is callbacks[1]

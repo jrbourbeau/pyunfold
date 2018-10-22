@@ -29,6 +29,9 @@ class CallbackList(object):
     def __init__(self, callbacks=None):
         self.callbacks = validate_callbacks(callbacks)
 
+    def __len__(self):
+        return len(self.callbacks)
+
     def __iter__(self):
         return iter(self.callbacks)
 
