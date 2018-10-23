@@ -205,3 +205,54 @@ def test_setup_callbacks_regularizer():
     assert len(c) == 1
     assert c.callbacks[0] is callbacks[0]
     assert r is callbacks[1]
+
+
+def test_callbacklist_empty():
+    c = CallbackList()
+    assert c.callbacks == []
+
+
+def test_callbacklist_callbacks():
+    logger = Logger()
+    reg = SplineRegularizer()
+    callbacks = [logger, reg]
+    c = CallbackList(callbacks=callbacks)
+    assert len(c) == len(callbacks)
+    assert all(i is j for i, j in zip(c.callbacks, callbacks))
+
+
+def test_callbacklist_method_calls():
+    class MethodChecker(Callback):
+        def __init__(self):
+            super(Callback, self).__init__()
+            self.called_unfolding_begin = False
+            self.called_on_unfolding_end = False
+            self.called_on_iteration_begin = False
+            self.called_on_iteration_end = False
+
+        def on_unfolding_begin(self, status=None):
+            self.called_on_unfolding_begin = True
+
+        def on_unfolding_end(self, status=None):
+            self.called_on_unfolding_end = True
+
+        def on_iteration_begin(self, iteration, status=None):
+            self.called_on_iteration_begin = True
+
+        def on_iteration_end(self, iteration, status=None):
+            self.called_on_iteration_end = True
+
+    method_checker = MethodChecker()
+    c = CallbackList(method_checker)
+
+    c.on_iteration_begin(1)
+    assert method_checker.called_on_iteration_begin
+
+    c.on_iteration_end(1)
+    assert method_checker.called_on_iteration_end
+
+    c.on_unfolding_begin()
+    assert method_checker.called_on_unfolding_begin
+
+    c.on_unfolding_end()
+    assert method_checker.called_on_unfolding_end
