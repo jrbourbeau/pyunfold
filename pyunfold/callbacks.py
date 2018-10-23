@@ -165,6 +165,22 @@ class SplineRegularizer(Callback, Regularizer):
 
 
 def validate_callbacks(callbacks):
+    """Checks that input callbacks are indeed Callback object instances
+
+    Parameters
+    ----------
+    callbacks : Callback or iterable
+        Input Callbacks. Can be either a single Callback or an interable
+        of Callbacks.
+
+    Returns
+    -------
+    callbacks : list
+       List of Callbacks. If ``callbacks`` is already a list of ``Callback``
+       objects, then it is returned. If ``callbacks`` is a ``Callback`` object,
+       then a list containing ``callbacks`` is returned. If ``callbacks`` is
+       None, an empty list is returned.
+    """
     if callbacks is None:
         callbacks = []
     elif isinstance(callbacks, Callback):
@@ -178,6 +194,25 @@ def validate_callbacks(callbacks):
 
 
 def extract_regularizer(callbacks):
+    """Returns a Regularizer Callback from an input list of Callbacks
+
+    Parameters
+    ----------
+    callbacks : Callback or iterable
+        Input Callbacks. Can be either a single Callback or an interable
+        of Callbacks.
+
+    Returns
+    -------
+    regularizer : Regularizer
+       Regularizer Callback if one exists in the input callbacks, otherwise
+       None is returned.
+
+    Raises
+    ------
+    NotImplementedError
+        Multiple Regularizers are in the input Callbacks.
+    """
     callbacks = validate_callbacks(callbacks)
     regularizers = [c for c in callbacks if isinstance(c, Regularizer)]
     if len(regularizers) > 1:
@@ -188,6 +223,19 @@ def extract_regularizer(callbacks):
 
 
 def setup_callbacks_regularizer(callbacks):
+    """Validates and formats input callbacks
+
+    Parameters
+    ----------
+    callbacks : Callback or iterable
+        Input Callbacks. Can be either a single Callback or an interable
+        of Callbacks.
+
+    Returns
+    -------
+    callbacks : CallbackList
+    regularizer : Regularizer
+    """
     callbacks = validate_callbacks(callbacks)
     regularizer = extract_regularizer(callbacks)
     callbacks = CallbackList([c for c in callbacks if c is not regularizer])
