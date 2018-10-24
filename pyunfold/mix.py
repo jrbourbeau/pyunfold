@@ -132,51 +132,70 @@ class CovarianceMatrix(object):
     def set_current_state(self, Mij, f_norm, n_c, n_c_prev):
         """Set the Current State of dcdn and dcdP
         """
-        # For ease of typing
-        ebins = self.ebins
-        cbins = self.cbins
-
         # D'Agostini Form (and/or First Term of Adye)
+        dcdP = self._initialize_dcdP(Mij, f_norm, n_c, n_c_prev)
         dcdn = Mij.copy()
-        f_inv = safe_inverse(f_norm)
-
-        NE_F_R = self.NEobs * f_inv
-        # (ti, ec_j + tk) elements
-        dcdP = set_state_loop(ebins, cbins, NE_F_R, Mij, n_c_prev, self.cEff_inv, n_c)
-
-        # Adye propagation corrections
+        # Add Adye propagation corrections
         if self.counter > 0:
-            # Get previous derivatives
-            dcdn_prev = self.dcdn
-            dcdP_prev = self.dcdP
-
-            n_c_prev_inv = safe_inverse(n_c_prev)
-            # Ratio of updated n_c to n_c_prev
-            nc_r = n_c * n_c_prev_inv
-            # Efficiency ratio of n_c_prev
-            e_r = self.cEff * n_c_prev_inv
-
-            # Calculate extra dcdn terms
-            M1 = dcdn_prev * nc_r
-            M2 = -Mij * e_r
-            M2 = M2.T * self.NEobs
-            M3 = np.dot(M2, dcdn_prev)
-            dcdn += np.dot(Mij, M3)
-            dcdn += M1
-
-            # Calculate extra dcdP terms
-            # My version (from unfolding doc)
-            At = Mij.T * self.NEobs
-            B = Mij * e_r
-            C = np.dot(At, B)
-            dcdP_Upd = np.dot(C, dcdP_prev)
-            dcdP += (dcdP_prev.T * nc_r).T - dcdP_Upd
+            dcdn, dcdP = self._adye_propagation_corrections(dcdP, Mij, n_c, n_c_prev)
 
         # Set current derivative matrices
         self.dcdn = dcdn
         self.dcdP = dcdP
         # On to next iteration
         self.counter += 1
+
+    def _initialize_dcdP(self, Mij, f_norm, n_c, n_c_prev):
+        cbins = self.cbins
+        ebins = self.ebins
+
+        NE_F_R = self.NEobs * safe_inverse(f_norm)
+
+        dcdP = np.zeros((cbins, cbins * ebins))
+        # (ti, ec_j + tk) elements
+        tk = np.arange(0, cbins)
+        for ej in np.arange(0, ebins):
+            A = np.outer(-NE_F_R[ej] * Mij[ej, :], n_c_prev)
+            for ti in np.arange(0, cbins):
+                dcdP[ti, ej * cbins + tk] = A[ti, tk]
+
+        # (ti, ec_j + ti) elements
+        ti = np.arange(0, cbins)
+        A = (np.outer(n_c_prev, NE_F_R) - n_c[:, None]) * self.cEff_inv[:, None]
+        for ej in np.arange(0, ebins):
+            dcdP[ti, ej * cbins + ti] += A[ti, ej]
+
+        return dcdP
+
+    def _adye_propagation_corrections(self, dcdP, Mij, n_c, n_c_prev):
+        dcdn = Mij.copy()
+
+        # Get previous derivatives
+        dcdn_prev = self.dcdn
+        dcdP_prev = self.dcdP
+
+        n_c_prev_inv = safe_inverse(n_c_prev)
+        # Ratio of updated n_c to n_c_prev
+        nc_r = n_c * n_c_prev_inv
+        # Efficiency ratio of n_c_prev
+        e_r = self.cEff * n_c_prev_inv
+
+        # Calculate extra dcdn terms
+        M1 = dcdn_prev * nc_r
+        M2 = -Mij * e_r
+        M2 = M2.T * self.NEobs
+        M3 = np.dot(M2, dcdn_prev)
+        dcdn += np.dot(Mij, M3)
+        dcdn += M1
+
+        # Calculate extra dcdP terms (from unfolding doc)
+        At = Mij.T * self.NEobs
+        B = Mij * e_r
+        C = np.dot(At, B)
+        dcdP_Upd = np.dot(C, dcdP_prev)
+        dcdP += (dcdP_prev.T * nc_r).T - dcdP_Upd
+
+        return dcdn, dcdP
 
     def getVcd(self):
         """Get Covariance Matrix of N(E), ie from Observed Effects
@@ -232,24 +251,6 @@ class CovarianceMatrix(object):
         # Full Covariance Matrix
         Vc = Vc0 + Vc1
         return Vc
-
-
-def set_state_loop(ebins, cbins, NE_F_R, Mij, n_c_prev, cEff_inv, n_c):
-    dcdP = np.zeros((cbins, cbins * ebins))
-    # (ti, ec_j + tk) elements
-    tk = np.arange(0, cbins)
-    for ej in np.arange(0, ebins):
-        A = np.outer(-NE_F_R[ej] * Mij[ej, :], n_c_prev)
-        for ti in np.arange(0, cbins):
-            dcdP[ti, ej * cbins + tk] = A[ti, tk]
-
-    # (ti, ec_j + ti) elements
-    ti = np.arange(0, cbins)
-    A = (np.outer(n_c_prev, NE_F_R) - n_c[:, None]) * cEff_inv[:, None]
-    for ej in np.arange(0, ebins):
-        dcdP[ti, ej * cbins + ti] += A[ti, ej]
-
-    return dcdP
 
 
 def poisson_covariance(ebins, cbins, pec_err):
