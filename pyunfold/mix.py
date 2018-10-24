@@ -94,7 +94,7 @@ class Mixer(object):
 
 
 class CovarianceMatrix(object):
-    """Covariance Base Clas
+    """Covariance Base Class
     """
     def __init__(self, data=None, data_err=None, efficiencies=None,
                  efficiencies_err=None, response=None, response_err=None,
