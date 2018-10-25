@@ -1,6 +1,5 @@
 
 from __future__ import division, print_function
-from itertools import product
 import numpy as np
 
 from .utils import safe_inverse
@@ -76,19 +75,13 @@ class Mixer(object):
                        'has {} cause bins.'.format(self.cbins, len(n_c)))
             raise ValueError(err_msg)
 
-        ebins = self.ebins
-        cbins = self.cbins
-
         # Bayesian Normalization Term (denominator)
         f_norm = np.dot(self.pec, n_c)
         f_inv = safe_inverse(f_norm)
+        n_c_eff = n_c * self.cEff_inv
 
         # Unfolding (Mij) Matrix at current step
-        Mij = np.zeros(self.Mij.shape)
-
-        n_c_eff = n_c * self.cEff_inv
-        for ti, ej in product(range(0, cbins), range(0, ebins)):
-            Mij[ej, ti] = self.pec[ej, ti] * n_c_eff[ti] * f_inv[ej]
+        Mij = self.pec * n_c_eff * f_inv.reshape(-1, 1)
 
         # Estimate cause distribution via Mij
         n_c_update = np.dot(self.NEobs, Mij)
@@ -139,58 +132,70 @@ class CovarianceMatrix(object):
     def set_current_state(self, Mij, f_norm, n_c, n_c_prev):
         """Set the Current State of dcdn and dcdP
         """
-        # For ease of typing
-        ebins = self.ebins
-        cbins = self.cbins
-
         # D'Agostini Form (and/or First Term of Adye)
+        dcdP = self._initialize_dcdP(Mij, f_norm, n_c, n_c_prev)
         dcdn = Mij.copy()
-        dcdP = np.zeros(self.dcdP.shape)
-        f_inv = safe_inverse(f_norm)
-
-        NE_F_R = self.NEobs * f_inv
-        # (ti, ec_j + tk) elements
-        for ej, ti, tk in product(range(0, ebins), range(0, cbins), range(0, cbins)):
-            ec_j = ej * cbins
-            dcdP[ti, ec_j+tk] = -NE_F_R[ej] * Mij[ej, ti] * n_c_prev[tk]
-        # (ti, ec_j + ti) elements
-        for ej, ti in product(range(0, ebins), range(0, cbins)):
-            ec_j = ej * cbins
-            dcdP[ti, ec_j+ti] += (n_c_prev[ti] * NE_F_R[ej] - n_c[ti]) * self.cEff_inv[ti]
-
-        # Adye propagation corrections
+        # Add Adye propagation corrections
         if self.counter > 0:
-            # Get previous derivatives
-            dcdn_prev = self.dcdn
-            dcdP_prev = self.dcdP
-
-            n_c_prev_inv = safe_inverse(n_c_prev)
-            # Ratio of updated n_c to n_c_prev
-            nc_r = n_c * n_c_prev_inv
-            # Efficiency ratio of n_c_prev
-            e_r = self.cEff * n_c_prev_inv
-
-            # Calculate extra dcdn terms
-            M1 = dcdn_prev * nc_r
-            M2 = -Mij * e_r
-            M2 = M2.T * self.NEobs
-            M3 = np.dot(M2, dcdn_prev)
-            dcdn += np.dot(Mij, M3)
-            dcdn += M1
-
-            # Calculate extra dcdP terms
-            # My version (from unfolding doc)
-            At = Mij.T * self.NEobs
-            B = Mij * e_r
-            C = np.dot(At, B)
-            dcdP_Upd = np.dot(C, dcdP_prev)
-            dcdP += (dcdP_prev.T * nc_r).T - dcdP_Upd
+            dcdn, dcdP = self._adye_propagation_corrections(dcdP, Mij, n_c, n_c_prev)
 
         # Set current derivative matrices
         self.dcdn = dcdn
         self.dcdP = dcdP
         # On to next iteration
         self.counter += 1
+
+    def _initialize_dcdP(self, Mij, f_norm, n_c, n_c_prev):
+        cbins = self.cbins
+        ebins = self.ebins
+
+        NE_F_R = self.NEobs * safe_inverse(f_norm)
+
+        dcdP = np.zeros((cbins, cbins * ebins))
+        # (ti, ec_j + tk) elements
+        tk = np.arange(0, cbins)
+        for ej in np.arange(0, ebins):
+            A = np.outer(-NE_F_R[ej] * Mij[ej, :], n_c_prev)
+            for ti in np.arange(0, cbins):
+                dcdP[ti, ej * cbins + tk] = A[ti, tk]
+
+        # (ti, ec_j + ti) elements
+        ti = np.arange(0, cbins)
+        A = (np.outer(n_c_prev, NE_F_R) - n_c[:, None]) * self.cEff_inv[:, None]
+        for ej in np.arange(0, ebins):
+            dcdP[ti, ej * cbins + ti] += A[ti, ej]
+
+        return dcdP
+
+    def _adye_propagation_corrections(self, dcdP, Mij, n_c, n_c_prev):
+        dcdn = Mij.copy()
+
+        # Get previous derivatives
+        dcdn_prev = self.dcdn
+        dcdP_prev = self.dcdP
+
+        n_c_prev_inv = safe_inverse(n_c_prev)
+        # Ratio of updated n_c to n_c_prev
+        nc_r = n_c * n_c_prev_inv
+        # Efficiency ratio of n_c_prev
+        e_r = self.cEff * n_c_prev_inv
+
+        # Calculate extra dcdn terms
+        M1 = dcdn_prev * nc_r
+        M2 = -Mij * e_r
+        M2 = M2.T * self.NEobs
+        M3 = np.dot(M2, dcdn_prev)
+        dcdn += np.dot(Mij, M3)
+        dcdn += M1
+
+        # Calculate extra dcdP terms (from unfolding doc)
+        At = Mij.T * self.NEobs
+        B = Mij * e_r
+        C = np.dot(At, B)
+        dcdP_Upd = np.dot(C, dcdP_prev)
+        dcdP += (dcdP_prev.T * nc_r).T - dcdP_Upd
+
+        return dcdn, dcdP
 
     def getVcd(self):
         """Get Covariance Matrix of N(E), ie from Observed Effects
@@ -216,27 +221,13 @@ class CovarianceMatrix(object):
         cbins = self.cbins
         ebins = self.ebins
 
-        CovPP = np.zeros((cbins * ebins, cbins * ebins))
-
         # Poisson covariance matrix
         if self.pec_cov_type == 'poisson':
-            for ej, ti in product(range(0, ebins), range(0, cbins)):
-                ejc = ej * cbins
-                CovPP[ejc+ti, ejc+ti] = self.pec_err[ej, ti]**2
+            CovPP = poisson_covariance(ebins, cbins, self.pec_err)
         # Multinomial covariance matrix
         elif self.pec_cov_type == 'multinomial':
             nc_inv = safe_inverse(self.NCmc)
-            for ej, ti in product(range(0, ebins), range(0, cbins)):
-                ejc = ej * cbins
-                # Don't go looping if zeros are present :)
-                if (self.pec[ej, ti] > 0 and nc_inv[ti] > 0):
-                    CovPP[ejc+ti, ejc+ti] = nc_inv[ti] * self.pec[ej, ti] * (1 - self.pec[ej, ti])
-                    cov1 = -nc_inv[ti] * self.pec[ej, ti]
-                    for ek in range(ej+1, ebins):
-                        ekc = ek * cbins
-                        cov = cov1 * self.pec[ek, ti]
-                        CovPP[ejc+ti, ekc+ti] = cov
-                        CovPP[ekc+ti, ejc+ti] = cov
+            CovPP = multinomial_covariance(ebins, cbins, nc_inv, self.pec)
 
         return CovPP
 
@@ -260,3 +251,29 @@ class CovarianceMatrix(object):
         # Full Covariance Matrix
         Vc = Vc0 + Vc1
         return Vc
+
+
+def poisson_covariance(ebins, cbins, pec_err):
+    # Poisson covariance matrix
+    CovPP = np.zeros((cbins * ebins, cbins * ebins))
+    for ej in np.arange(0, ebins):
+        ejc = ej * cbins
+        for ti in np.arange(0, cbins):
+            CovPP[ejc+ti, ejc+ti] = pec_err[ej, ti]**2
+
+    return CovPP
+
+
+def multinomial_covariance(ebins, cbins, nc_inv, pec):
+    CovPP = np.zeros((cbins * ebins, cbins * ebins))
+    ti = np.arange(0, cbins)
+    A = nc_inv * pec * (1 - pec)
+    for ej in np.arange(0, ebins):
+        ejc = ej * cbins
+        CovPP[ejc+ti, ejc+ti] = A[ej]
+        cov = -nc_inv * pec[ej, :] * pec
+        for ek in np.arange(ej + 1, ebins):
+            CovPP[ejc + ti, ek * cbins + ti] = cov[ek, :]
+            CovPP[ek * cbins + ti, ejc + ti] = cov[ek, :]
+
+    return CovPP
