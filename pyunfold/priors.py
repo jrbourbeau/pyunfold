@@ -50,9 +50,9 @@ def jeffreys_prior(causes):
 
     .. math::
 
-        P(C_{\mu})^{\\text{Jeffreys}} = \\frac{1}{\log(C_{\\text{max}}/C_\\text{min})C_{\mu}}
+        P(C_{\\mu})^{\\text{Jeffreys}} = \\frac{1}{\\log(C_{\\text{max}}/C_\\text{min})C_{\\mu}}
 
-    for cause bin values :math:`C_{\mu}` and maximum/minimum cause values
+    for cause bin values :math:`C_{\\mu}` and maximum/minimum cause values
     :math:`C_{\\text{max}}`/:math:`C_{\\text{min}}`. For more details regarding
     Jeffreys prior see [1]_.
 
