@@ -81,11 +81,13 @@ def iterative_unfold(data=None, data_err=None, response=None,
                 Test statistic stopping criterion
             num_iterations
                 Number of unfolding iterations
+            unfolding_matrix
+                Unfolding matrix
 
     unfolding_iters : pandas.DataFrame
         Returned if ``return_iterations`` is True. DataFrame containing the
-        unfolded distribution, associated uncertainties, and test statistic
-        information at each iteration.
+        unfolded distribution, associated uncertainties, test statistic
+        information, etc. at each iteration.
 
     Examples
     --------
@@ -110,7 +112,9 @@ def iterative_unfold(data=None, data_err=None, response=None,
      'sys_err': array([0.65570621, 0.65570621]),
      'ts_iter': 0.0038300087456445975,
      'ts_stopping': 0.01,
-     'unfolded': array([ 94.32086967, 155.67913033])}
+     'unfolded': array([ 94.32086967, 155.67913033]),
+     'unfolding_matrix': array([[0.8471473 , 0.1528527 ],
+                                [0.06404093, 0.93595907]])}
     """
     # Validate user input
     inputs = {'data': data,
