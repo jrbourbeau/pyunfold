@@ -4,16 +4,15 @@ import numpy as np
 import pandas as pd
 
 from .mix import Mixer
-from .teststat import get_ts
 from .priors import setup_prior
 from .utils import cast_to_array
-from .callbacks import setup_callbacks_regularizer
+from .callbacks import setup_callbacks_regularizer, CallbackList, TSStopping
 
 
 def iterative_unfold(data=None, data_err=None, response=None,
                      response_err=None, efficiencies=None,
-                     efficiencies_err=None, prior=None, ts='ks',
-                     ts_stopping=0.01, max_iter=100, cov_type='multinomial',
+                     efficiencies_err=None, prior=None, ts=None,
+                     ts_stopping=None, max_iter=100, cov_type='multinomial',
                      return_iterations=False, callbacks=None):
     """Performs iterative unfolding
 
@@ -152,18 +151,21 @@ def iterative_unfold(data=None, data_err=None, response=None,
                   response_err=response_err,
                   cov_type=cov_type)
 
-    # Setup test statistic
-    ts_obj = get_ts(ts)
-    ts_func = ts_obj(tol=ts_stopping,
-                     num_causes=num_causes,
-                     TestRange=[0, 1e2],
-                     verbose=False)
+    # Set up callbacks, regularizer Callbacks are treated separately
+    callbacks, regularizer = setup_callbacks_regularizer(callbacks)
+
+    # Setup legacy stopping condition
+    if ts is None and ts_stopping is None:
+        stopping = TSStopping(ts='ks',
+                              ts_stopping=0.01,
+                              num_causes=num_causes)
+        callbacks = CallbackList([stopping] + callbacks.callbacks)
 
     unfolding_iters = _unfold(prior=n_c,
                               mixer=mixer,
-                              ts_func=ts_func,
                               max_iter=max_iter,
-                              callbacks=callbacks)
+                              callbacks=callbacks,
+                              regularizer=regularizer)
 
     if return_iterations:
         return unfolding_iters
@@ -172,8 +174,7 @@ def iterative_unfold(data=None, data_err=None, response=None,
         return unfolded_result
 
 
-def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
-            callbacks=None):
+def _unfold(prior=None, mixer=None, max_iter=100, callbacks=None, regularizer=None):
     """Perform iterative unfolding
 
     Parameters
@@ -182,8 +183,6 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
         Initial cause distribution.
     mixer : pyunfold.Mix.Mixer
         Mixer to perform the unfolding.
-    ts_func : pyunfold.Utils.TestStat
-        Test statistic object.
     max_iter : int, optional
         Maximum allowed number of iterations to perform.
     callbacks : list, optional
@@ -196,39 +195,41 @@ def _unfold(prior=None, mixer=None, ts_func=None, max_iter=100,
         DataFrame containing the unfolded result for each iteration.
         Each row in unfolding_result corresponds to an iteration.
     """
-    # Set up callbacks, regularizer Callbacks are treated separately
-    callbacks, regularizer = setup_callbacks_regularizer(callbacks)
     callbacks.on_unfolding_begin()
 
     current_n_c = prior.copy()
     iteration = 0
     unfolding_iters = []
-    while not ts_func.pass_tol() and iteration < max_iter:
+    status = []
+    stop_iterations = False
+    while not stop_iterations and iteration < max_iter:
         callbacks.on_iteration_begin(iteration=iteration)
 
         # Perform unfolding for this iteration
         unfolded_n_c = mixer.smear(current_n_c)
         iteration += 1
-        status = {'unfolded': unfolded_n_c,
-                  'stat_err': mixer.get_stat_err(),
-                  'sys_err': mixer.get_MC_err(),
-                  'num_iterations': iteration,
-                  'unfolding_matrix': mixer.Mij}
+        iteration_idx = iteration - 1
+        status_current = {'unfolded': unfolded_n_c,
+                          'stat_err': mixer.get_stat_err(),
+                          'sys_err': mixer.get_MC_err(),
+                          'num_iterations': iteration,
+                          'unfolding_matrix': mixer.Mij,
+                          'prior': current_n_c}
+        status.append(status_current)
 
         if regularizer:
             # Will want the nonregularized distribution for the final iteration
-            unfolded_nonregularized = status['unfolded'].copy()
+            unfolded_nonregularized = status[iteration_idx]['unfolded'].copy()
             regularizer.on_iteration_end(iteration=iteration, status=status)
 
-        ts_iter = ts_func.calc(status['unfolded'], current_n_c)
-        status['ts_iter'] = ts_iter
-        status['ts_stopping'] = ts_func.tol
-
         callbacks.on_iteration_end(iteration=iteration, status=status)
-        unfolding_iters.append(status)
+        unfolding_iters.append(status_current)
 
         # Updated current distribution for next iteration of unfolding
-        current_n_c = status['unfolded'].copy()
+        current_n_c = status[iteration_idx]['unfolded'].copy()
+
+        # Check unfolding stopping condition
+        stop_iterations = any([getattr(c, 'stop_iterations', None) for c in callbacks])
 
     # Convert unfolding_iters list of dictionaries to a pandas DataFrame
     unfolding_iters = pd.DataFrame.from_records(unfolding_iters)
