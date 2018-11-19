@@ -1,5 +1,6 @@
 
 from __future__ import division, print_function
+import warnings
 import numpy as np
 import pandas as pd
 
@@ -156,10 +157,23 @@ def iterative_unfold(data=None, data_err=None, response=None,
     # Set up callbacks, regularizer Callbacks are treated separately
     callbacks, regularizer = setup_callbacks_regularizer(callbacks)
 
-    # Setup legacy stopping condition
     if ts is None and ts_stopping is None:
+        # Setup legacy stopping condition behavior
         stopping = TSStopping(ts='ks',
                               ts_stopping=0.01,
+                              num_causes=num_causes)
+        callbacks = CallbackList([stopping] + callbacks.callbacks)
+    elif any([ts, ts_stopping]):
+        msg = ('Using ts and ts_stopping parameters in iterative_unfold has '
+               'been deprecated. Please use the TSStopping callback instead.')
+        warnings.warn(msg, DeprecationWarning)
+
+        if ts is None:
+            ts = 'ks'
+        if ts_stopping is None:
+            ts_stopping = 0.01
+        stopping = TSStopping(ts=ts,
+                              ts_stopping=ts_stopping,
                               num_causes=num_causes)
         callbacks = CallbackList([stopping] + callbacks.callbacks)
 
