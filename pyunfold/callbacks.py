@@ -83,10 +83,8 @@ class Logger(Callback):
         iteration : int
             Unfolding iteration (i.e. iteration=1 after first unfolding
             iteration, etc.).
-        status : dict
-            Dictionary containing key value pairs for the current test
-            statistic value (``'ts_iter'``) and the final test statistic stopping
-            condition (``'ts_stopping'``).
+        status : List[dict]
+            List of dictionaries containing the unfolding status.
         """
         iteration_idx = iteration - 1
         output = ('Iteration {}: ts = {:0.4f}, ts_stopping ='
@@ -268,17 +266,15 @@ class TSStopping(Callback):
                               verbose=False)
 
     def on_iteration_end(self, iteration, status):
-        """Writes to sys.stdout
+        """Calculates test statistic between current and previous unfolded distributions
 
         Parameters
         ----------
         iteration : int
             Unfolding iteration (i.e. iteration=1 after first unfolding
             iteration, etc.).
-        status : dict
-            Dictionary containing key value pairs for the current test
-            statistic value (``'ts_iter'``) and the final test statistic stopping
-            condition (``'ts_stopping'``).
+        status : List[dict]
+            List of dictionaries containing the unfolding status.
         """
         iteration_idx = iteration - 1
         ts_iter = self.ts_func.calc(status[iteration_idx]['unfolded'],

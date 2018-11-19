@@ -82,6 +82,8 @@ def iterative_unfold(data=None, data_err=None, response=None,
                 Number of unfolding iterations
             unfolding_matrix
                 Unfolding matrix
+            prior
+                Prior distribution used for unfolding
 
     unfolding_iters : pandas.DataFrame
         Returned if ``return_iterations`` is True. DataFrame containing the
@@ -188,6 +190,9 @@ def _unfold(prior=None, mixer=None, max_iter=100, callbacks=None, regularizer=No
     callbacks : list, optional
         List of ``pyunfold.callbacks.Callback`` instances to be applied during
         unfolding (default is None, which means no Callbacks are applied).
+    regularizer : pyunfold.callbacks.Regularizer, optional
+        Regularizer to smooth unfolded distribution at each iteration (default
+        is None, which means no regularization is applied).
 
     Returns
     -------
@@ -199,7 +204,6 @@ def _unfold(prior=None, mixer=None, max_iter=100, callbacks=None, regularizer=No
 
     current_n_c = prior.copy()
     iteration = 0
-    unfolding_iters = []
     status = []
     stop_iterations = False
     while not stop_iterations and iteration < max_iter:
@@ -223,7 +227,6 @@ def _unfold(prior=None, mixer=None, max_iter=100, callbacks=None, regularizer=No
             regularizer.on_iteration_end(iteration=iteration, status=status)
 
         callbacks.on_iteration_end(iteration=iteration, status=status)
-        unfolding_iters.append(status_current)
 
         # Updated current distribution for next iteration of unfolding
         current_n_c = status[iteration_idx]['unfolded'].copy()
@@ -231,8 +234,8 @@ def _unfold(prior=None, mixer=None, max_iter=100, callbacks=None, regularizer=No
         # Check unfolding stopping condition
         stop_iterations = any([getattr(c, 'stop_iterations', None) for c in callbacks])
 
-    # Convert unfolding_iters list of dictionaries to a pandas DataFrame
-    unfolding_iters = pd.DataFrame.from_records(unfolding_iters)
+    # Convert status (list of dictionaries) to a pandas DataFrame
+    unfolding_iters = pd.DataFrame.from_records(status)
 
     # Replace final folded iteration with un-regularized distribution
     if regularizer:
