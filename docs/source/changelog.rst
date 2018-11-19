@@ -6,8 +6,8 @@
 Release Notes
 *************
 
-Version 0.5.dev0 (TBD)
-----------------------
+Version 0.5.0 (2018-11-18)
+--------------------------
 
 **New Features**:
 
@@ -25,6 +25,14 @@ Version 0.5.dev0 (TBD)
 **Bug Fixes**:
 
 - Fixed bug in Bayes factor test statistic ``calc`` method (See `PR #93 <https://github.com/jrbourbeau/pyunfold/pull/93>`_).
+
+
+**Documentation**:
+
+- Add nbsphinx prolog to examples with link to interactive Binder notebook
+  (See `PR #96 <https://github.com/jrbourbeau/pyunfold/pull/96>`_).
+- Corrected the accepted ``ts`` parameters in the ``iterative_unfold`` docstring
+  (See `PR #91 <https://github.com/jrbourbeau/pyunfold/pull/91>`_).
 
 
 Version 0.4 (2018-06-03)
