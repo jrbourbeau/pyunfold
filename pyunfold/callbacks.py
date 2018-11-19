@@ -3,6 +3,8 @@ import sys
 import numpy as np
 from scipy.interpolate import UnivariateSpline
 
+from .teststat import get_ts
+
 
 class Callback(object):
     """Callback base class
@@ -34,6 +36,11 @@ class CallbackList(object):
 
     def __iter__(self):
         return iter(self.callbacks)
+
+    def append(self, other):
+        if not isinstance(other, Callback):
+            raise TypeError('Can only append Callback objects to a CallbackList')
+        self.callbacks.append(other)
 
     def on_unfolding_begin(self, status=None):
         for callback in self.callbacks:
@@ -76,15 +83,14 @@ class Logger(Callback):
         iteration : int
             Unfolding iteration (i.e. iteration=1 after first unfolding
             iteration, etc.).
-        status : dict
-            Dictionary containing key value pairs for the current test
-            statistic value (``'ts_iter'``) and the final test statistic stopping
-            condition (``'ts_stopping'``).
+        status : List[dict]
+            List of dictionaries containing the unfolding status.
         """
+        iteration_idx = iteration - 1
         output = ('Iteration {}: ts = {:0.4f}, ts_stopping ='
                   ' {}\n'.format(iteration,
-                                 status['ts_iter'],
-                                 status['ts_stopping']))
+                                 status[iteration_idx]['ts_iter'],
+                                 status[iteration_idx]['ts_stopping']))
         sys.stdout.write(output)
 
 
@@ -139,7 +145,8 @@ class SplineRegularizer(Callback, Regularizer):
         self.groups = np.asarray(groups) if groups is not None else None
 
     def on_iteration_end(self, iteration, status=None):
-        y = status['unfolded']
+        iteration_idx = iteration - 1
+        y = status[iteration_idx]['unfolded']
         x = np.arange(len(y), dtype=float)
         if self.groups is None:
             spline = UnivariateSpline(x, y, k=self.degree, s=self.smooth)
@@ -161,7 +168,7 @@ class SplineRegularizer(Callback, Regularizer):
                 fitted_unfolded_group = spline_group(x_group)
                 fitted_unfolded[group_mask] = fitted_unfolded_group
 
-        status['unfolded'] = fitted_unfolded
+        status[iteration_idx]['unfolded'] = fitted_unfolded
 
 
 def validate_callbacks(callbacks):
@@ -241,3 +248,38 @@ def setup_callbacks_regularizer(callbacks):
     callbacks = CallbackList([c for c in callbacks if c is not regularizer])
 
     return callbacks, regularizer
+
+
+class TSStopping(Callback):
+    """Unfolded distribution test statistic based stopping
+    """
+    def __init__(self, ts='ks', ts_stopping=0.01, num_causes=None):
+        super(Callback, self).__init__()
+        self.ts = ts
+        self.ts_stopping = ts_stopping
+        self.stop_iterations = False
+        # Setup test statistic calculation
+        ts_obj = get_ts(ts)
+        self.ts_func = ts_obj(tol=ts_stopping,
+                              num_causes=num_causes,
+                              TestRange=[0, 1e2],
+                              verbose=False)
+
+    def on_iteration_end(self, iteration, status):
+        """Calculates test statistic between current and previous unfolded distributions
+
+        Parameters
+        ----------
+        iteration : int
+            Unfolding iteration (i.e. iteration=1 after first unfolding
+            iteration, etc.).
+        status : List[dict]
+            List of dictionaries containing the unfolding status.
+        """
+        iteration_idx = iteration - 1
+        ts_iter = self.ts_func.calc(status[iteration_idx]['unfolded'],
+                                    status[iteration_idx]['prior'])
+        status[iteration_idx]['ts_iter'] = ts_iter
+        status[iteration_idx]['ts_stopping'] = self.ts_stopping
+        if ts_iter < self.ts_stopping:
+            self.stop_iterations = True

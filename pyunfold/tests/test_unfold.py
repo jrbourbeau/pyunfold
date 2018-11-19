@@ -278,3 +278,22 @@ def test_unfolding_matrix(example_dataset):
     for _, row in unfolded_result.iterrows():
         np.testing.assert_array_equal(row['unfolded'],
                                       np.dot(inputs['data'], row['unfolding_matrix']))
+
+
+@pytest.mark.parametrize('ts, ts_stopping', [
+    ('ks', None),
+    (None, 0.11),
+    ('chi2', 0.05),
+])
+def test_iterative_unfold_ts_deprecated(example_dataset, ts, ts_stopping):
+    inputs = {'data': example_dataset.data,
+              'data_err': example_dataset.data_err,
+              'response': example_dataset.response,
+              'response_err': example_dataset.response_err,
+              'efficiencies': example_dataset.efficiencies,
+              'efficiencies_err': example_dataset.efficiencies_err
+              }
+    with pytest.deprecated_call():
+        iterative_unfold(ts=ts,
+                         ts_stopping=ts_stopping,
+                         **inputs)
