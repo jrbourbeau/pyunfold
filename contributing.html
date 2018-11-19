@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Contributing &mdash; PyUnfold 0.5.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Citing PyUnfold" href="citing.html" />
+    <link rel="prev" title="Release Notes" href="changelog.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/simple@2x.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="why.html">Why PyUnfold?</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">PyUnfold API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mathematics.html">Mathematical Derivations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Release Notes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#contributing-guide">Contributing guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-creating-a-new-issue">Step 1: Creating a new issue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-forking-the-repository">Step 2: Forking the repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-configuring-a-remote-for-a-fork">Step 3: Configuring a remote for a fork</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-syncing-an-existing-fork">Step 4: Syncing an existing fork</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-5-create-a-new-feature-branch">Step 5: Create a new feature branch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-6-install-local-copy-of-pyunfold">Step 6: Install local copy of PyUnfold</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-7-develop-new-code">Step 7: Develop new code!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-8-running-tests-with-the-new-code">Step 8: Running tests with the new code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-9-documentation">Step 9: Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-10-committing-and-uploading-changes">Step 10: Committing and uploading changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-11-submitting-a-pull-request">Step 11: Submitting a pull request</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing PyUnfold</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Useful links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold">PyUnfold &#64; GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/pyunfold/">PyUnfold &#64; PyPI</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://anaconda.org/conda-forge/pyunfold">PyUnfold &#64; conda-forge</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold/issues">Issue Tracker</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyUnfold</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Contributing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/jrbourbeau/pyunfold" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="id1">
+<h1>Contributing<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>PyUnfold is an open-source project and contributions are always welcome from anyone. Feel free to open a pull request on <a class="reference external" href="https://github.com/jrbourbeau/pyunfold">GitHub</a> or file a new feature request or bug report on our <a class="reference external" href="https://github.com/jrbourbeau/pyunfold/issues">issue tracker</a>.</p>
+<div class="section" id="contributing-guide">
+<h2>Contributing guide<a class="headerlink" href="#contributing-guide" title="Permalink to this headline">¶</a></h2>
+<p>If you are new to working with forks, check out <a class="reference external" href="https://help.github.com/articles/working-with-forks/">GitHub’s working with forks article</a>.</p>
+<div class="section" id="step-1-creating-a-new-issue">
+<h3>Step 1: Creating a new issue<a class="headerlink" href="#step-1-creating-a-new-issue" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>If you don’t already have a <a class="reference external" href="http://www.github.com">GitHub</a> account, create one</li>
+<li>Go to the <a class="reference external" href="https://github.com/jrbourbeau/pyunfold">PyUnfold GitHub page</a> and create a new issue by clicking on the “Issues” tab and then the “New issue” button</li>
+</ul>
+<img alt="_images/open-new-issue.png" src="_images/open-new-issue.png" />
+<img alt="_images/new-issue-button.png" src="_images/new-issue-button.png" />
+</div>
+<div class="section" id="step-2-forking-the-repository">
+<h3>Step 2: Forking the repository<a class="headerlink" href="#step-2-forking-the-repository" title="Permalink to this headline">¶</a></h3>
+<p>(If you have an existing configured fork of PyUnfold, you can skip to Step 4: Syncing an existing fork)</p>
+<ul class="simple">
+<li>From the PyUnfold repository use the “Fork” button to fork the project into your GitHub account</li>
+</ul>
+<img alt="_images/fork-button.png" src="_images/fork-button.png" />
+<ul class="simple">
+<li>This forked copy of PyUnfold can now be cloned to your local machine using</li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/&lt;your_username&gt;/pyunfold.git
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-3-configuring-a-remote-for-a-fork">
+<h3>Step 3: Configuring a remote for a fork<a class="headerlink" href="#step-3-configuring-a-remote-for-a-fork" title="Permalink to this headline">¶</a></h3>
+<p>From your cloned copy of PyUnfold from the previous step, list the existing remotes with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> pyunfold
+$ git remote -v
+</pre></div>
+</div>
+<p>You’ll most likely see something like</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>origin  https://github.com/&lt;your_username&gt;/pyunfold.git <span class="o">(</span>fetch<span class="o">)</span>
+origin  https://github.com/&lt;your_username&gt;/pyunfold.git <span class="o">(</span>push<span class="o">)</span>
+</pre></div>
+</div>
+<p>To add the original PyUnfold project repository as a remote (named “upstream”) to your copy of PyUnfold via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git remote add upstream https://github.com/jrbourbeau/pyunfold.git
+</pre></div>
+</div>
+<p>Now when you execute <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">remote</span> <span class="pre">-v</span></code>, the newly added upstream remote should be present</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>origin  https://github.com/&lt;your_username&gt;/pyunfold.git <span class="o">(</span>fetch<span class="o">)</span>
+origin  https://github.com/&lt;your_username&gt;/pyunfold.git <span class="o">(</span>push<span class="o">)</span>
+upstream        https://github.com/jrbourbeau/pyunfold.git <span class="o">(</span>fetch<span class="o">)</span>
+upstream        https://github.com/jrbourbeau/pyunfold.git <span class="o">(</span>push<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-4-syncing-an-existing-fork">
+<h3>Step 4: Syncing an existing fork<a class="headerlink" href="#step-4-syncing-an-existing-fork" title="Permalink to this headline">¶</a></h3>
+<p>To ensure that your existing fork is up-to-date with the original PyUnfold repository, fetch the upstream commits via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git fetch upstream
+</pre></div>
+</div>
+<p>The output should look something like</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>remote: Counting objects: xx, <span class="k">done</span>.
+remote: Compressing objects: <span class="m">100</span>% <span class="o">(</span>xx/xx<span class="o">)</span>, <span class="k">done</span>.
+remote: Total xx <span class="o">(</span>delta xx<span class="o">)</span>, reused xx <span class="o">(</span>delta x<span class="o">)</span>
+Unpacking objects: <span class="m">100</span>% <span class="o">(</span>xx/xx<span class="o">)</span>, <span class="k">done</span>.
+From https://github.com/jrbourbeau/pyunfold
+ * <span class="o">[</span>new branch<span class="o">]</span>      master     -&gt; upstream/master
+</pre></div>
+</div>
+<p>Now the commits to the master branch of jrbourbeau/pyunfold are stored in your local upstream/master branch. At this point, you’ll want to make sure (if you’re not already) that you’re on the master branch of your local repository</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git checkout master
+Switched to branch <span class="s1">&#39;master&#39;</span>
+</pre></div>
+</div>
+<p>Now you can merge the upstream/master branch into your master branch with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git merge upstream/master
+</pre></div>
+</div>
+<p>Now the master branch of your local copy of PyUnfold should be up-to-date with the original PyUnfold master branch!</p>
+</div>
+<div class="section" id="step-5-create-a-new-feature-branch">
+<h3>Step 5: Create a new feature branch<a class="headerlink" href="#step-5-create-a-new-feature-branch" title="Permalink to this headline">¶</a></h3>
+<p>Next, create a new branch for the feature you would like to develop with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git checkout -b &lt;new_feature_branch_name&gt;
+</pre></div>
+</div>
+<p>The output should be</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Switched to branch <span class="s1">&#39;&lt;new_feature_branch_name&gt;&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-6-install-local-copy-of-pyunfold">
+<h3>Step 6: Install local copy of PyUnfold<a class="headerlink" href="#step-6-install-local-copy-of-pyunfold" title="Permalink to this headline">¶</a></h3>
+<p>Next, you’ll want to make sure that Python imports your local version of PyUnfold. This can be done by <code class="docutils literal notranslate"><span class="pre">pip</span></code> installing your local PyUnfold repository in <a class="reference external" href="https://pip.pypa.io/en/stable/reference/pip_install/#editable-installs">editable mode</a></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install -e .
+</pre></div>
+</div>
+<p>To install additional development dependencies for running tests and building the documentation, instead run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install -e .<span class="o">[</span>dev<span class="o">]</span>
+</pre></div>
+</div>
+<p>Note that if you previously had PyUnfold installed in your environment to <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">uninstall</span> <span class="pre">pyunfold</span></code> before executing the previous command.</p>
+</div>
+<div class="section" id="step-7-develop-new-code">
+<h3>Step 7: Develop new code!<a class="headerlink" href="#step-7-develop-new-code" title="Permalink to this headline">¶</a></h3>
+<p>Now add your feature, bug fix, typo fix, etc.</p>
+</div>
+<div class="section" id="step-8-running-tests-with-the-new-code">
+<h3>Step 8: Running tests with the new code<a class="headerlink" href="#step-8-running-tests-with-the-new-code" title="Permalink to this headline">¶</a></h3>
+<p>Once your contributions have been added, you’ll want to run the tests for this project to ensure that none of the new code breaks any existing tests. Tests can be run by going to the root directory of your pyunfold repository and executing</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pytest pyunfold
+</pre></div>
+</div>
+<p>To run with code coverage use <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--cov</span> <span class="pre">pyunfold</span></code></p>
+</div>
+<div class="section" id="step-9-documentation">
+<h3>Step 9: Documentation<a class="headerlink" href="#step-9-documentation" title="Permalink to this headline">¶</a></h3>
+<p>If necessary for your contribution, add the appropriate documentation to the files in the <code class="docutils literal notranslate"><span class="pre">docs/source/</span></code> directory. The documentation can then be build via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs
+make html
+</pre></div>
+</div>
+<p>The built documentation will be placed in the <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> directory.</p>
+</div>
+<div class="section" id="step-10-committing-and-uploading-changes">
+<h3>Step 10: Committing and uploading changes<a class="headerlink" href="#step-10-committing-and-uploading-changes" title="Permalink to this headline">¶</a></h3>
+<p>Now the changes you’ve made are ready to be committed and uploaded to GitHub. Let git know which files you would like to include in your commit via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git add &lt;modifies_files_here&gt;
+</pre></div>
+</div>
+<p>and then commit your changes with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git commit -m <span class="s1">&#39;&lt;meaningful messages about the changes made&gt;&#39;</span>
+</pre></div>
+</div>
+<p>Now you can push this commit from your local repository to your copy on GitHub</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git push origin &lt;new_feature_branch_name&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-11-submitting-a-pull-request">
+<h3>Step 11: Submitting a pull request<a class="headerlink" href="#step-11-submitting-a-pull-request" title="Permalink to this headline">¶</a></h3>
+<p>Finally, you can go to your copy of PyUnfold on GitHub and submit a pull
+request by clicking the “Compare &amp; pull request” button!</p>
+<p>If you’re new to writing pull requests, see GitHub’s <a class="reference external" href="https://blog.github.com/2015-01-21-how-to-write-the-perfect-pull-request/">How to write the perfect
+pull request</a>
+article for a list of some best practices.</p>
+<img alt="_images/pull-request-button.png" src="_images/pull-request-button.png" />
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Bourbeau, Zigfried Hampel-Arias
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

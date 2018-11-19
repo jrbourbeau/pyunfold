@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyunfold.callbacks &mdash; PyUnfold 0.5.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/simple@2x.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../why.html">Why PyUnfold?</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../callbacks.html">Callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">PyUnfold API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mathematics.html">Mathematical Derivations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing PyUnfold</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Useful links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold">PyUnfold &#64; GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/pyunfold/">PyUnfold &#64; PyPI</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://anaconda.org/conda-forge/pyunfold">PyUnfold &#64; conda-forge</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold/issues">Issue Tracker</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyUnfold</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyunfold.callbacks</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyunfold.callbacks</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">UnivariateSpline</span>
+
+
+<span class="k">class</span> <span class="nc">Callback</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Callback base class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">on_unfolding_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">on_unfolding_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">on_iteration_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">on_iteration_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">CallbackList</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Container for Callback objects</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span> <span class="o">=</span> <span class="n">validate_callbacks</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_unfolding_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
+            <span class="n">callback</span><span class="o">.</span><span class="n">on_unfolding_begin</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_unfolding_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
+            <span class="n">callback</span><span class="o">.</span><span class="n">on_unfolding_end</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_iteration_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
+            <span class="n">callback</span><span class="o">.</span><span class="n">on_iteration_begin</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_iteration_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
+            <span class="n">callback</span><span class="o">.</span><span class="n">on_iteration_end</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Regularizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Regularizer callback base class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="Logger"><a class="viewcode-back" href="../../api.html#pyunfold.callbacks.Logger">[docs]</a><span class="k">class</span> <span class="nc">Logger</span><span class="p">(</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Logger callback</span>
+
+<span class="sd">    Writes test statistic information for each iteration to sys.stdout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Callback</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">on_iteration_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes to sys.stdout</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        iteration : int</span>
+<span class="sd">            Unfolding iteration (i.e. iteration=1 after first unfolding</span>
+<span class="sd">            iteration, etc.).</span>
+<span class="sd">        status : dict</span>
+<span class="sd">            Dictionary containing key value pairs for the current test</span>
+<span class="sd">            statistic value (``&#39;ts_iter&#39;``) and the final test statistic stopping</span>
+<span class="sd">            condition (``&#39;ts_stopping&#39;``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Iteration </span><span class="si">{}</span><span class="s1">: ts = </span><span class="si">{:0.4f}</span><span class="s1">, ts_stopping =&#39;</span>
+                  <span class="s1">&#39; </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iteration</span><span class="p">,</span>
+                                 <span class="n">status</span><span class="p">[</span><span class="s1">&#39;ts_iter&#39;</span><span class="p">],</span>
+                                 <span class="n">status</span><span class="p">[</span><span class="s1">&#39;ts_stopping&#39;</span><span class="p">]))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SplineRegularizer"><a class="viewcode-back" href="../../api.html#pyunfold.callbacks.SplineRegularizer">[docs]</a><span class="k">class</span> <span class="nc">SplineRegularizer</span><span class="p">(</span><span class="n">Callback</span><span class="p">,</span> <span class="n">Regularizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Spline regularization callback</span>
+
+<span class="sd">    Smooths the unfolded distribution at each iteration using</span>
+<span class="sd">    ``UnivariateSpline`` from ``scipy.interpolate``. For more information about</span>
+<span class="sd">    ``UnivariateSpline``, see the</span>
+<span class="sd">    `UnivariateSpline API documentation</span>
+<span class="sd">    &lt;https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.UnivariateSpline.html&gt;`_.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    degree : int, optional</span>
+<span class="sd">        Degree of the smoothing spline. Must be &lt;= 5 (default is 3, a cubic</span>
+<span class="sd">        spline).</span>
+<span class="sd">    smooth : float or None, optional</span>
+<span class="sd">        Positive smoothing factor used to choose the number of knots. If 0,</span>
+<span class="sd">        spline will interpolate through all data points (default is None).</span>
+<span class="sd">    groups : array_like, optional</span>
+<span class="sd">        Group labels for each cause bin. If groups are specified, then each</span>
+<span class="sd">        cause group will be regularized independently (default is None).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The number of causes must be larger than the spline ``degree``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Specify the spline degree and smoothing factor:</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyunfold.callbacks import SplineRegularizer</span>
+<span class="sd">    &gt;&gt;&gt; reg = SplineRegularizer(degree=3, smooth=1.25)</span>
+
+<span class="sd">    Different cause groups are also supported. For instance, in a problem with</span>
+<span class="sd">    seven cause bins, if the first three cause bins belong to their own group,</span>
+<span class="sd">    the next two cause bins belong to another group, and the last two cause</span>
+<span class="sd">    bins belong to yet another group, an array can be constructed that</span>
+<span class="sd">    identifies the group each cause bin belongs to. E.g.</span>
+
+<span class="sd">    &gt;&gt;&gt; groups = [0, 0, 0, 1, 1, 2, 2]</span>
+<span class="sd">    &gt;&gt;&gt; reg = SplineRegularizer(degree=3, smooth=1.25, groups=groups)</span>
+
+<span class="sd">    If provided with a ``groups`` parameter, ``SplineRegularizer`` will</span>
+<span class="sd">    regularize the unfolded distribution for each group independently.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SplineRegularizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">degree</span> <span class="o">=</span> <span class="n">degree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smooth</span> <span class="o">=</span> <span class="n">smooth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span> <span class="k">if</span> <span class="n">groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">on_iteration_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s1">&#39;unfolded&#39;</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">spline</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">smooth</span><span class="p">)</span>
+            <span class="n">fitted_unfolded</span> <span class="o">=</span> <span class="n">spline</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Check that a group is specified for each cause bin</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Invalid groups array. There should be an entry &#39;</span>
+                           <span class="s1">&#39;for each cause bin. However, got len(groups)=</span><span class="si">{}</span><span class="s1"> &#39;</span>
+                           <span class="s1">&#39;while there are </span><span class="si">{}</span><span class="s1"> cause bins.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="n">fitted_unfolded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+            <span class="n">group_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">group_ids</span><span class="p">:</span>
+                <span class="n">group_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">==</span> <span class="n">group</span>
+                <span class="n">x_group</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">group_mask</span><span class="p">]</span>
+                <span class="n">y_group</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">group_mask</span><span class="p">]</span>
+                <span class="n">spline_group</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="n">x_group</span><span class="p">,</span> <span class="n">y_group</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">smooth</span><span class="p">)</span>
+                <span class="n">fitted_unfolded_group</span> <span class="o">=</span> <span class="n">spline_group</span><span class="p">(</span><span class="n">x_group</span><span class="p">)</span>
+                <span class="n">fitted_unfolded</span><span class="p">[</span><span class="n">group_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">fitted_unfolded_group</span>
+
+        <span class="n">status</span><span class="p">[</span><span class="s1">&#39;unfolded&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fitted_unfolded</span></div>
+
+
+<span class="k">def</span> <span class="nf">validate_callbacks</span><span class="p">(</span><span class="n">callbacks</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks that input callbacks are indeed Callback object instances</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callbacks : Callback or iterable</span>
+<span class="sd">        Input Callbacks. Can be either a single Callback or an interable</span>
+<span class="sd">        of Callbacks.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    callbacks : list</span>
+<span class="sd">       List of Callbacks. If ``callbacks`` is already a list of ``Callback``</span>
+<span class="sd">       objects, then it is returned. If ``callbacks`` is a ``Callback`` object,</span>
+<span class="sd">       then a list containing ``callbacks`` is returned. If ``callbacks`` is</span>
+<span class="sd">       None, an empty list is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callbacks</span><span class="p">,</span> <span class="n">Callback</span><span class="p">):</span>
+        <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[</span><span class="n">callbacks</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Callback</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">]):</span>
+            <span class="n">invalid_callbacks</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">callbacks</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Callback</span><span class="p">)]</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Found non-callback object in callbacks: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">invalid_callbacks</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">callbacks</span>
+
+
+<span class="k">def</span> <span class="nf">extract_regularizer</span><span class="p">(</span><span class="n">callbacks</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a Regularizer Callback from an input list of Callbacks</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callbacks : Callback or iterable</span>
+<span class="sd">        Input Callbacks. Can be either a single Callback or an interable</span>
+<span class="sd">        of Callbacks.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    regularizer : Regularizer</span>
+<span class="sd">       Regularizer Callback if one exists in the input callbacks, otherwise</span>
+<span class="sd">       None is returned.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    NotImplementedError</span>
+<span class="sd">        Multiple Regularizers are in the input Callbacks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">callbacks</span> <span class="o">=</span> <span class="n">validate_callbacks</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span>
+    <span class="n">regularizers</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">callbacks</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Regularizer</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">regularizers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Multiple regularizer callbacks where provided.&#39;</span><span class="p">)</span>
+    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">regularizers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">regularizers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">regularizer</span>
+
+
+<span class="k">def</span> <span class="nf">setup_callbacks_regularizer</span><span class="p">(</span><span class="n">callbacks</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Validates and formats input callbacks</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callbacks : Callback or iterable</span>
+<span class="sd">        Input Callbacks. Can be either a single Callback or an interable</span>
+<span class="sd">        of Callbacks.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    callbacks : CallbackList</span>
+<span class="sd">    regularizer : Regularizer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">callbacks</span> <span class="o">=</span> <span class="n">validate_callbacks</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span>
+    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">extract_regularizer</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span>
+    <span class="n">callbacks</span> <span class="o">=</span> <span class="n">CallbackList</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">callbacks</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">regularizer</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">regularizer</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Bourbeau, Zigfried Hampel-Arias
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

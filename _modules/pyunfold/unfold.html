@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pyunfold.unfold &mdash; PyUnfold 0.5.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/simple@2x.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../why.html">Why PyUnfold?</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../callbacks.html">Callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">PyUnfold API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mathematics.html">Mathematical Derivations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing PyUnfold</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Useful links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold">PyUnfold &#64; GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/pyunfold/">PyUnfold &#64; PyPI</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://anaconda.org/conda-forge/pyunfold">PyUnfold &#64; conda-forge</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold/issues">Issue Tracker</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PyUnfold</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pyunfold.unfold</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pyunfold.unfold</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">.mix</span> <span class="k">import</span> <span class="n">Mixer</span>
+<span class="kn">from</span> <span class="nn">.teststat</span> <span class="k">import</span> <span class="n">get_ts</span>
+<span class="kn">from</span> <span class="nn">.priors</span> <span class="k">import</span> <span class="n">setup_prior</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">cast_to_array</span>
+<span class="kn">from</span> <span class="nn">.callbacks</span> <span class="k">import</span> <span class="n">setup_callbacks_regularizer</span>
+
+
+<div class="viewcode-block" id="iterative_unfold"><a class="viewcode-back" href="../../api.html#pyunfold.iterative_unfold">[docs]</a><span class="k">def</span> <span class="nf">iterative_unfold</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">response_err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">efficiencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">efficiencies_err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ts</span><span class="o">=</span><span class="s1">&#39;ks&#39;</span><span class="p">,</span>
+                     <span class="n">ts_stopping</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cov_type</span><span class="o">=</span><span class="s1">&#39;multinomial&#39;</span><span class="p">,</span>
+                     <span class="n">return_iterations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs iterative unfolding</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array_like</span>
+<span class="sd">        Input observed data distribution.</span>
+<span class="sd">    data_err : array_like</span>
+<span class="sd">        Uncertainties of the input observed data distribution. Must be the</span>
+<span class="sd">        same shape as ``data``.</span>
+<span class="sd">    response : array_like</span>
+<span class="sd">        Response matrix.</span>
+<span class="sd">    response_err : array_like</span>
+<span class="sd">        Uncertainties of response matrix. Must be the same shape as</span>
+<span class="sd">        ``response``.</span>
+<span class="sd">    efficiencies : array_like</span>
+<span class="sd">        Detection efficiencies for the cause distribution.</span>
+<span class="sd">    efficiencies_err : array_like</span>
+<span class="sd">        Uncertainties of detection efficiencies. Must be the same shape as</span>
+<span class="sd">        ``efficiencies``.</span>
+<span class="sd">    prior : array_like, optional</span>
+<span class="sd">        Prior distribution to use in unfolding. If None, then a uniform</span>
+<span class="sd">        (or flat) prior will be used. If array_like, then must have the same</span>
+<span class="sd">        shape as ``efficiencies`` (default is None).</span>
+<span class="sd">    ts : {&#39;ks&#39;, &#39;chi2&#39;, &#39;bf&#39;, &#39;rmd&#39;}</span>
+<span class="sd">        Test statistic to use for stopping condition (default is &#39;ks&#39;).</span>
+<span class="sd">        For more information about the available test statistics, see the</span>
+<span class="sd">        `Test Statistics API documentation &lt;api.rst#test-statistics&gt;`__.</span>
+<span class="sd">    ts_stopping : float, optional</span>
+<span class="sd">        Test statistic stopping condition. At each unfolding iteration, the</span>
+<span class="sd">        test statistic is computed between the current and previous iteration.</span>
+<span class="sd">        Once the test statistic drops below ts_stopping, the unfolding</span>
+<span class="sd">        procedure is stopped (default is 0.01).</span>
+<span class="sd">    max_iter : int, optional</span>
+<span class="sd">        Maximum number of iterations to allow (default is 100).</span>
+<span class="sd">    cov_type : {&#39;multinomial&#39;, &#39;poisson&#39;}</span>
+<span class="sd">        Whether to use the Multinomial or Poisson form for the covariance</span>
+<span class="sd">        matrix (default is &#39;multinomial&#39;).</span>
+<span class="sd">    return_iterations : bool, optional</span>
+<span class="sd">        Whether to return unfolded distributions for each iteration</span>
+<span class="sd">        (default is False).</span>
+<span class="sd">    callbacks : list, optional</span>
+<span class="sd">        List of ``pyunfold.callbacks.Callback`` instances to be applied during</span>
+<span class="sd">        unfolding (default is None, which means no Callbacks are applied).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    unfolded_result : dict</span>
+<span class="sd">        Returned if ``return_iterations`` is False (default). Dictionary</span>
+<span class="sd">        containing the final unfolded distribution, associated uncertainties,</span>
+<span class="sd">        and test statistic information.</span>
+
+<span class="sd">        The returned ``dict`` has the following keys:</span>
+
+<span class="sd">            unfolded</span>
+<span class="sd">                Final unfolded cause distribution</span>
+<span class="sd">            stat_err</span>
+<span class="sd">                Statistical uncertainties on the unfolded cause distribution</span>
+<span class="sd">            sys_err</span>
+<span class="sd">                Systematic uncertainties on the unfolded cause distribution</span>
+<span class="sd">                associated with limited statistics in the response matrix</span>
+<span class="sd">            ts_iter</span>
+<span class="sd">                Final test statistic value</span>
+<span class="sd">            ts_stopping</span>
+<span class="sd">                Test statistic stopping criterion</span>
+<span class="sd">            num_iterations</span>
+<span class="sd">                Number of unfolding iterations</span>
+<span class="sd">            unfolding_matrix</span>
+<span class="sd">                Unfolding matrix</span>
+
+<span class="sd">    unfolding_iters : pandas.DataFrame</span>
+<span class="sd">        Returned if ``return_iterations`` is True. DataFrame containing the</span>
+<span class="sd">        unfolded distribution, associated uncertainties, test statistic</span>
+<span class="sd">        information, etc. at each iteration.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyunfold import iterative_unfold</span>
+<span class="sd">    &gt;&gt;&gt; data = [100, 150]</span>
+<span class="sd">    &gt;&gt;&gt; data_err = [10, 12.2]</span>
+<span class="sd">    &gt;&gt;&gt; response = [[0.9, 0.1],</span>
+<span class="sd">    ...             [0.1, 0.9]]</span>
+<span class="sd">    &gt;&gt;&gt; response_err = [[0.01, 0.01],</span>
+<span class="sd">    ...                 [0.01, 0.01]]</span>
+<span class="sd">    &gt;&gt;&gt; efficiencies = [1, 1]</span>
+<span class="sd">    &gt;&gt;&gt; efficiencies_err = [0.01, 0.01]</span>
+<span class="sd">    &gt;&gt;&gt; unfolded = iterative_unfold(data=data,</span>
+<span class="sd">    ...                             data_err=data_err,</span>
+<span class="sd">    ...                             response=response,</span>
+<span class="sd">    ...                             response_err=response_err,</span>
+<span class="sd">    ...                             efficiencies=efficiencies,</span>
+<span class="sd">    ...                             efficiencies_err=efficiencies_err)</span>
+<span class="sd">    &gt;&gt;&gt; unfolded</span>
+<span class="sd">    {&#39;num_iterations&#39;: 4,</span>
+<span class="sd">     &#39;stat_err&#39;: array([11.16853268, 13.65488168]),</span>
+<span class="sd">     &#39;sys_err&#39;: array([0.65570621, 0.65570621]),</span>
+<span class="sd">     &#39;ts_iter&#39;: 0.0038300087456445975,</span>
+<span class="sd">     &#39;ts_stopping&#39;: 0.01,</span>
+<span class="sd">     &#39;unfolded&#39;: array([ 94.32086967, 155.67913033]),</span>
+<span class="sd">     &#39;unfolding_matrix&#39;: array([[0.8471473 , 0.1528527 ],</span>
+<span class="sd">                                [0.06404093, 0.93595907]])}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate user input</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+              <span class="s1">&#39;data_err&#39;</span><span class="p">:</span> <span class="n">data_err</span><span class="p">,</span>
+              <span class="s1">&#39;response&#39;</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+              <span class="s1">&#39;response_err&#39;</span><span class="p">:</span> <span class="n">response_err</span><span class="p">,</span>
+              <span class="s1">&#39;efficiencies&#39;</span><span class="p">:</span> <span class="n">efficiencies</span><span class="p">,</span>
+              <span class="s1">&#39;efficiencies_err&#39;</span><span class="p">:</span> <span class="n">efficiencies_err</span>
+              <span class="p">}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">inputs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The input for </span><span class="si">{}</span><span class="s1"> must not be None.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The items in </span><span class="si">{}</span><span class="s1"> must be non-negative.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="n">data</span><span class="p">,</span> <span class="n">data_err</span> <span class="o">=</span> <span class="n">cast_to_array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_err</span><span class="p">)</span>
+    <span class="n">response</span><span class="p">,</span> <span class="n">response_err</span> <span class="o">=</span> <span class="n">cast_to_array</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">response_err</span><span class="p">)</span>
+    <span class="n">efficiencies</span><span class="p">,</span> <span class="n">efficiencies_err</span> <span class="o">=</span> <span class="n">cast_to_array</span><span class="p">(</span><span class="n">efficiencies</span><span class="p">,</span>
+                                                   <span class="n">efficiencies_err</span><span class="p">)</span>
+
+    <span class="n">num_causes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">efficiencies</span><span class="p">)</span>
+
+    <span class="c1"># Setup prior</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">setup_prior</span><span class="p">(</span><span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">num_causes</span><span class="o">=</span><span class="n">num_causes</span><span class="p">)</span>
+
+    <span class="c1"># Define first prior counts distribution</span>
+    <span class="n">n_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="n">prior</span>
+
+    <span class="c1"># Setup Mixer</span>
+    <span class="n">mixer</span> <span class="o">=</span> <span class="n">Mixer</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                  <span class="n">data_err</span><span class="o">=</span><span class="n">data_err</span><span class="p">,</span>
+                  <span class="n">efficiencies</span><span class="o">=</span><span class="n">efficiencies</span><span class="p">,</span>
+                  <span class="n">efficiencies_err</span><span class="o">=</span><span class="n">efficiencies_err</span><span class="p">,</span>
+                  <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+                  <span class="n">response_err</span><span class="o">=</span><span class="n">response_err</span><span class="p">,</span>
+                  <span class="n">cov_type</span><span class="o">=</span><span class="n">cov_type</span><span class="p">)</span>
+
+    <span class="c1"># Setup test statistic</span>
+    <span class="n">ts_obj</span> <span class="o">=</span> <span class="n">get_ts</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+    <span class="n">ts_func</span> <span class="o">=</span> <span class="n">ts_obj</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="n">ts_stopping</span><span class="p">,</span>
+                     <span class="n">num_causes</span><span class="o">=</span><span class="n">num_causes</span><span class="p">,</span>
+                     <span class="n">TestRange</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1e2</span><span class="p">],</span>
+                     <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">unfolding_iters</span> <span class="o">=</span> <span class="n">_unfold</span><span class="p">(</span><span class="n">prior</span><span class="o">=</span><span class="n">n_c</span><span class="p">,</span>
+                              <span class="n">mixer</span><span class="o">=</span><span class="n">mixer</span><span class="p">,</span>
+                              <span class="n">ts_func</span><span class="o">=</span><span class="n">ts_func</span><span class="p">,</span>
+                              <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span>
+                              <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_iterations</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">unfolding_iters</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">unfolded_result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unfolding_iters</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">unfolded_result</span></div>
+
+
+<span class="k">def</span> <span class="nf">_unfold</span><span class="p">(</span><span class="n">prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mixer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ts_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">callbacks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform iterative unfolding</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    prior : array_like</span>
+<span class="sd">        Initial cause distribution.</span>
+<span class="sd">    mixer : pyunfold.Mix.Mixer</span>
+<span class="sd">        Mixer to perform the unfolding.</span>
+<span class="sd">    ts_func : pyunfold.Utils.TestStat</span>
+<span class="sd">        Test statistic object.</span>
+<span class="sd">    max_iter : int, optional</span>
+<span class="sd">        Maximum allowed number of iterations to perform.</span>
+<span class="sd">    callbacks : list, optional</span>
+<span class="sd">        List of ``pyunfold.callbacks.Callback`` instances to be applied during</span>
+<span class="sd">        unfolding (default is None, which means no Callbacks are applied).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    unfolding_iters : pandas.DataFrame</span>
+<span class="sd">        DataFrame containing the unfolded result for each iteration.</span>
+<span class="sd">        Each row in unfolding_result corresponds to an iteration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set up callbacks, regularizer Callbacks are treated separately</span>
+    <span class="n">callbacks</span><span class="p">,</span> <span class="n">regularizer</span> <span class="o">=</span> <span class="n">setup_callbacks_regularizer</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span>
+    <span class="n">callbacks</span><span class="o">.</span><span class="n">on_unfolding_begin</span><span class="p">()</span>
+
+    <span class="n">current_n_c</span> <span class="o">=</span> <span class="n">prior</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">unfolding_iters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">ts_func</span><span class="o">.</span><span class="n">pass_tol</span><span class="p">()</span> <span class="ow">and</span> <span class="n">iteration</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
+        <span class="n">callbacks</span><span class="o">.</span><span class="n">on_iteration_begin</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+
+        <span class="c1"># Perform unfolding for this iteration</span>
+        <span class="n">unfolded_n_c</span> <span class="o">=</span> <span class="n">mixer</span><span class="o">.</span><span class="n">smear</span><span class="p">(</span><span class="n">current_n_c</span><span class="p">)</span>
+        <span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;unfolded&#39;</span><span class="p">:</span> <span class="n">unfolded_n_c</span><span class="p">,</span>
+                  <span class="s1">&#39;stat_err&#39;</span><span class="p">:</span> <span class="n">mixer</span><span class="o">.</span><span class="n">get_stat_err</span><span class="p">(),</span>
+                  <span class="s1">&#39;sys_err&#39;</span><span class="p">:</span> <span class="n">mixer</span><span class="o">.</span><span class="n">get_MC_err</span><span class="p">(),</span>
+                  <span class="s1">&#39;num_iterations&#39;</span><span class="p">:</span> <span class="n">iteration</span><span class="p">,</span>
+                  <span class="s1">&#39;unfolding_matrix&#39;</span><span class="p">:</span> <span class="n">mixer</span><span class="o">.</span><span class="n">Mij</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">regularizer</span><span class="p">:</span>
+            <span class="c1"># Will want the nonregularized distribution for the final iteration</span>
+            <span class="n">unfolded_nonregularized</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s1">&#39;unfolded&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">regularizer</span><span class="o">.</span><span class="n">on_iteration_end</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+        <span class="n">ts_iter</span> <span class="o">=</span> <span class="n">ts_func</span><span class="o">.</span><span class="n">calc</span><span class="p">(</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;unfolded&#39;</span><span class="p">],</span> <span class="n">current_n_c</span><span class="p">)</span>
+        <span class="n">status</span><span class="p">[</span><span class="s1">&#39;ts_iter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ts_iter</span>
+        <span class="n">status</span><span class="p">[</span><span class="s1">&#39;ts_stopping&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ts_func</span><span class="o">.</span><span class="n">tol</span>
+
+        <span class="n">callbacks</span><span class="o">.</span><span class="n">on_iteration_end</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+        <span class="n">unfolding_iters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+        <span class="c1"># Updated current distribution for next iteration of unfolding</span>
+        <span class="n">current_n_c</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s1">&#39;unfolded&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Convert unfolding_iters list of dictionaries to a pandas DataFrame</span>
+    <span class="n">unfolding_iters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">unfolding_iters</span><span class="p">)</span>
+
+    <span class="c1"># Replace final folded iteration with un-regularized distribution</span>
+    <span class="k">if</span> <span class="n">regularizer</span><span class="p">:</span>
+        <span class="n">last_iteration_index</span> <span class="o">=</span> <span class="n">unfolding_iters</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">unfolding_iters</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">last_iteration_index</span><span class="p">,</span> <span class="s1">&#39;unfolded&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unfolded_nonregularized</span>
+
+    <span class="n">callbacks</span><span class="o">.</span><span class="n">on_unfolding_end</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">unfolding_iters</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Bourbeau, Zigfried Hampel-Arias
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

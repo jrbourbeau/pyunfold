@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Mathematical Derivations &mdash; PyUnfold 0.5.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Release Notes" href="changelog.html" />
+    <link rel="prev" title="PyUnfold API" href="api.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/simple@2x.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="why.html">Why PyUnfold?</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">PyUnfold API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mathematical Derivations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pseudo-inverse-of-r">Pseudo-Inverse of R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#iterative-unfolding">Iterative Unfolding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-initial-prior">The Initial Prior</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing PyUnfold</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Useful links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold">PyUnfold &#64; GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/pyunfold/">PyUnfold &#64; PyPI</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://anaconda.org/conda-forge/pyunfold">PyUnfold &#64; conda-forge</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold/issues">Issue Tracker</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyUnfold</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Mathematical Derivations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/jrbourbeau/pyunfold" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="mathematical-derivations">
+<h1>Mathematical Derivations<a class="headerlink" href="#mathematical-derivations" title="Permalink to this headline">¶</a></h1>
+<p>As introduced in the <a class="reference internal" href="overview.html"><span class="doc">Overview</span></a>, the conceptually simplest way
+to connect true causes <span class="math notranslate nohighlight">\(C_{\mu}\)</span> and observable effects <span class="math notranslate nohighlight">\(E_{j}\)</span>
+is via a matrix <span class="math notranslate nohighlight">\(R\)</span> and conversely by its estimated inverse <span class="math notranslate nohighlight">\(M \approx R^{-1}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}n(E) = R \ \phi(C) \\
+\phi(C) = M \ n(E)\end{split}\]</div>
+<p>Here</p>
+<ul class="simple">
+<li><span class="math notranslate nohighlight">\(\phi(C)\)</span> is the distribution of possible causes <span class="math notranslate nohighlight">\(C_{\mu}, \, \mu \in [1, n_C]\)</span></li>
+<li><span class="math notranslate nohighlight">\(n(E)\)</span> is the distribution of possible effects <span class="math notranslate nohighlight">\(E_{j}, \, j \in [1, n_E]\)</span></li>
+</ul>
+<div class="section" id="pseudo-inverse-of-r">
+<h2>Pseudo-Inverse of R<a class="headerlink" href="#pseudo-inverse-of-r" title="Permalink to this headline">¶</a></h2>
+<p>To estimate the inverse matrix <span class="math notranslate nohighlight">\(M\)</span>, we will effectively convolve what we know about the
+cause-effect system through <span class="math notranslate nohighlight">\(R\)</span> with a best estimate of what we think the cause distribution
+looks like.</p>
+<p>We begin by stating Bayes’ theorem for the problem:</p>
+<div class="math notranslate nohighlight">
+\[P(C_{\mu} | E_{j}) = \frac{ P(E_{j} | C_{\mu}) \ P(C_{\mu})}{ \sum_{\nu}^{n_{C}} P(E_{j} | C_{\nu}) \ P(C_{\nu}) }\]</div>
+<p>This equation dictates that having observed the effect <span class="math notranslate nohighlight">\(E_{j}\)</span>, the probability that it is due
+to the cause <span class="math notranslate nohighlight">\(C_{\mu}\)</span> is proportional to the product of the prior probability of that cause
+and the probability of that cause to produce that effect.
+Hence, the elements <span class="math notranslate nohighlight">\(P(E_{i}|C_{\mu})\)</span> represent the probability that a given <span class="math notranslate nohighlight">\(C_{\mu}\)</span>
+results in the effect <span class="math notranslate nohighlight">\(E_i\)</span> and thus comprise the known or simulated response matrix <span class="math notranslate nohighlight">\(R\)</span>.
+The prior <span class="math notranslate nohighlight">\(P(C_{\mu})\)</span> represents the current or best knowledge of the true (normalized) cause distribution.</p>
+<p>We then can connect the measured observed effects to their causes via</p>
+<div class="math notranslate nohighlight">
+\[\phi(C_{\mu}) = \sum_{i=1}^{n_{E}} P(C_{\mu} | E_{i}) \ n(E_{i})\]</div>
+<p>However, a cause may not necessarily result in any effect, i.e. there is a certain efficiency <span class="math notranslate nohighlight">\(\epsilon_{\mu}\)</span>
+associated with each cause:</p>
+<div class="math notranslate nohighlight">
+\[0 \ \leq \ \epsilon_{\mu} \ = \sum_{j=1}^{n_E} \ P(E_j | C_{\mu}) \leq 1\]</div>
+<p>Taking this into account in the estimate of <span class="math notranslate nohighlight">\(\phi(C)\)</span>, we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\phi(C_{\mu}) &amp;= \frac{1}{\epsilon_{\mu}} \sum_{i=1}^{n_{E}} P(C_{\mu} | E_{i}) \ n(E_{i}) \\
+              &amp;= \sum_{i=1}^{n_{E}} M_{\mu i} \ n(E_{i})
+\end{align}\end{split}\]</div>
+<p>where the explicit form of <span class="math notranslate nohighlight">\(M\)</span> is identified as</p>
+<div class="math notranslate nohighlight">
+\[M_{\mu j} = \frac{ P(E_{j} | C_{\mu}) \ P(C_{\mu})}{ \left[ \sum_{k}^{n_E} P(E_k | C_{\mu})  \right] \, \left[ \sum_{\nu}^{n_{C}} P(E_{j} | C_{\nu}) \ P(C_{\nu}) \right]}\]</div>
+<p>The components of <span class="math notranslate nohighlight">\(M_{\mu j}\)</span> are:</p>
+<ul class="simple">
+<li><span class="math notranslate nohighlight">\(P(E_{j} | C_{\mu})\)</span> the known response matrix</li>
+<li><span class="math notranslate nohighlight">\(n(E_j)\)</span> the measured frequency distribution of effects</li>
+<li><span class="math notranslate nohighlight">\(P(C_{\mu})\)</span> the prior distribution of the causes</li>
+</ul>
+</div>
+<div class="section" id="iterative-unfolding">
+<h2>Iterative Unfolding<a class="headerlink" href="#iterative-unfolding" title="Permalink to this headline">¶</a></h2>
+<p>Having obtained the form of <span class="math notranslate nohighlight">\(M\)</span> and thus an estimate of <span class="math notranslate nohighlight">\(\phi(C)\)</span>,
+we have a new best guess as to the form of the cause distribution.
+By feeding in <span class="math notranslate nohighlight">\(\phi(C)\)</span> as an updated prior, we can again get an improved estimate
+of the cause distribution.
+Shortening the notation by keeping Latin subscripts for effect indices and Greek subscripts for the causes,
+we can then obtain <span class="math notranslate nohighlight">\(\phi(C)^{t+1}\)</span> at iteration <span class="math notranslate nohighlight">\(t+1\)</span> via</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+\phi_{\mu}^{t+1} &amp;= \sum_j M_{\mu j}^t n_j \\
+M_{\mu j}^t &amp;= \frac{P_{\mu j} \, \phi^t_{\mu}}{ \epsilon_{\mu} \sum_{\rho} P_{\rho j} \, \phi^{t}_\rho}
+\end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\phi^t\)</span> is the cause distribution at iteration <span class="math notranslate nohighlight">\(t\)</span>, and
+<span class="math notranslate nohighlight">\(P_{\mu j}\)</span> are the elements of the <strong>response matrix</strong>.
+Thus we have built an iterative unfolding procedure.
+Using an appropriate test statistic such as a K-S test to compare <span class="math notranslate nohighlight">\(\phi^t_{\mu}\)</span>
+and <span class="math notranslate nohighlight">\(\phi^{t+1}_{\mu}\)</span>, we can decide when subsequent iterations provide negligible improvements,
+and after which the unfolding is said to have converged.</p>
+<p>The algorithm which PyUnfold employs is illustrated by the following:</p>
+<img alt="_images/unfolding_algorithm.png" src="_images/unfolding_algorithm.png" />
+<p>An exhaustive description and derivation of the propagation of uncertainties can be found in the
+<a class="reference external" href="https://github.com/jrbourbeau/pyunfold/blob/master/docs/latex_writeup/main.pdf">LaTeX documentation</a>
+provided with PyUnfold.</p>
+</div>
+<div class="section" id="the-initial-prior">
+<h2>The Initial Prior<a class="headerlink" href="#the-initial-prior" title="Permalink to this headline">¶</a></h2>
+<p>Since one apparently has freedom as to the form of <span class="math notranslate nohighlight">\(P(C_{\mu})\)</span>, it is typical
+to avoid introducing bias by setting the initial prior to either the uniform prior,
+where all cause bins have equal probability, or the non-informative Jeffreys’ Prior <a class="footnote-reference" href="#id2" id="id1">[1]</a>
+which is especially appropriate when the range of causes spans several orders of magnitude.
+These take the form</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+  P(C_{\mu})^{\text{uniform}}  &amp;= \frac{1}{n_{C}} \\
+  P(C_{\mu})^{\text{Jeffreys}} &amp;= \frac{1}{\log \left( C_{\text{max}} / C_{\text{min}}\right) \, C_{\mu}}
+\end{align}\end{split}\]</div>
+<p>While users can provide a custom initial prior, the uniform prior is the default in PyUnfold.
+Provided the minimum and maximum values of causes, the Jeffreys’ prior is provided as a utility function.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><ol class="first last upperalpha simple" start="8">
+<li>Jeffreys, “An Invariant Form for the Prior Probability in Estimation Problems”, Proc. of the Royal Society of London A <strong>186</strong> (1946) 453.</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Bourbeau, Zigfried Hampel-Arias
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

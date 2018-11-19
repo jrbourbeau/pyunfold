@@ -1,0 +1,494 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# PyUnfold Tutorial\n",
+    "\n",
+    "\n",
+    "PyUnfold uses the `iterative_unfold` function to perform iterative unfoldings. In addition, we'll use the `Logger` callback (see the [Callbacks documentation](../callbacks.rst) for more information) to display the unfolding status at each iteration. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pyunfold import iterative_unfold\n",
+    "from pyunfold.callbacks import Logger"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "np.random.seed(2)\n",
+    "import matplotlib.pyplot as plt \n",
+    "import seaborn as sns\n",
+    "\n",
+    "%matplotlib inline"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sns.set_context(context='poster')\n",
+    "plt.rcParams['figure.figsize'] = (10, 8)\n",
+    "plt.rcParams['lines.markeredgewidth'] = 2"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## True distribution"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Before we can perform an unfolding, we'll need some true and observed data. In this tutorial, we'll use the `numpy.random` module to generate some example data. Let's assume that we are measuring some observable, $X$, that is given by a normal (Gaussian) distribution."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "num_samples = int(1e5)\n",
+    "true_samples = np.random.normal(loc=0.0, scale=1.0, size=num_samples)\n",
+    "true_samples"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "These samples can then be binned to form a histogram of the true distribution."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bins = np.linspace(-3, 3, 21)\n",
+    "num_bins = len(bins) - 1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_true, _ = np.histogram(true_samples, bins=bins)\n",
+    "data_true"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The true distribution of $X$ looks like "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "ax.step(np.arange(num_bins), data_true, where='mid', lw=3,\n",
+    "        alpha=0.7, label='True distribution')\n",
+    "ax.set(xlabel='X bins', ylabel='Counts')\n",
+    "ax.legend()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Observed distribution"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Generally speaking, measurement devices aren't perfect. This means that the measured value of $X$ isn't always exactly the same as the true value. That is, our measurement device has some inherit bias and resolution. \n",
+    "\n",
+    "We'll model these detection imperfections by adding some random Gaussian noise to our true values of $X$ to get our observed (measured) values. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "random_noise = np.random.normal(loc=0.3, scale=0.5, size=num_samples)\n",
+    "observed_samples = true_samples + random_noise"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The observed values can be binned into a histogram. This array, `data_observed`, is the distribution we want to unfold.  "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_observed, _ = np.histogram(observed_samples, bins=bins)\n",
+    "data_observed"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can see how the true and observed distribution of $X$ differ. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "ax.step(np.arange(num_bins), data_true, where='mid', lw=3,\n",
+    "        alpha=0.7, label='True distribution')\n",
+    "ax.step(np.arange(num_bins), data_observed, where='mid', lw=3,\n",
+    "        alpha=0.7, label='Observed distribution')\n",
+    "ax.set(xlabel='X bins', ylabel='Counts')\n",
+    "ax.legend()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In addition to the observations themselves, the uncertainty of the observations is also needed to perform an unfolding. Here, we'll assume the errors are simply Poisson counting errors (i.e. $\\mathrm{error_{i} = \\sqrt{counts_{i}}}$)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_observed_err = np.sqrt(data_observed)\n",
+    "data_observed_err"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Detection Efficiencies\n",
+    "\n",
+    "Not every sample from our true distribution will lead to a measured observation. The probability that a sample from our true distribution is observed is quantified via our detection efficiencies. For now, we'll assume uniform efficiencies of 1."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "efficiencies = np.ones_like(data_observed, dtype=float)\n",
+    "efficiencies"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Likewise, let's assume an uncertainty on our efficiencies of 0.1. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "efficiencies_err = np.full_like(efficiencies, 0.1, dtype=float)\n",
+    "efficiencies_err"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Response matrix\n",
+    "\n",
+    "The next step is to construct a response matrix that encapsulates our detector bias and resolution. This can be done by making a 2-dimensional histogram of the true vs. observed distributions.  "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "response_hist, _, _ = np.histogram2d(observed_samples, true_samples, bins=bins)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "As with the uncertainties on our observed data, we'll assume Poisson counting errors for our response matrix. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "response_hist_err = np.sqrt(response_hist)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "im = ax.imshow(response_hist, origin='lower')\n",
+    "cbar = plt.colorbar(im, label='Counts')\n",
+    "ax.set(xlabel='Cause bins', ylabel='Effect bins')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "However, there's still one more step for the response matrix. What's needed for unfolding is not this 2-d counts histogram, but a matrix with the conditional probabilities $P(E_i|C_j)$. This matrix, called the normalized response matrix, can be obtained by normalizing our 2-d counts matrix. That is, scale each column of `response_hist` such that it adds to our detection efficiencies.\n",
+    "\n",
+    "This normalization factor can be easily found via:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "column_sums = response_hist.sum(axis=0) \n",
+    "normalization_factor = efficiencies / column_sums"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "response = response_hist * normalization_factor\n",
+    "response_err = response_hist_err * normalization_factor"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "As a check we can see that the columns of `response` add to our detection efficiencies. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "response.sum(axis=0)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can see how the structure of the 2-d response histogram differs from the normalized response matrix. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "im = ax.imshow(response, origin='lower')\n",
+    "cbar = plt.colorbar(im, label='$P(E_i|C_{\\mu})$')\n",
+    "ax.set(xlabel='Cause bins', ylabel='Effect bins',\n",
+    "       title='Normalizes response matrix')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This difference in structure is because each column in the normalized response matrix is scaled by the number of samples in that column. So only the _relative_ structure of each column of the 2-d response histogram is present in the normalized response matrix. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Iterative unfolding\n",
+    "\n",
+    "Now we have everything we need to perform our unfolding:\n",
+    "\n",
+    "- Observed distribution to unfold (with uncertainties): `data_observed`, `data_observed_err`\n",
+    "- Detection efficiencies (with uncertainties): `efficiencies`, `efficiencies_err`\n",
+    "- Normalized response matrix (with uncertainties): `response`, `response_err`\n",
+    "\n",
+    "These are all input parameters into the PyUnfold `iterative_unfold` function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "unfolded_results = iterative_unfold(data=data_observed,\n",
+    "                                    data_err=data_observed_err,\n",
+    "                                    response=response,\n",
+    "                                    response_err=response_err,\n",
+    "                                    efficiencies=efficiencies,\n",
+    "                                    efficiencies_err=efficiencies_err,\n",
+    "                                    callbacks=[Logger()])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "What's returned from `iterative_unfold` is a dictionary that contains:\n",
+    "\n",
+    "- Unfolded distribution (`unfolded` key)\n",
+    "- Statistical uncertainties on the unfolded distribution (`stat_err` key)\n",
+    "- Systematic uncertainties on the unfolded distribution based on the response matrix uncertainties (`sys_err` key)\n",
+    "- Number of unfolding iterations to reach test statistic stopping condition (`num_iterations` key)\n",
+    "- Test statistic value for final iteration (`ts_iter` key)\n",
+    "- Test statistic stopping condition (`ts_stopping` key)\n",
+    "- Unfolding matrix (`unfolding_matrix` key)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "unfolded_results.keys()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "unfolded_results['unfolded']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "unfolded_results['sys_err']"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Finally, we can see how the true, observed, and unfolded distributions compare to one another. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "ax.step(np.arange(num_bins), data_true, where='mid', lw=3,\n",
+    "        alpha=0.7, label='True distribution')\n",
+    "ax.step(np.arange(num_bins), data_observed, where='mid', lw=3,\n",
+    "        alpha=0.7, label='Observed distribution')\n",
+    "ax.errorbar(np.arange(num_bins), unfolded_results['unfolded'],\n",
+    "            yerr=unfolded_results['sys_err'],\n",
+    "            alpha=0.7,\n",
+    "            elinewidth=3,\n",
+    "            capsize=4,\n",
+    "            ls='None', marker='.', ms=10, \n",
+    "            label='Unfolded distribution')\n",
+    "\n",
+    "ax.set(xlabel='X bins', ylabel='Counts')\n",
+    "plt.legend()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note that the unfolded distribution is consistent with the true distribution! "
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

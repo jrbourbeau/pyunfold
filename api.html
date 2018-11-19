@@ -1,0 +1,789 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>PyUnfold API &mdash; PyUnfold 0.5.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mathematical Derivations" href="mathematics.html" />
+    <link rel="prev" title="Callbacks" href="callbacks.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/simple@2x.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="why.html">Why PyUnfold?</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callbacks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">PyUnfold API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#iterative-unfolding">Iterative unfolding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#callbacks">Callbacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#priors">Priors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-statistics">Test Statistics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mathematics.html">Mathematical Derivations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing PyUnfold</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Useful links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold">PyUnfold &#64; GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/pyunfold/">PyUnfold &#64; PyPI</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://anaconda.org/conda-forge/pyunfold">PyUnfold &#64; conda-forge</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold/issues">Issue Tracker</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyUnfold</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>PyUnfold API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/jrbourbeau/pyunfold" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="pyunfold-api">
+<h1>PyUnfold API<a class="headerlink" href="#pyunfold-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="iterative-unfolding">
+<h2>Iterative unfolding<a class="headerlink" href="#iterative-unfolding" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyunfold.iterative_unfold">
+<code class="descclassname">pyunfold.</code><code class="descname">iterative_unfold</code><span class="sig-paren">(</span><em>data=None</em>, <em>data_err=None</em>, <em>response=None</em>, <em>response_err=None</em>, <em>efficiencies=None</em>, <em>efficiencies_err=None</em>, <em>prior=None</em>, <em>ts='ks'</em>, <em>ts_stopping=0.01</em>, <em>max_iter=100</em>, <em>cov_type='multinomial'</em>, <em>return_iterations=False</em>, <em>callbacks=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/unfold.html#iterative_unfold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.iterative_unfold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs iterative unfolding</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input observed data distribution.</p>
+</dd>
+<dt><strong>data_err</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Uncertainties of the input observed data distribution. Must be the
+same shape as <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
+</dd>
+<dt><strong>response</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Response matrix.</p>
+</dd>
+<dt><strong>response_err</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Uncertainties of response matrix. Must be the same shape as
+<code class="docutils literal notranslate"><span class="pre">response</span></code>.</p>
+</dd>
+<dt><strong>efficiencies</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Detection efficiencies for the cause distribution.</p>
+</dd>
+<dt><strong>efficiencies_err</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Uncertainties of detection efficiencies. Must be the same shape as
+<code class="docutils literal notranslate"><span class="pre">efficiencies</span></code>.</p>
+</dd>
+<dt><strong>prior</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Prior distribution to use in unfolding. If None, then a uniform
+(or flat) prior will be used. If array_like, then must have the same
+shape as <code class="docutils literal notranslate"><span class="pre">efficiencies</span></code> (default is None).</p>
+</dd>
+<dt><strong>ts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘ks’, ‘chi2’, ‘bf’, ‘rmd’}</span></dt>
+<dd><p class="first last">Test statistic to use for stopping condition (default is ‘ks’).
+For more information about the available test statistics, see the
+<a class="reference internal" href="#test-statistics"><span class="std std-ref">Test Statistics API documentation</span></a>.</p>
+</dd>
+<dt><strong>ts_stopping</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Test statistic stopping condition. At each unfolding iteration, the
+test statistic is computed between the current and previous iteration.
+Once the test statistic drops below ts_stopping, the unfolding
+procedure is stopped (default is 0.01).</p>
+</dd>
+<dt><strong>max_iter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Maximum number of iterations to allow (default is 100).</p>
+</dd>
+<dt><strong>cov_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘multinomial’, ‘poisson’}</span></dt>
+<dd><p class="first last">Whether to use the Multinomial or Poisson form for the covariance
+matrix (default is ‘multinomial’).</p>
+</dd>
+<dt><strong>return_iterations</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Whether to return unfolded distributions for each iteration
+(default is False).</p>
+</dd>
+<dt><strong>callbacks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
+<dd><p class="first last">List of <code class="docutils literal notranslate"><span class="pre">pyunfold.callbacks.Callback</span></code> instances to be applied during
+unfolding (default is None, which means no Callbacks are applied).</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>unfolded_result</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first">Returned if <code class="docutils literal notranslate"><span class="pre">return_iterations</span></code> is False (default). Dictionary
+containing the final unfolded distribution, associated uncertainties,
+and test statistic information.</p>
+<p>The returned <code class="docutils literal notranslate"><span class="pre">dict</span></code> has the following keys:</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>unfolded</dt>
+<dd><p class="first last">Final unfolded cause distribution</p>
+</dd>
+<dt>stat_err</dt>
+<dd><p class="first last">Statistical uncertainties on the unfolded cause distribution</p>
+</dd>
+<dt>sys_err</dt>
+<dd><p class="first last">Systematic uncertainties on the unfolded cause distribution
+associated with limited statistics in the response matrix</p>
+</dd>
+<dt>ts_iter</dt>
+<dd><p class="first last">Final test statistic value</p>
+</dd>
+<dt>ts_stopping</dt>
+<dd><p class="first last">Test statistic stopping criterion</p>
+</dd>
+<dt>num_iterations</dt>
+<dd><p class="first last">Number of unfolding iterations</p>
+</dd>
+<dt>unfolding_matrix</dt>
+<dd><p class="first last">Unfolding matrix</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd>
+<dt><strong>unfolding_iters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Returned if <code class="docutils literal notranslate"><span class="pre">return_iterations</span></code> is True. DataFrame containing the
+unfolded distribution, associated uncertainties, test statistic
+information, etc. at each iteration.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyunfold</span> <span class="k">import</span> <span class="n">iterative_unfold</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_err</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mf">12.2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">response_err</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span>
+<span class="gp">... </span>                <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">efficiencies</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">efficiencies_err</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">unfolded</span> <span class="o">=</span> <span class="n">iterative_unfold</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">data_err</span><span class="o">=</span><span class="n">data_err</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">response_err</span><span class="o">=</span><span class="n">response_err</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">efficiencies</span><span class="o">=</span><span class="n">efficiencies</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">efficiencies_err</span><span class="o">=</span><span class="n">efficiencies_err</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">unfolded</span>
+<span class="go">{&#39;num_iterations&#39;: 4,</span>
+<span class="go"> &#39;stat_err&#39;: array([11.16853268, 13.65488168]),</span>
+<span class="go"> &#39;sys_err&#39;: array([0.65570621, 0.65570621]),</span>
+<span class="go"> &#39;ts_iter&#39;: 0.0038300087456445975,</span>
+<span class="go"> &#39;ts_stopping&#39;: 0.01,</span>
+<span class="go"> &#39;unfolded&#39;: array([ 94.32086967, 155.67913033]),</span>
+<span class="go"> &#39;unfolding_matrix&#39;: array([[0.8471473 , 0.1528527 ],</span>
+<span class="go">                            [0.06404093, 0.93595907]])}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="callbacks">
+<h2>Callbacks<a class="headerlink" href="#callbacks" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyunfold.callbacks.Logger">
+<em class="property">class </em><code class="descclassname">pyunfold.callbacks.</code><code class="descname">Logger</code><a class="reference internal" href="_modules/pyunfold/callbacks.html#Logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.callbacks.Logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logger callback</p>
+<p>Writes test statistic information for each iteration to sys.stdout.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_iteration_end</span></code>(iteration,&nbsp;status)</td>
+<td>Writes to sys.stdout</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyunfold.callbacks.SplineRegularizer">
+<em class="property">class </em><code class="descclassname">pyunfold.callbacks.</code><code class="descname">SplineRegularizer</code><span class="sig-paren">(</span><em>degree=3</em>, <em>smooth=None</em>, <em>groups=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/callbacks.html#SplineRegularizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.callbacks.SplineRegularizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spline regularization callback</p>
+<p>Smooths the unfolded distribution at each iteration using
+<code class="docutils literal notranslate"><span class="pre">UnivariateSpline</span></code> from <code class="docutils literal notranslate"><span class="pre">scipy.interpolate</span></code>. For more information about
+<code class="docutils literal notranslate"><span class="pre">UnivariateSpline</span></code>, see the
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.UnivariateSpline.html">UnivariateSpline API documentation</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>degree</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Degree of the smoothing spline. Must be &lt;= 5 (default is 3, a cubic
+spline).</p>
+</dd>
+<dt><strong>smooth</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or None, optional</span></dt>
+<dd><p class="first last">Positive smoothing factor used to choose the number of knots. If 0,
+spline will interpolate through all data points (default is None).</p>
+</dd>
+<dt><strong>groups</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">Group labels for each cause bin. If groups are specified, then each
+cause group will be regularized independently (default is None).</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The number of causes must be larger than the spline <code class="docutils literal notranslate"><span class="pre">degree</span></code>.</p>
+<p class="rubric">Examples</p>
+<p>Specify the spline degree and smoothing factor:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyunfold.callbacks</span> <span class="k">import</span> <span class="n">SplineRegularizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reg</span> <span class="o">=</span> <span class="n">SplineRegularizer</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="mf">1.25</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Different cause groups are also supported. For instance, in a problem with
+seven cause bins, if the first three cause bins belong to their own group,
+the next two cause bins belong to another group, and the last two cause
+bins belong to yet another group, an array can be constructed that
+identifies the group each cause bin belongs to. E.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reg</span> <span class="o">=</span> <span class="n">SplineRegularizer</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If provided with a <code class="docutils literal notranslate"><span class="pre">groups</span></code> parameter, <code class="docutils literal notranslate"><span class="pre">SplineRegularizer</span></code> will
+regularize the unfolded distribution for each group independently.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="67%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>on_iteration_end</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="priors">
+<h2>Priors<a class="headerlink" href="#priors" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyunfold.priors.uniform_prior">
+<code class="descclassname">pyunfold.priors.</code><code class="descname">uniform_prior</code><span class="sig-paren">(</span><em>num_causes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/priors.html#uniform_prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.priors.uniform_prior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function to calculate uniform prior distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>num_causes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of cause bins.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>prior</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray</span></dt>
+<dd><p class="first last">Normalized uniform prior distribution.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyunfold.priors</span> <span class="k">import</span> <span class="n">uniform_prior</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">uniform_prior</span><span class="p">(</span><span class="n">num_causes</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.25, 0.25, 0.25, 0.25])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyunfold.priors.jeffreys_prior">
+<code class="descclassname">pyunfold.priors.</code><code class="descname">jeffreys_prior</code><span class="sig-paren">(</span><em>causes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/priors.html#jeffreys_prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.priors.jeffreys_prior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function to calculate Jeffreys prior distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>causes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Midpoint value of cause bins. For instance if cause bin edges are
+given by [0, 2, 4], then <code class="docutils literal notranslate"><span class="pre">causes</span></code> is [1, 3].</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>prior</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy.ndarray</span></dt>
+<dd><p class="first last">Normalized Jeffreys prior distribution.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The Jeffreys prior is defined as</p>
+<div class="math notranslate nohighlight">
+\[P(C_{\mu})^{\text{Jeffreys}} = \frac{1}{\log(C_{\text{max}}/C_\text{min})C_{\mu}}\]</div>
+<p>for cause bin values <span class="math notranslate nohighlight">\(C_{\mu}\)</span> and maximum/minimum cause values
+<span class="math notranslate nohighlight">\(C_{\text{max}}\)</span>/<span class="math notranslate nohighlight">\(C_{\text{min}}\)</span>. For more details regarding
+Jeffreys prior see <a class="reference internal" href="#rc013959d00fc-1" id="id1">[1]</a>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="rc013959d00fc-1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> Jeffreys, H. “An Invariant Form for the Prior Probability in Estimation Problems”.
+<em>Proc. of the Royal Society of London A: Mathematical, Physical and Engineering Sciences</em>
+186 (1007). London, England:453-61. <a class="reference external" href="https://doi.org/10.1098/rspa.1946.0056">https://doi.org/10.1098/rspa.1946.0056</a>.</td></tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyunfold.priors</span> <span class="k">import</span> <span class="n">jeffreys_prior</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">causes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jeffreys_prior</span><span class="p">(</span><span class="n">causes</span><span class="o">=</span><span class="n">causes</span><span class="p">)</span>
+<span class="go">array([0.48, 0.24, 0.16, 0.12])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="test-statistics">
+<h2>Test Statistics<a class="headerlink" href="#test-statistics" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pyunfold.teststat.get_ts">
+<code class="descclassname">pyunfold.teststat.</code><code class="descname">get_ts</code><span class="sig-paren">(</span><em>name='ks'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#get_ts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.get_ts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for retrieving test statisitc calculators</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘ks’, ‘chi2’, ‘bf’, ‘rmd’}</span></dt>
+<dd><p class="first last">Name of test statistic.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">TestStat</span></dt>
+<dd><p class="first last">Test statistics calculator</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyunfold.teststat.KS">
+<em class="property">class </em><code class="descclassname">pyunfold.teststat.</code><code class="descname">KS</code><span class="sig-paren">(</span><em>tol=None</em>, <em>num_causes=None</em>, <em>test_range=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#KS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.KS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kolmogorov-Smirnov (KS) two-sided test statistic</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pyunfold.teststat.KS.calc" title="pyunfold.teststat.KS.calc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc</span></code></a>(dist1,&nbsp;dist2)</td>
+<td>Calculate the test statistic between two input distributions</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyunfold.teststat.KS.calc">
+<code class="descname">calc</code><span class="sig-paren">(</span><em>dist1</em>, <em>dist2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#KS.calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.KS.calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the test statistic between two input distributions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>dist1</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input distribution.</p>
+</dd>
+<dt><strong>dist2</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input distribution.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>stat</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Test statistic</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyunfold.teststat.Chi2">
+<em class="property">class </em><code class="descclassname">pyunfold.teststat.</code><code class="descname">Chi2</code><span class="sig-paren">(</span><em>tol=None</em>, <em>num_causes=None</em>, <em>test_range=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#Chi2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.Chi2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduced chi-squared test statistic</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pyunfold.teststat.Chi2.calc" title="pyunfold.teststat.Chi2.calc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc</span></code></a>(dist1,&nbsp;dist2)</td>
+<td>Calculate the test statistic between two input distributions</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyunfold.teststat.Chi2.calc">
+<code class="descname">calc</code><span class="sig-paren">(</span><em>dist1</em>, <em>dist2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#Chi2.calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.Chi2.calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the test statistic between two input distributions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>dist1</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input distribution.</p>
+</dd>
+<dt><strong>dist2</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input distribution.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>stat</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Test statistic</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyunfold.teststat.RMD">
+<em class="property">class </em><code class="descclassname">pyunfold.teststat.</code><code class="descname">RMD</code><span class="sig-paren">(</span><em>tol=None</em>, <em>num_causes=None</em>, <em>test_range=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#RMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.RMD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum relative difference test statistic</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pyunfold.teststat.RMD.calc" title="pyunfold.teststat.RMD.calc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc</span></code></a>(dist1,&nbsp;dist2)</td>
+<td>Calculate the test statistic between two input distributions</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyunfold.teststat.RMD.calc">
+<code class="descname">calc</code><span class="sig-paren">(</span><em>dist1</em>, <em>dist2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#RMD.calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.RMD.calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the test statistic between two input distributions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>dist1</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input distribution.</p>
+</dd>
+<dt><strong>dist2</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input distribution.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>stat</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Test statistic</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyunfold.teststat.BF">
+<em class="property">class </em><code class="descclassname">pyunfold.teststat.</code><code class="descname">BF</code><span class="sig-paren">(</span><em>tol=None</em>, <em>num_causes=None</em>, <em>test_range=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#BF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.BF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bayes factor test statistic</p>
+<p class="rubric">Notes</p>
+<p>For details related to the Bayes fator see <a class="reference internal" href="#r2e3e8adabba7-1" id="id3">[1]</a>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="r2e3e8adabba7-1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id4">2</a>)</em> S. Y. BenZvi and B. M. Connolly and C. G. Pfendner and S. Westerhoff.
+“A Bayesian Approach to Comparing Cosmic Ray Energy Spectra”.
+<em>The Astrophysical Journal</em> 738 (1):82.
+<a class="reference external" href="https://doi.org/10.1088/0004-637X/738/1/82">https://doi.org/10.1088/0004-637X/738/1/82</a>.</td></tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pyunfold.teststat.BF.calc" title="pyunfold.teststat.BF.calc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc</span></code></a>(dist1,&nbsp;dist2)</td>
+<td>Calculate the test statistic between two input distributions</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyunfold.teststat.BF.calc">
+<code class="descname">calc</code><span class="sig-paren">(</span><em>dist1</em>, <em>dist2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyunfold/teststat.html#BF.calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyunfold.teststat.BF.calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the test statistic between two input distributions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>dist1</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input distribution.</p>
+</dd>
+<dt><strong>dist2</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Input distribution.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>stat</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Test statistic</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Bourbeau, Zigfried Hampel-Arias
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

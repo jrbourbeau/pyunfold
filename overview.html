@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Overview &mdash; PyUnfold 0.5.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="PyUnfold" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/simple@2x.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-unfolding">What is unfolding?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#iterative-unfolding">Iterative unfolding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#terminology">Terminology</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="why.html">Why PyUnfold?</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callbacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">PyUnfold API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mathematics.html">Mathematical Derivations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing PyUnfold</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Useful links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold">PyUnfold &#64; GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/pyunfold/">PyUnfold &#64; PyPI</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://anaconda.org/conda-forge/pyunfold">PyUnfold &#64; conda-forge</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jrbourbeau/pyunfold/issues">Issue Tracker</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyUnfold</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Overview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <!-- User defined GitHub URL -->
+              <a href="https://github.com/jrbourbeau/pyunfold" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="id1">
+<h1>Overview<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>PyUnfold is a Python package for incorporating imperfections
+of the measurement process into a data analysis pipeline.</p>
+<div class="section" id="what-is-unfolding">
+<h2>What is unfolding?<a class="headerlink" href="#what-is-unfolding" title="Permalink to this headline">¶</a></h2>
+<p>In an ideal world, we would have access to the perfect detector:
+an apparatus that makes no error in measuring a desired quantity.
+However, in real life, detectors have:</p>
+<ul class="simple">
+<li>Finite resolutions</li>
+<li>Characteristic biases that cannot be eliminated</li>
+<li>Less than 100% detection efficiencies</li>
+<li>Statistical uncertainties</li>
+</ul>
+<p>By building a matrix that encodes a detector’s smearing of the desired true quantity
+into the measured observable(s), a deconvolution can be performed that provides
+an estimate of the true variable. This deconvolution process is known as unfolding.</p>
+</div>
+<div class="section" id="iterative-unfolding">
+<h2>Iterative unfolding<a class="headerlink" href="#iterative-unfolding" title="Permalink to this headline">¶</a></h2>
+<p>The unfolding method implemented in PyUnfold accomplishes this deconvolution
+by harnessing the power of Bayes’ Theorem in an iterative procedure, providing results
+based on physical expectations of the desired quantity <a class="footnote-reference" href="#id3" id="id2">[1]</a>.
+Furthermore, tedious book-keeping for both statistical and systematic errors
+produces precise final uncertainty estimates.</p>
+</div>
+<div class="section" id="terminology">
+<h2>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h2>
+<p>In the measurement process, a true distribution of <strong>causes</strong> is detected by some
+apparatus having a characteristic <strong>response function</strong>, or matrix, which produces a
+<em>measurable</em> distribution of <strong>effects</strong>.</p>
+<p>The act of unfolding approximates the inverse of the response function by convolving it with
+a <strong>prior</strong> distribution which encodes a guess at the form of the true cause distribution.
+Including the measured effects distribution, we obtain an improved estimate of the cause
+distribution. This updated, better guess can be used as a prior for another unfolding,
+making this an iterative procedure.</p>
+<p>These unfolding iterations continue until some stopping condition (a test statistic
+comparing the unfolded cause distribution between subsequent iterations) satisfies some
+pre-defined threshold, typically taking just a few iterations.</p>
+<p>To use PyUnfold, one needs only to provide the</p>
+<ul class="simple">
+<li>Measured effects distribution</li>
+<li>Response matrix</li>
+<li>Prior distribution</li>
+</ul>
+<p>For further mathematical details on the unfolding procedure, see the <a class="reference internal" href="mathematics.html"><span class="doc">Mathematical Derivations</span></a> section.</p>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td><ol class="first last upperalpha simple" start="7">
+<li>D’Agostini, “A Multidimensional unfolding method based on Bayes’ theorem”, Nucl. Instrum. Meth. A <strong>362</strong> (1995) 487.</li>
+</ol>
+</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Bourbeau, Zigfried Hampel-Arias
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
