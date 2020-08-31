@@ -1,6 +1,7 @@
 
 from __future__ import division, print_function
 import numpy as np
+from scipy.sparse import dia_matrix
 
 from .utils import safe_inverse
 
@@ -239,7 +240,7 @@ class CovarianceMatrix(object):
         # Get derivative
         dcdP = self.dcdP
         # Set MC covariance
-        Vc1 = dcdP.dot(CovPP).dot(dcdP.T)
+        Vc1 = dcdP.dot(CovPP.dot(dcdP.T))
         return Vc1
 
     def get_cov(self):
@@ -254,14 +255,11 @@ class CovarianceMatrix(object):
 
 
 def poisson_covariance(ebins, cbins, pec_err):
-    # Poisson covariance matrix
-    CovPP = np.zeros((cbins * ebins, cbins * ebins))
-    for ej in np.arange(0, ebins):
-        ejc = ej * cbins
-        for ti in np.arange(0, cbins):
-            CovPP[ejc+ti, ejc+ti] = pec_err[ej, ti]**2
-
-    return CovPP
+    # Sparse Poisson covariance matrix
+    cov_array = pec_err.ravel()**2
+    shape = (cbins * ebins, cbins * ebins)
+    offsets = 0
+    return dia_matrix((cov_array, offsets), shape=shape)
 
 
 def multinomial_covariance(ebins, cbins, nc_inv, pec):
