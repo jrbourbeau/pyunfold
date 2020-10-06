@@ -234,11 +234,15 @@ class CovarianceMatrix(object):
 
         # Poisson covariance matrix
         if self.pec_cov_type == 'poisson':
-            CovPP = poisson_covariance(ebins, cbins, self.pec_err)
+            CovPP = poisson_covariance(
+                ebins, cbins, self.pec_err, dtype=self.dtype
+            )
         # Multinomial covariance matrix
         elif self.pec_cov_type == 'multinomial':
             nc_inv = safe_inverse(self.NCmc)
-            CovPP = multinomial_covariance(ebins, cbins, nc_inv, self.pec)
+            CovPP = multinomial_covariance(
+                ebins, cbins, nc_inv, self.pec, dtype=self.dtype
+            )
 
         return CovPP
 
