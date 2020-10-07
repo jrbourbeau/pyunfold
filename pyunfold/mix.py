@@ -11,7 +11,7 @@ class Mixer(object):
     """
     def __init__(self, data=None, data_err=None, efficiencies=None,
                  efficiencies_err=None, response=None, response_err=None,
-                 cov_type='multinomial'):
+                 cov_type='multinomial', dtype=np.float64):
         # Input validation
         if len(data) != response.shape[0]:
             err_msg = ('Inconsistent number of effect bins. Observed data '
@@ -43,7 +43,8 @@ class Mixer(object):
                                     efficiencies_err=efficiencies_err,
                                     response=response,
                                     response_err=response_err,
-                                    cov_type=cov_type)
+                                    cov_type=cov_type,
+                                    dtype=dtype)
 
     def get_cov(self):
         """Covariance Matrix

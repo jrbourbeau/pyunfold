@@ -14,7 +14,8 @@ def iterative_unfold(data=None, data_err=None, response=None,
                      response_err=None, efficiencies=None,
                      efficiencies_err=None, prior=None, ts='ks',
                      ts_stopping=0.01, max_iter=100, cov_type='multinomial',
-                     return_iterations=False, callbacks=None):
+                     return_iterations=False, callbacks=None,
+                     dtype=np.float64):
     """Performs iterative unfolding
 
     Parameters
@@ -150,7 +151,8 @@ def iterative_unfold(data=None, data_err=None, response=None,
                   efficiencies_err=efficiencies_err,
                   response=response,
                   response_err=response_err,
-                  cov_type=cov_type)
+                  cov_type=cov_type,
+                  dtype=dtype)
 
     # Setup test statistic
     ts_obj = get_ts(ts)
