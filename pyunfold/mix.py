@@ -1,6 +1,7 @@
 
 from __future__ import division, print_function
 import numpy as np
+from scipy.sparse import dia_matrix
 
 from .utils import safe_inverse
 
@@ -10,7 +11,7 @@ class Mixer(object):
     """
     def __init__(self, data=None, data_err=None, efficiencies=None,
                  efficiencies_err=None, response=None, response_err=None,
-                 cov_type='multinomial'):
+                 cov_type='multinomial', dtype=np.float64):
         # Input validation
         if len(data) != response.shape[0]:
             err_msg = ('Inconsistent number of effect bins. Observed data '
@@ -42,7 +43,8 @@ class Mixer(object):
                                     efficiencies_err=efficiencies_err,
                                     response=response,
                                     response_err=response_err,
-                                    cov_type=cov_type)
+                                    cov_type=cov_type,
+                                    dtype=dtype)
 
     def get_cov(self):
         """Covariance Matrix
@@ -98,7 +100,7 @@ class CovarianceMatrix(object):
     """
     def __init__(self, data=None, data_err=None, efficiencies=None,
                  efficiencies_err=None, response=None, response_err=None,
-                 cov_type='multinomial'):
+                 cov_type='multinomial', dtype=np.float64, mem_max=16):
 
         # Normalized P(E|C)
         self.pec = response
@@ -119,13 +121,24 @@ class CovarianceMatrix(object):
         # Total number of observed effects
         self.nobs = np.sum(self.NEobs)
 
-        # Number of cause and effect eins
+        # Number of cause and effect bins
         dims = self.pec.shape
         self.cbins = dims[1]
         self.ebins = dims[0]
+
+        # Error on memory usage in dcdP
+        self.dtype = dtype
+        nbytes = self.cbins**2 * self.ebins * np.dtype(self.dtype).itemsize
+        if nbytes > mem_max * 1e9:
+            raise ValueError(
+                f'dcdP will require {nbytes/1e9:.2e} GB > {mem_max:.2e} GB'
+            )
+
         # Adye propagating derivative
-        self.dcdn = np.zeros(dims)
-        self.dcdP = np.zeros((self.cbins, self.cbins * self.ebins))
+        self.dcdn = np.zeros(dims, dtype=self.dtype)
+        self.dcdP = np.zeros(
+            (self.cbins, self.cbins * self.ebins), dtype=self.dtype
+        )
         # Counter for number of iterations
         self.counter = 0
 
@@ -151,7 +164,7 @@ class CovarianceMatrix(object):
 
         NE_F_R = self.NEobs * safe_inverse(f_norm)
 
-        dcdP = np.zeros((cbins, cbins * ebins))
+        dcdP = np.zeros((cbins, cbins * ebins), dtype=self.dtype)
         # (ti, ec_j + tk) elements
         tk = np.arange(0, cbins)
         for ej in np.arange(0, ebins):
@@ -212,7 +225,6 @@ class CovarianceMatrix(object):
         Vcd = self.getVcd()
         # Set data covariance
         Vc0 = dcdn.T.dot(Vcd).dot(dcdn)
-
         return Vc0
 
     def getVcPP(self):
@@ -223,11 +235,15 @@ class CovarianceMatrix(object):
 
         # Poisson covariance matrix
         if self.pec_cov_type == 'poisson':
-            CovPP = poisson_covariance(ebins, cbins, self.pec_err)
+            CovPP = poisson_covariance(
+                ebins, cbins, self.pec_err, dtype=self.dtype
+            )
         # Multinomial covariance matrix
         elif self.pec_cov_type == 'multinomial':
             nc_inv = safe_inverse(self.NCmc)
-            CovPP = multinomial_covariance(ebins, cbins, nc_inv, self.pec)
+            CovPP = multinomial_covariance(
+                ebins, cbins, nc_inv, self.pec, dtype=self.dtype
+            )
 
         return CovPP
 
@@ -239,7 +255,7 @@ class CovarianceMatrix(object):
         # Get derivative
         dcdP = self.dcdP
         # Set MC covariance
-        Vc1 = dcdP.dot(CovPP).dot(dcdP.T)
+        Vc1 = dcdP.dot(CovPP.dot(dcdP.T))
         return Vc1
 
     def get_cov(self):
@@ -253,19 +269,18 @@ class CovarianceMatrix(object):
         return Vc
 
 
-def poisson_covariance(ebins, cbins, pec_err):
-    # Poisson covariance matrix
-    CovPP = np.zeros((cbins * ebins, cbins * ebins))
-    for ej in np.arange(0, ebins):
-        ejc = ej * cbins
-        for ti in np.arange(0, cbins):
-            CovPP[ejc+ti, ejc+ti] = pec_err[ej, ti]**2
-
-    return CovPP
+def poisson_covariance(ebins, cbins, pec_err, dtype=None):
+    # Sparse Poisson covariance matrix
+    dtype = np.float64 if dtype is None else dtype
+    cov_array = pec_err.ravel()**2
+    shape = (cbins * ebins, cbins * ebins)
+    offsets = 0
+    return dia_matrix((cov_array, offsets), shape=shape, dtype=dtype)
 
 
-def multinomial_covariance(ebins, cbins, nc_inv, pec):
-    CovPP = np.zeros((cbins * ebins, cbins * ebins))
+def multinomial_covariance(ebins, cbins, nc_inv, pec, dtype=None):
+    dtype = np.float64 if dtype is None else dtype
+    CovPP = np.zeros((cbins * ebins, cbins * ebins), dtype=dtype)
     ti = np.arange(0, cbins)
     A = nc_inv * pec * (1 - pec)
     for ej in np.arange(0, ebins):
