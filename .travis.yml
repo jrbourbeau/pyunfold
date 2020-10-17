@@ -5,41 +5,15 @@ jobs:
   fast_finish: true
   include:
     - env:
-      - PYTHON=2.7
-      - COVERAGE='false'
-      - DOCS='false'
-    - env:
-      - PYTHON=3.4
-      - COVERAGE='false'
-      - DOCS='false'
-    - env:
-      - PYTHON=3.5
-      - COVERAGE='false'
-      - DOCS='false'
-    - env:
-      - PYTHON=3.6
-      - COVERAGE='false'
-      - DOCS='false'
-    - env:
       - PYTHON=3.7
       - COVERAGE='true'
       - DOCS='true'
-    - env:
-      - PYTHON=3.7
-      - COVERAGE='false'
-      - DOCS='false'
-      os: osx
 
 install:
     - source ci/install.sh;
 
 script:
-    - pytest --cov=pyunfold pyunfold
-    - flake8 pyunfold
     - if [[ $DOCS == 'true' ]]; then source ci/build_docs.sh; fi
-
-after_success:
-    - source ci/after_success.sh
 
 deploy:
     provider: pages

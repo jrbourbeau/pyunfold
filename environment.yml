@@ -1,4 +1,4 @@
-name: pyunfold_dev
+name: pyunfold-dev
 channels:
   - conda-forge
 dependencies:
@@ -19,6 +19,5 @@ dependencies:
   - nbsphinx
   - pandoc
   - jupyter
-  - testpath<0.4
   - matplotlib
   - seaborn
