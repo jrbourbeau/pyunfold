@@ -8,15 +8,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
         python-version: ["3.6", "3.7", "3.8"]
+        os: [ubuntu-latest]
         include:
           - python-version: "3.8"
             os: windows-latest
 
           - python-version: "3.8"
             os: macos-latest
-          
 
     steps:
       - name: Checkout source
