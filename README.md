@@ -1,8 +1,6 @@
 # PyUnfold
 
-[![Build Status](https://travis-ci.org/jrbourbeau/pyunfold.svg?branch=master)](https://travis-ci.org/jrbourbeau/pyunfold)
-[![Build status](https://ci.appveyor.com/api/projects/status/wphmmposuctye5ye/branch/master?svg=true)](https://ci.appveyor.com/project/jrbourbeau/pyunfold/branch/master)
-[![codecov](https://codecov.io/gh/jrbourbeau/pyunfold/branch/master/graph/badge.svg)](https://codecov.io/gh/jrbourbeau/pyunfold)
+[![Test and lint](https://github.com/jrbourbeau/pyunfold/workflows/Test%20and%20lint/badge.svg)](https://github.com/jrbourbeau/pyunfold/actions?query=workflow%3A%22Test+and+lint%22)
 [![pypi version](https://img.shields.io/pypi/v/pyunfold.svg 'pypi version')](https://pypi.org/project/PyUnfold/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyunfold.svg)](https://pypi.org/project/PyUnfold/)
 [![DOI](http://joss.theoj.org/papers/10.21105/joss.00741/status.svg)](https://doi.org/10.21105/joss.00741)
