@@ -1,4 +1,4 @@
-name: pyunfold_dev
+name: pyunfold-dev
 channels:
   - conda-forge
 dependencies:

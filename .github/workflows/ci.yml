@@ -1,0 +1,48 @@
+name: Test and lint
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.6", "3.7", "3.8"]
+        include:
+          - python-version: "3.8"
+            os: windows-latest
+
+          - python-version: "3.8"
+            os: macos-latest
+          
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Setup Conda Environment
+        uses: goanpeca/setup-miniconda@v1.7.0
+        with:
+          miniconda-version: "latest"
+          python-version: ${{ matrix.python-version }}
+          environment-file: environment.yml
+          activate-environment: pyunfold-dev
+          auto-activate-base: false
+
+      - name: Install PyUnfold
+        shell: bash -l {0}
+        run: pip install -q --no-deps -e .
+
+      - name: List packages in environment
+        shell: bash -l {0}
+        run: conda list
+      
+      - name: Lint
+        shell: bash -l {0}
+        run: flake8 pyunfold
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: pytest --cov=pyunfold pyunfold
